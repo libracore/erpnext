@@ -66,7 +66,8 @@ def set_account_currency(filters):
 			if gle_currency:
 				account_currency = gle_currency
 			else:
-				account_currency = frappe.db.get_value(filters.party_type, filters.party, "default_currency")
+				account_currency = None if filters.party_type == "Employee" else \
+					frappe.db.get_value(filters.party_type, filters.party, "default_currency")
 
 		filters["account_currency"] = account_currency or filters.company_currency
 
@@ -148,6 +149,9 @@ def get_conditions(filters):
 
 	if not (filters.get("account") or filters.get("party") or filters.get("group_by_account")):
 		conditions.append("posting_date >=%(from_date)s")
+
+	if filters.get("project"):
+		conditions.append("project=%(project)s")
 
 	from frappe.desk.reportview import build_match_conditions
 	match_conditions = build_match_conditions("GL Entry")

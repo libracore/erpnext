@@ -8,6 +8,7 @@ from frappe.utils import flt
 from frappe.model.mapper import get_mapped_doc
 
 from erpnext.controllers.buying_controller import BuyingController
+from erpnext.buying.utils import validate_for_items
 
 form_grid_templates = {
 	"items": "templates/form_grid/item_grid.html"
@@ -24,7 +25,7 @@ class SupplierQuotation(BuyingController):
 		validate_status(self.status, ["Draft", "Submitted", "Stopped",
 			"Cancelled"])
 
-		self.validate_common()
+		validate_for_items(self)
 		self.validate_with_previous_doc()
 		self.validate_uom_is_integer("uom", "qty")
 
@@ -49,11 +50,6 @@ class SupplierQuotation(BuyingController):
 				"is_child_table": True
 			}
 		})
-
-
-	def validate_common(self):
-		pc = frappe.get_doc('Purchase Common')
-		pc.validate_for_items(self)
 
 def get_list_context(context=None):
 	from erpnext.controllers.website_list_for_contact import get_list_context
@@ -97,8 +93,26 @@ def make_purchase_order(source_name, target_doc=None):
 		},
 		"Purchase Taxes and Charges": {
 			"doctype": "Purchase Taxes and Charges",
-			"add_if_empty": True
 		},
 	}, target_doc, set_missing_values)
 
 	return doclist
+
+@frappe.whitelist()
+def make_quotation(source_name, target_doc=None):
+	doclist = get_mapped_doc("Supplier Quotation", source_name, {
+		"Supplier Quotation": {
+			"doctype": "Quotation",
+			"field_map": {
+				"name": "supplier_quotation",
+			}
+		},
+		"Supplier Quotation Item": {
+			"doctype": "Quotation Item",
+			"condition": lambda doc: frappe.db.get_value("Item", doc.item_code, "is_sales_item")==1,
+			"add_if_empty": True
+		}
+	}, target_doc)
+
+	return doclist
+

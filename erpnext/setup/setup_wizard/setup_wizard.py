@@ -89,7 +89,7 @@ def create_fiscal_year_and_company(args):
 			'default_currency':args.get('currency'),
 			'country': args.get('country'),
 			'create_chart_of_accounts_based_on': 'Standard Template',
-			'chart_of_accounts': args.get(('chart_of_accounts')),
+			'chart_of_accounts': args.get('chart_of_accounts'),
 			'domain': args.get('domain')
 		}).insert()
 
@@ -177,6 +177,7 @@ def set_defaults(args):
 	selling_settings.cust_master_name = "Customer Name"
 	selling_settings.so_required = "No"
 	selling_settings.dn_required = "No"
+	selling_settings.allow_multiple_items = 1
 	selling_settings.save()
 
 	buying_settings = frappe.get_doc("Buying Settings")
@@ -184,6 +185,7 @@ def set_defaults(args):
 	buying_settings.po_required = "No"
 	buying_settings.pr_required = "No"
 	buying_settings.maintain_same_rate = 1
+	buying_settings.allow_multiple_items = 1
 	buying_settings.save()
 
 	notification_control = frappe.get_doc("Notification Control")
@@ -407,7 +409,7 @@ def create_customers(args):
 
 				if args.get("customer_contact_" + str(i)):
 					create_contact(args.get("customer_contact_" + str(i)),
-						"customer", doc.name)
+						"Customer", doc.name)
 			except frappe.NameError:
 				pass
 
@@ -425,7 +427,7 @@ def create_suppliers(args):
 
 				if args.get("supplier_contact_" + str(i)):
 					create_contact(args.get("supplier_contact_" + str(i)),
-						"supplier", doc.name)
+						"Supplier", doc.name)
 			except frappe.NameError:
 				pass
 
@@ -433,12 +435,13 @@ def create_contact(contact, party_type, party):
 	"""Create contact based on given contact name"""
 	contact = contact.strip().split(" ")
 
-	frappe.get_doc({
+	contact = frappe.get_doc({
 		"doctype":"Contact",
-		party_type: party,
 		"first_name":contact[0],
 		"last_name": len(contact) > 1 and contact[1] or ""
-	}).insert()
+	})
+	contact.append('links', dict(link_doctype=party_type, link_name=party))
+	contact.insert()
 
 def create_letter_head(args):
 	if args.get("attach_letterhead"):
@@ -568,6 +571,7 @@ def create_program(args):
 	for i in xrange(1,6):
 		if args.get("program_" + str(i)):
 			program = frappe.new_doc("Program")
+			program.program_code = args.get("program_" + str(i))
 			program.program_name = args.get("program_" + str(i))
 			try:
 				program.save()
@@ -578,6 +582,7 @@ def create_course(args):
 	for i in xrange(1,6):
 		if args.get("course_" + str(i)):
 			course = frappe.new_doc("Course")
+			course.course_code = args.get("course_" + str(i))
 			course.course_name = args.get("course_" + str(i))
 			try:
 				course.save()
@@ -604,5 +609,3 @@ def create_room(args):
 				room.save()
 			except frappe.DuplicateEntryError:
 				pass
-
-

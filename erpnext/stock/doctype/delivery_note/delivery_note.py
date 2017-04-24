@@ -11,7 +11,7 @@ import frappe.defaults
 from frappe.model.mapper import get_mapped_doc
 from erpnext.controllers.selling_controller import SellingController
 from frappe.desk.notifications import clear_doctype_notifications
-
+from erpnext.stock.doctype.batch.batch import set_batch_nos
 
 form_grid_templates = {
 	"items": "templates/form_grid/item_grid.html"
@@ -94,6 +94,7 @@ class DeliveryNote(SellingController):
 					 frappe.throw(_("Sales Order required for Item {0}").format(d.item_code))
 
 	def validate(self):
+		self.validate_posting_time()
 		super(DeliveryNote, self).validate()
 		self.set_status()
 		self.so_required()
@@ -102,7 +103,11 @@ class DeliveryNote(SellingController):
 		self.validate_for_items()
 		self.validate_warehouse()
 		self.validate_uom_is_integer("stock_uom", "qty")
+		self.validate_uom_is_integer("uom", "qty")
 		self.validate_with_previous_doc()
+
+		if self._action != 'submit':
+			set_batch_nos(self, 'warehouse', True)
 
 		from erpnext.stock.doctype.packed_item.packed_item import make_packing_list
 		make_packing_list(self)

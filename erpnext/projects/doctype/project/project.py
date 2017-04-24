@@ -32,7 +32,7 @@ class Project(Document):
 		"""Load `tasks` from the database"""
 		self.tasks = []
 		for task in self.get_tasks():
-			self.append("tasks", {
+			task_map = {
 				"title": task.subject,
 				"status": task.status,
 				"start_date": task.exp_start_date,
@@ -40,7 +40,11 @@ class Project(Document):
 				"description": task.description,
 				"task_id": task.name,
 				"task_weight": task.task_weight
-			})
+			}
+
+			self.map_custom_fields(task, task_map)
+
+			self.append("tasks", task_map)
 
 	def get_tasks(self):
 		return frappe.get_all("Task", "*", {"project": self.name}, order_by="exp_start_date asc")
@@ -68,7 +72,6 @@ class Project(Document):
 	def sync_tasks(self):
 		"""sync tasks and remove table"""
 		if self.flags.dont_sync_tasks: return
-
 		task_names = []
 		for t in self.tasks:
 			if t.task_id:
@@ -85,6 +88,8 @@ class Project(Document):
 				"task_weight": t.task_weight
 			})
 
+			self.map_custom_fields(t, task)
+
 			task.flags.ignore_links = True
 			task.flags.from_project = True
 			task.flags.ignore_feed = True
@@ -98,6 +103,14 @@ class Project(Document):
 		self.update_percent_complete()
 		self.update_costing()
 
+	def map_custom_fields(self, source, target):
+		project_task_custom_fields = frappe.get_all("Custom Field", {"dt": "Project Task"}, "fieldname")
+
+		for field in project_task_custom_fields:
+			target.update({
+				field.fieldname: source.get(field.fieldname)
+			})
+
 	def update_project(self):
 		self.update_percent_complete()
 		self.update_costing()
@@ -106,6 +119,8 @@ class Project(Document):
 
 	def update_percent_complete(self):
 		total = frappe.db.sql("""select count(name) from tabTask where project=%s""", self.name)[0][0]
+		if not total and self.percent_complete:
+			self.percent_complete = 0
 		if (self.percent_complete_method == "Task Completion" and total > 0) or (not self.percent_complete_method and total > 0):
 			completed = frappe.db.sql("""select count(name) from tabTask where
 				project=%s and status in ('Closed', 'Cancelled')""", self.name)[0][0]
@@ -161,6 +176,13 @@ class Project(Document):
 			from `tabPurchase Invoice Item` where project = %s and docstatus=1""", self.name)
 
 		self.total_purchase_cost = total_purchase_cost and total_purchase_cost[0][0] or 0
+		
+	def update_sales_costing(self):
+		total_sales_cost = frappe.db.sql("""select sum(grand_total)
+			from `tabSales Order` where project = %s and docstatus=1""", self.name)
+
+		self.total_sales_cost = total_sales_cost and total_sales_cost[0][0] or 0
+				
 
 	def send_welcome_email(self):
 		url = get_url("/project/?name={0}".format(self.name))
@@ -183,6 +205,32 @@ class Project(Document):
 	def on_update(self):
 		self.load_tasks()
 		self.sync_tasks()
+		self.update_dependencies_on_duplicated_project()
+	
+	def update_dependencies_on_duplicated_project(self):
+		if self.flags.dont_sync_tasks: return
+		if not self.copied_from:
+			self.copied_from = self.name
+
+		if self.name != self.copied_from and self.get('__unsaved'):
+			# duplicated project
+			dependency_map = {}
+			for task in self.tasks:
+				name, depends_on_tasks = frappe.db.get_value(
+					'Task', { "subject": task.title, "project": self.copied_from }, ['name', 'depends_on_tasks']
+				)
+				depends_on_tasks = [x for x in depends_on_tasks.split(',') if x]
+				dependency_map[task.title] = [ x['subject'] for x in frappe.get_list(
+					'Task Depends On', {"parent": name}, ['subject'])]
+
+			for key, value in dependency_map.iteritems():
+				task_name = frappe.db.get_value('Task', {"subject": key, "project": self.name })
+				task_doc = frappe.get_doc('Task', task_name)
+
+				for dt in value:
+					dt_name = frappe.db.get_value('Task', {"subject": dt, "project": self.name })
+					task_doc.append('depends_on', {"task": dt_name})
+				task_doc.save()
 
 def get_timeline_data(doctype, name):
 	'''Return timeline for attendance'''
@@ -192,7 +240,7 @@ def get_timeline_data(doctype, name):
 			and docstatus < 2
 			group by date(from_time)''', name))
 
-def get_project_list(doctype, txt, filters, limit_start, limit_page_length=20):
+def get_project_list(doctype, txt, filters, limit_start, limit_page_length=20, order_by="modified"):
 	return frappe.db.sql('''select distinct project.*
 		from tabProject project, `tabProject User` project_user
 		where

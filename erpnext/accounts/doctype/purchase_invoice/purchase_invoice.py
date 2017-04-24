@@ -2,10 +2,9 @@
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
-import frappe
+import frappe, erpnext
 from frappe.utils import cint, formatdate, flt, getdate
 from frappe import _, throw
-from erpnext.setup.utils import get_company_currency
 import frappe.defaults
 
 from erpnext.controllers.buying_controller import BuyingController
@@ -15,6 +14,7 @@ from erpnext.stock.doctype.purchase_receipt.purchase_receipt import update_bille
 from erpnext.controllers.stock_controller import get_warehouse_account
 from erpnext.accounts.general_ledger import make_gl_entries, merge_similar_entries, delete_gl_entries
 from erpnext.accounts.doctype.gl_entry.gl_entry import update_outstanding_amt
+from erpnext.buying.utils import check_for_closed_status
 
 form_grid_templates = {
 	"items": "templates/form_grid/item_grid.html"
@@ -40,6 +40,7 @@ class PurchaseInvoice(BuyingController):
 		if not self.is_opening:
 			self.is_opening = 'No'
 
+		self.validate_posting_time()
 		super(PurchaseInvoice, self).validate()
 
 		if not self.is_return:
@@ -92,7 +93,7 @@ class PurchaseInvoice(BuyingController):
 		super(PurchaseInvoice, self).set_missing_values(for_validate)
 
 	def check_conversion_rate(self):
-		default_currency = get_company_currency(self.company)
+		default_currency = erpnext.get_company_currency(self.company)
 		if not default_currency:
 			throw(_('Please enter default currency in Company Master'))
 		if (self.currency == default_currency and flt(self.conversion_rate) != 1.00) or not self.conversion_rate or (self.currency != default_currency and flt(self.conversion_rate) == 1.00):
@@ -112,12 +113,11 @@ class PurchaseInvoice(BuyingController):
 
 	def check_for_closed_status(self):
 		check_list = []
-		pc_obj = frappe.get_doc('Purchase Common')
 
 		for d in self.get('items'):
 			if d.purchase_order and not d.purchase_order in check_list and not d.purchase_receipt:
 				check_list.append(d.purchase_order)
-				pc_obj.check_for_closed_status('Purchase Order', d.purchase_order)
+				check_for_closed_status('Purchase Order', d.purchase_order)
 
 	def validate_with_previous_doc(self):
 		super(PurchaseInvoice, self).validate_with_previous_doc({
@@ -156,6 +156,12 @@ class PurchaseInvoice(BuyingController):
 
 		super(PurchaseInvoice, self).validate_warehouse()
 
+
+	def validate_item_code(self):
+		for d in self.get('items'):
+			if not d.item_code:
+				frappe.msgprint(_("Item Code required at Row No {0}").format(d.idx), raise_exception=True)
+
 	def set_expense_account(self, for_validate=False):
 		auto_accounting_for_stock = cint(frappe.defaults.get_global_default("auto_accounting_for_stock"))
 
@@ -164,6 +170,7 @@ class PurchaseInvoice(BuyingController):
 			stock_items = self.get_stock_items()
 
 		if self.update_stock:
+			self.validate_item_code()
 			self.validate_warehouse()
 			warehouse_account = get_warehouse_account()
 
@@ -302,12 +309,12 @@ class PurchaseInvoice(BuyingController):
 				asset.flags.ignore_validate_update_after_submit = True
 				asset.save()
 
-	def make_gl_entries(self, repost_future_gle=True):
+	def make_gl_entries(self, gl_entries=None, repost_future_gle=True, from_repost=False):
 		if not self.grand_total:
 			return
-		
-		gl_entries = self.get_gl_entries()
-		
+		if not gl_entries:
+			gl_entries = self.get_gl_entries()
+
 		if gl_entries:
 			update_outstanding = "No" if (cint(self.is_paid) or self.write_off_account) else "Yes"
 
@@ -344,7 +351,7 @@ class PurchaseInvoice(BuyingController):
 
 		self.make_payment_gl_entries(gl_entries)
 		self.make_write_off_gl_entry(gl_entries)
-		
+
 		return gl_entries
 
 	def make_supplier_gl_entry(self, gl_entries):
@@ -621,10 +628,12 @@ class PurchaseInvoice(BuyingController):
 				pi = frappe.db.sql('''select name from `tabPurchase Invoice`
 					where
 						bill_no = %(bill_no)s
+						and supplier = %(supplier)s
 						and name != %(name)s
 						and docstatus < 2
 						and posting_date between %(year_start_date)s and %(year_end_date)s''', {
 							"bill_no": self.bill_no,
+							"supplier": self.supplier,
 							"name": self.name,
 							"year_start_date": fiscal_year.year_start_date,
 							"year_end_date": fiscal_year.year_end_date
