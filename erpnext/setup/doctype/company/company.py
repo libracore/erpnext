@@ -10,9 +10,11 @@ import frappe.defaults
 
 
 from frappe.model.document import Document
+from frappe.geo.address_and_contact import load_address_and_contact
 
 class Company(Document):
 	def onload(self):
+		load_address_and_contact(self, "company")
 		self.get("__onload")["transactions_exist"] = self.check_if_transactions_exist()
 
 	def check_if_transactions_exist(self):
@@ -282,7 +284,7 @@ def replace_abbr(company, old, new):
 			if len(parts) == 1 or parts[1].lower() == old.lower():
 				frappe.rename_doc(dt, d[0], parts[0] + " - " + new)
 
-	for dt in ["Account", "Cost Center", "Warehouse"]:
+	for dt in ["Warehouse", "Account", "Cost Center"]:
 		_rename_record(dt)
 		frappe.db.commit()
 

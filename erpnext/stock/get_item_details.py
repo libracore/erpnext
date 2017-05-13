@@ -74,7 +74,10 @@ def get_item_details(args):
 
 	out.update(get_pricing_rule_for_item(args))
 
-	if args.get("doctype") in ("Sales Invoice", "Delivery Note") and out.stock_qty > 0:
+	if (args.get("doctype") == "Delivery Note" or 
+		(args.get("doctype") == "Sales Invoice" and args.get('update_stock'))) \
+		and out.warehouse and out.stock_qty > 0:
+		
 		if out.has_serial_no:
 			out.serial_no = get_serial_no(out)
 
@@ -405,7 +408,7 @@ def get_bin_details_and_serial_nos(item_code, warehouse, stock_qty=None, serial_
 
 @frappe.whitelist()
 def get_batch_qty(batch_no, warehouse, item_code):
-	from frappe.stock.doctype.batch import batch
+	from erpnext.stock.doctype.batch import batch
 	if batch_no:
 		return {'actual_batch_qty': batch.get_batch_qty(batch_no, warehouse)}
 
