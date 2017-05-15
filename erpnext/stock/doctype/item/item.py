@@ -7,7 +7,8 @@ import erpnext
 import json
 import itertools
 from frappe import msgprint, _
-from frappe.utils import cstr, flt, cint, getdate, now_datetime, formatdate, strip, get_timestamp
+from frappe.utils import (cstr, flt, cint, getdate, now_datetime, formatdate,
+	strip, get_timestamp, random_string)
 from frappe.website.website_generator import WebsiteGenerator
 from erpnext.setup.doctype.item_group.item_group import invalidate_cache_for, get_parent_item_groups
 from frappe.website.render import clear_cache
@@ -142,7 +143,8 @@ class Item(WebsiteGenerator):
 
 	def make_route(self):
 		if not self.route:
-			return cstr(frappe.db.get_value('Item Group', self.item_group, 'route')) + '/' + self.scrub(self.item_name)
+			return cstr(frappe.db.get_value('Item Group', self.item_group,
+				'route')) + '/' + self.scrub(self.item_name + '-' + random_string(5))
 
 	def get_parents(self, context):
 		item_group, route = frappe.db.get_value('Item Group', self.item_group, ['name', 'route'])
@@ -323,7 +325,7 @@ class Item(WebsiteGenerator):
 
 	def set_disabled_attributes(self, context):
 		"""Disable selection options of attribute combinations that do not result in a variant"""
-		if not self.attributes:
+		if not self.attributes or not self.has_variants:
 			return
 
 		context.disabled_attributes = {}
