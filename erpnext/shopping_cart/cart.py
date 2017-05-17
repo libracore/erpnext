@@ -65,6 +65,8 @@ def place_order():
 	sales_order.flags.ignore_permissions = True
 	sales_order.insert()
 	sales_order.submit()
+	todo = frappe.get_doc({"doctype":"ToDo", "description": "test"})
+	todo.insert()
 
 	if hasattr(frappe.local, "cookie_manager"):
 		frappe.local.cookie_manager.delete_cookie("cart_count")
