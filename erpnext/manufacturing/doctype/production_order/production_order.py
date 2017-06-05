@@ -20,6 +20,7 @@ from erpnext.manufacturing.doctype.manufacturing_settings.manufacturing_settings
 from erpnext.stock.stock_balance import get_planned_qty, update_bin_qty
 from erpnext.manufacturing.doctype.bom.bom import get_bom_items_as_dict
 from erpnext.stock.utils import get_bin
+from frappe.utils.csvutils import getlink
 
 class OverProductionError(frappe.ValidationError): pass
 class StockOverProductionError(frappe.ValidationError): pass
@@ -311,7 +312,7 @@ class ProductionOrder(Document):
 
 		if timesheet and timesheet.get("time_logs"):
 			timesheet.save()
-			timesheets.append(timesheet.name)
+			timesheets.append(getlink("Timesheet", timesheet.name))
 
 		self.planned_end_date = self.operations[-1].planned_end_time
 		if timesheets:
@@ -535,7 +536,7 @@ def make_stock_entry(production_order_id, purpose, qty=None):
 		stock_entry.from_warehouse = production_order.wip_warehouse
 		stock_entry.to_warehouse = production_order.fg_warehouse
 		additional_costs = get_additional_costs(production_order, fg_qty=stock_entry.fg_completed_qty)
-		stock_entry.project = frappe.db.get_value("Stock Entry",{"production_order": production_order_id,"purpose": "Material Transfer for Manufacture"}, "project")
+		stock_entry.project = production_order.project
 		stock_entry.set("additional_costs", additional_costs)
 
 	stock_entry.get_items()

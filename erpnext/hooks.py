@@ -12,7 +12,7 @@ app_email = "info@erpnext.com"
 app_license = "GNU General Public License (v3)"
 source_link = "https://github.com/frappe/erpnext"
 
-develop_version = '8.0.0-beta'
+develop_version = '8.x.x-beta'
 
 error_report_email = "support@erpnext.com"
 
@@ -178,7 +178,8 @@ scheduler_events = {
 		"erpnext.hr.doctype.employee.employee.send_birthday_reminders",
 		"erpnext.projects.doctype.task.task.set_tasks_as_overdue",
 		"erpnext.accounts.doctype.asset.depreciation.post_depreciation_entries",
-		'erpnext.hr.doctype.daily_work_summary_settings.daily_work_summary_settings.send_summary'
+		"erpnext.hr.doctype.daily_work_summary_settings.daily_work_summary_settings.send_summary",
+		"erpnext.stock.doctype.serial_no.serial_no.update_maintenance_status"
 	]
 }
 
