@@ -1,0 +1,38 @@
+{% from "erpnext/templates/includes/cart/cart_macros.html" import show_address %}
+<div class="row">
+	{% if addresses|length == 1%}
+		{% set select_address = True %}
+	{% endif %}
+	<div class="col-sm-6">
+		<div class="h6 text-uppercase">{{ _("Details") }}</div>
+		<div class="panel-group">
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fa fa-book"></i></span>
+				<input id="email" type="text" class="form-control" name="kommission" placeholder="Kommission">
+			</div>
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fa fa-user-md"></i></span>
+				<input id="email" type="text" class="form-control" name="auftraggeber" placeholder="Auftraggeber">
+			</div>
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fa fa-user"></i></span>
+				<input id="email" type="text" class="form-control" name="avisierungsperson" placeholder="Avisierungsperson">
+			</div>
+			<div class="input-group">
+				<span class="input-group-addon"><i class="fa fa-phone"></i></span>
+				<input id="email" type="text" class="form-control" name="telefon" placeholder="Telefon">
+			</div>			
+        </div>
+		<a class="btn btn-default btn-sm" href="/addresses">
+			{{ _("Manage Addresses") }}</a>
+	</div>
+	<div class="col-sm-6">
+        <div class="h6 text-uppercase">{{ _("Target delivery date") }}</div>
+		<div class="panel-group"
+			data-fieldname="customer_address">
+            {% for address in billing_addresses %}
+                {{ show_address(address, doc, "customer_address", select_address) }}
+            {% endfor %}
+        </div>
+	</div>
+</div>
