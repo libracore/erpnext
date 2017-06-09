@@ -68,9 +68,50 @@
 		{% include "templates/includes/cart/cart_address.html" %}
 		</div>
 
+		<div class="col-sm-6">
+			<div class="h6 text-uppercase">{{ _("Details") }}</div>
+			<div class="panel-group">
+					<p><div class="input-group">
+						<span class="input-group-addon"><i class="fa fa-book"></i></span>
+						<input id="kommission" type="text" class="form-control" name="kommission" placeholder="Kommission">
+					</div></p>
+					<p><div class="input-group">
+						<span class="input-group-addon"><i class="fa fa-user-md"></i></span>
+						<input id="auftraggeber" type="text" class="form-control" name="auftraggeber" placeholder="Auftraggeber">
+					</div></p>
+					<p><div class="input-group">
+						<span class="input-group-addon"><i class="fa fa-user"></i></span>
+						<input id="avisierungsperson" type="text" class="form-control" name="avisierungsperson" placeholder="Avisierungsperson">
+					</div></p>
+					<p><div class="input-group">
+						<span class="input-group-addon"><i class="fa fa-phone"></i></span>
+						<input id="telefon" type="text" class="form-control" name="telefon" placeholder="Telefon">
+					</div></p>				
+			</div>
+		</div>
+		<div class="col-sm-6 text-right">
+			<div class="h6 text-uppercase">{{ _("Liefertermin") }}</div>
+			   <div class="form-group">
+					<div class='input-group date' id='datetimepicker1'>
+						<input type='text' class="form-control" />
+						<span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+						</span>
+					</div>
+				</div>
+			</div>
+			<script type="text/javascript">
+				$(function () {
+					$('#datetimepicker1').datetimepicker();
+				});
+			</script>
+		</div>
+		
+		<div class="col-sm-6 text-right">
 		<p class="cart-footer text-right">
 		<button class="btn btn-primary btn-place-order btn-sm" type="button">
 		{{ _("Place Order") }}</button></p>
+		</div>
 		{% endif %}
 	</div>
 </div>
