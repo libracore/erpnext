@@ -61,11 +61,11 @@ erpnext.buying.MaterialRequestController = erpnext.buying.BuyingController.exten
 		if(doc.docstatus == 1 && doc.status != 'Stopped') {
 			if(flt(doc.per_ordered, 2) < 100) {
 				// make
-				if(doc.material_request_type === "Material Transfer" && doc.status === "Submitted")
+				if(doc.material_request_type === "Material Transfer")
 					cur_frm.add_custom_button(__("Transfer Material"),
 					this.make_stock_entry, __("Make"));
 
-				if(doc.material_request_type === "Material Issue" && doc.status === "Submitted")
+				if(doc.material_request_type === "Material Issue")
 					cur_frm.add_custom_button(__("Issue Material"),
 					this.make_stock_entry, __("Make"));
 
@@ -81,7 +81,7 @@ erpnext.buying.MaterialRequestController = erpnext.buying.BuyingController.exten
 					cur_frm.add_custom_button(__("Supplier Quotation"),
 					this.make_supplier_quotation, __("Make"));
 
-				if(doc.material_request_type === "Manufacture" && doc.status === "Submitted")
+				if(doc.material_request_type === "Manufacture")
 					cur_frm.add_custom_button(__("Production Order"),
 					function() { me.raise_production_orders() }, __("Make"));
 
@@ -95,16 +95,19 @@ erpnext.buying.MaterialRequestController = erpnext.buying.BuyingController.exten
 		}
 
 		if (this.frm.doc.docstatus===0) {
-			cur_frm.add_custom_button(__('Sales Order'),
+			this.frm.add_custom_button(__('Sales Order'),
 				function() {
 					erpnext.utils.map_current_doc({
 						method: "erpnext.selling.doctype.sales_order.sales_order.make_material_request",
 						source_doctype: "Sales Order",
+						target: me.frm,
+						setters: {
+							company: me.frm.doc.company
+						},
 						get_query_filters: {
 							docstatus: 1,
 							status: ["!=", "Closed"],
 							per_delivered: ["<", 99.99],
-							company: cur_frm.doc.company
 						}
 					})
 				}, __("Get items from"));

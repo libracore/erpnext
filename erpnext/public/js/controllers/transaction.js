@@ -6,12 +6,31 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 		this._super();
 		frappe.ui.form.on(this.frm.doctype + " Item", "rate", function(frm, cdt, cdn) {
 			var item = frappe.get_doc(cdt, cdn);
+			var has_margin_field = frappe.meta.has_field(cdt, 'margin_type');
+
 			frappe.model.round_floats_in(item, ["rate", "price_list_rate"]);
 
 			if(item.price_list_rate) {
-				item.discount_percentage = flt((1 - item.rate / item.price_list_rate) * 100.0, precision("discount_percentage", item));
+				if(item.rate > item.price_list_rate && has_margin_field) {
+					// if rate is greater than price_list_rate, set margin
+					// or set discount
+					item.discount_percentage = 0;
+					item.margin_type = 'Amount';
+					item.margin_rate_or_amount = flt(item.rate - item.price_list_rate, 
+						precision("margin_rate_or_amount", item));
+					item.rate_with_margin = item.rate;
+				} else {
+					item.discount_percentage = flt((1 - item.rate / item.price_list_rate) * 100.0, 
+						precision("discount_percentage", item));
+					item.margin_type = '';
+					item.margin_rate_or_amount = 0;
+					item.rate_with_margin = 0;
+				}
 			} else {
 				item.discount_percentage = 0.0;
+				item.margin_type = '';
+				item.margin_rate_or_amount = 0;
+				item.rate_with_margin = 0;
 			}
 
 			cur_frm.cscript.set_gross_profit(item);
@@ -79,6 +98,13 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 
 			frm.cscript.calculate_taxes_and_totals();
 		});
+
+		var me = this;
+		if(this.frm.fields_dict["items"].grid.get_field('batch_no')) {
+			this.frm.set_query("batch_no", "items", function(doc, cdt, cdn) {
+				return me.set_query_for_batch(doc, cdt, cdn)
+			});
+		}
 	},
 	onload: function() {
 		var me = this;
@@ -960,7 +986,7 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 		var valid = true;
 
 		$.each(["company", "customer"], function(i, fieldname) {
-			if(frappe.meta.has_field(me.frm.doc.doctype, fieldname && me.frm.doc.doctype != "Purchase Order")) {
+			if(frappe.meta.has_field(me.frm.doc.doctype, fieldname) && me.frm.doc.doctype != "Purchase Order") {
 				if (!me.frm.doc[fieldname]) {
 					msgprint(__("Please specify") + ": " +
 						frappe.meta.get_label(me.frm.doc.doctype, fieldname, me.frm.doc.name) +
@@ -974,20 +1000,12 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 
 	get_terms: function() {
 		var me = this;
-		if(this.frm.doc.tc_name) {
-			return frappe.call({
-				method: 'erpnext.setup.doctype.terms_and_conditions.terms_and_conditions.get_terms_and_conditions',
-				args: {
-					template_name: this.frm.doc.tc_name,
-					doc: this.frm.doc
-				},
-				callback: function(r) {
-					if(!r.exc) {
-						me.frm.set_value("terms", r.message);
-					}
-				}
-			});
-		}
+
+		erpnext.utils.get_terms(this.frm.doc.tc_name, this.frm.doc, function(r) {
+			if(!r.exc) {
+				me.frm.set_value("terms", r.message);
+			}
+		});
 	},
 
 	taxes_and_charges: function() {
@@ -1117,5 +1135,33 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 		}
 
 		return method
+	},
+
+	set_query_for_batch: function(doc, cdt, cdn) {
+		// Show item's batches in the dropdown of batch no
+
+		var me = this;
+		var item = frappe.get_doc(cdt, cdn);
+
+		if(!item.item_code) {
+			frappe.throw(__("Please enter Item Code to get batch no"));
+		} else if (doc.doctype == "Purchase Receipt" || 
+			(doc.doctype == "Purchase Invoice" && doc.update_stock)) {
+
+			return {
+				filters: {'item': item.item_code}
+			}
+		} else {
+			filters = {
+				'item_code': item.item_code,
+				'posting_date': me.frm.doc.posting_date || frappe.datetime.nowdate(),
+			}
+			if(item.warehouse) filters["warehouse"] = item.warehouse
+
+			return {
+				query : "erpnext.controllers.queries.get_batch_no",
+				filters: filters
+			}
+		}
 	},
 });

@@ -3,6 +3,16 @@
 frappe.provide("schools")
 
 frappe.ui.form.on('Student Attendance Tool', {
+	onload: function(frm) {
+		frm.set_query("student_group", function() {
+			return {
+				"filters": {
+					"group_based_on": frm.doc.group_based_on
+				}
+			};
+		});
+	},
+
 	refresh: function(frm) {
 		frm.disable_save();
 	},
@@ -47,7 +57,7 @@ frappe.ui.form.on('Student Attendance Tool', {
 			frm.students_area = $('<div>')
 				.appendTo(frm.fields_dict.students_html.wrapper);
 		}
-		console.log(students);
+		students = students || [];
 		frm.students_editor = new schools.StudentsEditor(frm, frm.students_area, students)
 	}
 });
@@ -57,7 +67,11 @@ schools.StudentsEditor = Class.extend({
 	init: function(frm, wrapper, students) {
 		this.wrapper = wrapper;
 		this.frm = frm;
-		this.make(frm, students);
+		if(students.length > 0) {
+			this.make(frm, students);
+		} else {
+			this.show_empty_state();
+		}
 	},
 	make: function(frm, students) {
 		var me = this;
@@ -159,5 +173,13 @@ schools.StudentsEditor = Class.extend({
 		});
 
 		$(htmls.join("")).appendTo(me.wrapper);
+	},
+
+	show_empty_state: function() {
+		$(this.wrapper).html(
+			`<div class="text-center text-muted" style="line-height: 100px;">
+				${__("No Students in")} ${this.frm.doc.student_group}
+			</div>`
+		);
 	}
 });

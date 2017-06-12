@@ -73,34 +73,6 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 				return me.set_query_for_batch(doc, cdt, cdn)
 			});
 		}
-
-		if(this.frm.fields_dict["items"].grid.get_field('batch_no')) {
-			this.frm.set_query("batch_no", "items", function(doc, cdt, cdn) {
-				return me.set_query_for_batch(doc, cdt, cdn)
-			});
-		}
-	},
-
-	set_query_for_batch: function(doc, cdt, cdn) {
-		// Show item's batches in the dropdown of batch no
-
-		var me = this;
-		var item = frappe.get_doc(cdt, cdn);
-
-		if(!item.item_code) {
-			frappe.throw(__("Please enter Item Code to get batch no"));
-		} else {
-			filters = {
-				'item_code': item.item_code,
-				'posting_date': me.frm.doc.posting_date || frappe.datetime.nowdate(),
-			}
-			if(item.warehouse) filters["warehouse"] = item.warehouse
-
-			return {
-				query : "erpnext.controllers.queries.get_batch_no",
-				filters: filters
-			}
-		}
 	},
 
 	refresh: function() {
@@ -337,14 +309,6 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 		})
 	},
 
-	rate: function(doc, cdt, cdn){
-		// if user changes the rate then set margin Rate or amount to 0
-		item = locals[cdt][cdn];
-		item.margin_type = "";
-		item.margin_rate_or_amount = 0.0;
-		cur_frm.refresh_fields();
-	},
-
 	margin_rate_or_amount: function(doc, cdt, cdn) {
 		// calculated the revised total margin and rate on margin rate changes
 		item = locals[cdt][cdn];
@@ -356,9 +320,13 @@ erpnext.selling.SellingController = erpnext.TransactionController.extend({
 	margin_type: function(doc, cdt, cdn){
 		// calculate the revised total margin and rate on margin type changes
 		item = locals[cdt][cdn];
-		this.apply_pricing_rule_on_item(item, doc,cdt, cdn)
-		this.calculate_taxes_and_totals();
-		cur_frm.refresh_fields();
+		if(!item.margin_type) {
+			frappe.model.set_value(cdt, cdn, "margin_rate_or_amount", 0);
+		} else {
+			this.apply_pricing_rule_on_item(item, doc,cdt, cdn)
+			this.calculate_taxes_and_totals();
+			cur_frm.refresh_fields();
+		}
 	}
 });
 
