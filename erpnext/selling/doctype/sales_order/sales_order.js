@@ -232,6 +232,10 @@ erpnext.selling.SalesOrderController = erpnext.selling.SellingController.extend(
 		this.frm.toggle_reqd("delivery_date", this.frm.doc.order_type == "Sales");
 	},
 
+	order_type: function() {
+		this.frm.toggle_reqd("delivery_date", this.frm.doc.order_type == "Shopping Cart");
+	},
+
 	tc_name: function() {
 		this.get_terms();
 	},
