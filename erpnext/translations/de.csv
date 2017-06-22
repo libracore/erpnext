@@ -2132,7 +2132,7 @@ DocType: Job Applicant,Job Opening,Offene Stellen
 DocType: Payment Reconciliation,Payment Reconciliation,Zahlungsabgleich
 apps/erpnext/erpnext/maintenance/doctype/maintenance_schedule/maintenance_schedule.py +154,Please select Incharge Person's name,Bitte den Namen der verantwortlichen Person auswählen
 apps/erpnext/erpnext/setup/setup_wizard/industry_type.py +51,Technology,Technologie
-apps/erpnext/erpnext/public/js/utils.js +92,Total Unpaid: {0},Noch nicht ausgezahlten: {0}
+apps/erpnext/erpnext/public/js/utils.js +92,Total Unpaid: {0},Noch nicht bezahlt: {0}
 DocType: BOM Website Operation,BOM Website Operation,BOM Webseite Tätigkeits
 apps/erpnext/erpnext/hr/doctype/job_applicant/job_applicant.js +13,Offer Letter,Angebotsschreiben
 apps/erpnext/erpnext/config/manufacturing.py +18,Generate Material Requests (MRP) and Production Orders.,Materialanfragen (MAF) und Fertigungsaufträge generieren
