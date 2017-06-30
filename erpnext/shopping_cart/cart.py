@@ -10,7 +10,6 @@ from frappe.contacts.doctype.address.address import get_address_display
 from erpnext.shopping_cart.doctype.shopping_cart_settings.shopping_cart_settings import get_shopping_cart_settings
 from frappe.utils.nestedset import get_root_of
 from erpnext.accounts.utils import get_account_name
-from erpnext.selling.doctype.sales_order.sales_order import make_sales_order
 
 class WebsitePriceListMissingError(frappe.ValidationError): pass
 
@@ -67,7 +66,7 @@ def place_order():
 	sales_order.insert()
 	sales_order.submit()
 
-	sales_invoce = frappe.get_doc(_make_sales_invoice(sales_order.name, ignore_permissions=True))
+	sales_invoce = frappe.get_doc(make_sales_invoice(sales_order.name, ignore_permissions=True))
 	sales_invoice.flags.ignore_permissions = True
 	sales_invoice.insert()
 	sales_invoice.submit()
