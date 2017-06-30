@@ -66,6 +66,7 @@ def place_order():
 	sales_order.insert()
 	sales_order.submit()
 
+	from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
 	sales_invoce = frappe.get_doc(make_sales_invoice(sales_order.name, ignore_permissions=True))
 	sales_invoice.flags.ignore_permissions = True
 	sales_invoice.insert()
