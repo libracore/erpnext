@@ -66,6 +66,11 @@ def place_order():
 	sales_order.insert()
 	sales_order.submit()
 
+	sales_invoce = frappe.get_doc(_make_sales_invoice(sales_order.name, ignore_permissions=True))
+	sales_invoice.flags.ignore_permissions = True
+	sales_invoice.insert()
+	sales_invoice.submit()
+
 	if hasattr(frappe.local, "cookie_manager"):
 		frappe.local.cookie_manager.delete_cookie("cart_count")
 
