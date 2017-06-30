@@ -10,6 +10,7 @@ from frappe.contacts.doctype.address.address import get_address_display
 from erpnext.shopping_cart.doctype.shopping_cart_settings.shopping_cart_settings import get_shopping_cart_settings
 from frappe.utils.nestedset import get_root_of
 from erpnext.accounts.utils import get_account_name
+from erpnext.selling.doctype.sales_order.sales_order import make_sales_order
 
 class WebsitePriceListMissingError(frappe.ValidationError): pass
 
