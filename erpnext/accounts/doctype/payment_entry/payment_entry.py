@@ -48,6 +48,8 @@ class PaymentEntry(AccountsController):
 		self.validate_transaction_reference()
 		self.set_title()
 		self.set_remarks()
+		self.validate_duplicate_entry()
+		self.validate_allocated_amount()
 		
 	def on_submit(self):
 		self.setup_party_account_field()
@@ -61,7 +63,22 @@ class PaymentEntry(AccountsController):
 		self.make_gl_entries(cancel=1)
 		self.update_advance_paid()
 		self.delink_advance_entry_references()
+
+	def validate_duplicate_entry(self):
+		reference_names = []
+		for d in self.get("references"):
+			if (d.reference_doctype, d.reference_name) in reference_names:
+				frappe.throw(_("Row #{0}: Duplicate entry in References {1} {2}").format(d.idx, d.reference_doctype, d.reference_name))
+			reference_names.append((d.reference_doctype, d.reference_name))
 	
+	
+	def validate_allocated_amount(self):
+		for d in self.get("references"):
+			if (flt(d.allocated_amount))> 0:
+				if flt(d.allocated_amount) > flt(d.outstanding_amount):
+					frappe.throw(_("Row #{0}: Allocated Amount cannot be greater than outstanding amount.").format(d.idx))
+
+
 	def delink_advance_entry_references(self):
 		for reference in self.references:
 			if reference.reference_doctype in ("Sales Invoice", "Purchase Invoice"):
@@ -149,8 +166,6 @@ class PaymentEntry(AccountsController):
 		if self.paid_from and not self.source_exchange_rate:
 			if self.paid_from_account_currency == self.company_currency:
 				self.source_exchange_rate = 1
-			elif self.payment_type in ("Pay", "Internal Transfer"):
-				self.source_exchange_rate = get_average_exchange_rate(self.paid_from)
 			else:
 				self.source_exchange_rate = get_exchange_rate(self.paid_from_account_currency, 
 					self.company_currency, self.posting_date)
@@ -477,9 +492,13 @@ def get_outstanding_reference_documents(args):
 	
 	for d in outstanding_invoices:
 		d["exchange_rate"] = 1
-		if party_account_currency != company_currency \
-			and d.voucher_type in ("Sales Invoice", "Purchase Invoice"):
+		if party_account_currency != company_currency:
+			if d.voucher_type in ("Sales Invoice", "Purchase Invoice"):
 				d["exchange_rate"] = frappe.db.get_value(d.voucher_type, d.voucher_no, "conversion_rate")
+			elif d.voucher_type == "Journal Entry":
+				d["exchange_rate"] = get_exchange_rate(
+					party_account_currency,	company_currency, d.posting_date
+				)
 
 	# Get all SO / PO which are not fully billed or aginst which full advance not paid
 	orders_to_be_billed =  get_orders_to_be_billed(args.get("posting_date"),args.get("party_type"), args.get("party"), 

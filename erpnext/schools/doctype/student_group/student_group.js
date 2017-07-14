@@ -9,15 +9,43 @@ frappe.ui.form.on("Student Group", {
 				}
 			};
 		});
+		if (!frm.__islocal) {
+			frm.set_query("student", "students", function() {
+				return{
+					query: "erpnext.schools.doctype.student_group.student_group.fetch_students",
+					filters: {
+						'academic_year': frm.doc.academic_year,
+						'group_based_on': frm.doc.group_based_on,
+						'academic_term': frm.doc.academic_term,
+						'program': frm.doc.program,
+						'batch': frm.doc.batch,
+						'course': frm.doc.course,
+						'student_group': frm.doc.name
+					}
+				}
+			});
+		}
 	},
 
 	refresh: function(frm) {
 		if (!frm.doc.__islocal) {
+			frm.add_custom_button(__("Attendance"), function() {
+				frappe.route_options = {
+					based_on: "Student Group",
+					student_group: frm.doc.name
+				}
+				frappe.set_route("List", "Student Attendance Tool");
+			});
 			frm.add_custom_button(__("Course Schedule"), function() {
+				frappe.route_options = {
+					student_group: frm.doc.name
+				}
 				frappe.set_route("List", "Course Schedule");
 			});
-
 			frm.add_custom_button(__("Assessment Plan"), function() {
+				frappe.route_options = {
+					student_group: frm.doc.name
+				}
 				frappe.set_route("List", "Assessment Plan");
 			});
 			frm.add_custom_button(__("Update Email Group"), function() {
@@ -30,6 +58,9 @@ frappe.ui.form.on("Student Group", {
 				});
 			});
 			frm.add_custom_button(__("Newsletter"), function() {
+				frappe.route_options = {
+					"Newsletter Email Group.email_group": frm.doc.name
+				}
 				frappe.set_route("List", "Newsletter");
 			});
 		}

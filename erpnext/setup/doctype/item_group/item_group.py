@@ -37,10 +37,11 @@ class ItemGroup(NestedSet, WebsiteGenerator):
 		if not self.route:
 			self.route = ''
 			if self.parent_item_group:
-				parent_route = frappe.get_doc('Item Group', self.parent_item_group).route
+				parent_item_group = frappe.get_doc('Item Group', self.parent_item_group)
 
-				if parent_route:
-					self.route = parent_route + '/'
+				# make parent route only if not root
+				if parent_item_group.parent_item_group and parent_item_group.route:
+					self.route = parent_item_group.route + '/'
 
 			self.route += self.scrub(self.item_group_name)
 
@@ -55,7 +56,7 @@ class ItemGroup(NestedSet, WebsiteGenerator):
 
 	def validate_name_with_item(self):
 		if frappe.db.exists("Item", self.name):
-			frappe.throw(frappe._("An item exists with same name ({0}), please change the item group name or rename the item").format(self.name))
+			frappe.throw(frappe._("An item exists with same name ({0}), please change the item group name or rename the item").format(self.name), frappe.NameError)
 
 	def get_context(self, context):
 		context.show_search=True
@@ -68,7 +69,7 @@ class ItemGroup(NestedSet, WebsiteGenerator):
 		context.update({
 			"items": get_product_list_for_group(product_group = self.name, start=start,
 				limit=context.page_length + 1, search=frappe.form_dict.get("search")),
-			"parent_groups": get_parent_item_groups(self.name),
+			"parents": get_parent_item_groups(self.parent_item_group),
 			"title": self.name,
 			"products_as_list": cint(frappe.db.get_single_value('Website Settings', 'products_as_list'))
 		})
@@ -100,7 +101,7 @@ def get_product_list_for_group(product_group=None, start=0, limit=10, search=Non
 				or name like %(search)s)"""
 		search = "%" + cstr(search) + "%"
 
-	query += """order by weightage desc, modified desc limit %s, %s""" % (start, limit)
+	query += """order by weightage desc, item_name, modified desc limit %s, %s""" % (start, limit)
 
 	data = frappe.db.sql(query, {"product_group": product_group,"search": search, "today": nowdate()}, as_dict=1)
 
@@ -135,7 +136,8 @@ def get_group_item_count(item_group):
 
 def get_parent_item_groups(item_group_name):
 	item_group = frappe.get_doc("Item Group", item_group_name)
-	return frappe.db.sql("""select name, route from `tabItem Group`
+	return 	[{"name": frappe._("Home"), "route":"/"}]+\
+		frappe.db.sql("""select name, route from `tabItem Group`
 		where lft <= %s and rgt >= %s
 		and show_in_website=1
 		order by lft asc""", (item_group.lft, item_group.rgt), as_dict=True)
@@ -145,6 +147,6 @@ def invalidate_cache_for(doc, item_group=None):
 		item_group = doc.name
 
 	for d in get_parent_item_groups(item_group):
-		d = frappe.get_doc("Item Group", d.name)
-		if d.route:
-			clear_cache(d.route)
+		item_group_name = frappe.db.get_value("Item Group", d.get('name'))
+		if item_group_name:
+			clear_cache(frappe.db.get_value('Item Group', item_group_name, 'route'))

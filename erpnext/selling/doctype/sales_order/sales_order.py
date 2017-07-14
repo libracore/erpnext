@@ -7,11 +7,12 @@ import json
 import frappe.utils
 from frappe.utils import cstr, flt, getdate, comma_and, cint
 from frappe import _
+from frappe.model.utils import get_fetch_values
 from frappe.model.mapper import get_mapped_doc
 from erpnext.stock.stock_balance import update_bin_qty, get_reserved_qty
 from frappe.desk.notifications import clear_doctype_notifications
 from erpnext.controllers.recurring_document import month_map, get_next_date
-
+from frappe.contacts.doctype.address.address import get_company_address
 from erpnext.controllers.selling_controller import SellingController
 
 form_grid_templates = {
@@ -32,7 +33,7 @@ class SalesOrder(SellingController):
 		self.validate_mandatory()
 		self.validate_proj_cust()
 		self.validate_po()
-		self.validate_uom_is_integer("stock_uom", "qty")
+		self.validate_uom_is_integer("stock_uom", "stock_qty")
 		self.validate_uom_is_integer("uom", "qty")
 		self.validate_for_items()
 		self.validate_warehouse()
@@ -263,6 +264,7 @@ class SalesOrder(SellingController):
 		pass
 
 	def before_update_after_submit(self):
+		self.validate_po()
 		self.validate_drop_ship()
 		self.validate_supplier_after_submit()
 
@@ -408,6 +410,34 @@ def make_material_request(source_name, target_doc=None):
 	return doc
 
 @frappe.whitelist()
+def make_project(source_name, target_doc=None):
+	def postprocess(source, doc):
+		doc.project_type = "External"
+		doc.project_name = source.name
+
+	doc = get_mapped_doc("Sales Order", source_name, {
+		"Sales Order": {
+			"doctype": "Project",
+			"validation": {
+				"docstatus": ["=", 1]
+			},
+			"field_map":{
+				"name" : "sales_order",
+				"delivery_date" : "expected_end_date",
+				"base_grand_total" : "estimated_costing",
+			}
+		},
+		"Sales Order Item": {
+			"doctype": "Project Task",
+			"field_map": {
+				"description": "title",
+			},
+		}
+	}, target_doc, postprocess)
+
+	return doc
+
+@frappe.whitelist()
 def make_delivery_note(source_name, target_doc=None):
 	def set_missing_values(source, target):
 		if source.po_no:
@@ -474,6 +504,11 @@ def make_sales_invoice(source_name, target_doc=None, ignore_permissions=False):
 		target.flags.ignore_permissions = True
 		target.run_method("set_missing_values")
 		target.run_method("calculate_taxes_and_totals")
+
+		# set company address
+		target.update(get_company_address(target.company))
+		if target.company_address:
+			target.update(get_fetch_values("Sales Invoice", 'company_address', target.company_address))
 
 	def update_item(source, target, source_parent):
 		target.amount = flt(source.amount) - flt(source.billed_amt)
@@ -579,7 +614,7 @@ def get_events(start, end, filters=None):
 	from frappe.desk.calendar import get_event_conditions
 	conditions = get_event_conditions("Sales Order", filters)
 
-	data = frappe.db.sql("""select name, customer_name, delivery_status, billing_status, delivery_date
+	data = frappe.db.sql("""select name, customer_name, status, delivery_status, billing_status, delivery_date
 		from `tabSales Order`
 		where (ifnull(delivery_date, '0000-00-00')!= '0000-00-00') \
 				and (delivery_date between %(start)s and %(end)s)

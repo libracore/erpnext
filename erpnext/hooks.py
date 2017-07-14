@@ -80,6 +80,13 @@ website_route_rules = [
 			"parents": [{"title": _("Supplier Quotation"), "name": "quotations"}]
 		}
 	},
+	{"from_route": "/quotes", "to_route": "Quotation"},
+	{"from_route": "/quotes/<path:name>", "to_route": "order",
+		"defaults": {
+			"doctype": "Quotation",
+			"parents": [{"title": _("Quotes"), "name": "quotes"}]
+		}
+	},
 	{"from_route": "/shipments", "to_route": "Delivery Note"},
 	{"from_route": "/shipments/<path:name>", "to_route": "order",
 		"defaults": {
@@ -110,6 +117,7 @@ standard_portal_menu_items = [
 	{"title": _("Projects"), "route": "/project", "reference_doctype": "Project"},
 	{"title": _("Request for Quotations"), "route": "/rfq", "reference_doctype": "Request for Quotation", "role": "Supplier"},
 	{"title": _("Supplier Quotation"), "route": "/quotations", "reference_doctype": "Supplier Quotation", "role": "Supplier"},
+	{"title": _("Quotes"), "route": "/quotes", "reference_doctype": "Quotation", "role":"Customer"},
 	{"title": _("Orders"), "route": "/orders", "reference_doctype": "Sales Order", "role":"Customer"},
 	{"title": _("Invoices"), "route": "/invoices", "reference_doctype": "Sales Invoice", "role":"Customer"},
 	{"title": _("Shipments"), "route": "/shipments", "reference_doctype": "Delivery Note", "role":"Customer"},
@@ -146,7 +154,7 @@ doc_events = {
 		"on_cancel": "erpnext.stock.doctype.material_request.material_request.update_completed_and_requested_qty"
 	},
 	"User": {
-		"after_insert": "frappe.email.doctype.contact.contact.update_contact",
+		"after_insert": "frappe.contacts.doctype.contact.contact.update_contact",
 		"validate": "erpnext.hr.doctype.employee.employee.validate_employee_role",
 		"on_update": ["erpnext.hr.doctype.employee.employee.update_user_permissions",
 			"erpnext.portal.utils.set_default_role"]
@@ -160,6 +168,9 @@ doc_events = {
 	},
 	"Payment Entry": {
 		"on_submit": "erpnext.accounts.doctype.payment_request.payment_request.make_status_as_paid"
+	},
+	'Address': {
+		'validate': 'erpnext.regional.india.utils.validate_gstin_for_india'
 	}
 }
 
