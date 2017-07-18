@@ -14,7 +14,7 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 		item.rate = flt(item.rate_with_margin , precision("rate", item));
 
 		if(item.discount_percentage){
-			discount_value = flt(item.rate_with_margin) * flt(item.discount_percentage) / 100;
+			var discount_value = flt(item.rate_with_margin) * flt(item.discount_percentage) / 100;
 			item.rate = flt((item.rate_with_margin) - (discount_value), precision('rate', item));
 		}
 	},
@@ -26,8 +26,8 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 
 		// Advance calculation applicable to Sales /Purchase Invoice
 		if(in_list(["Sales Invoice", "Purchase Invoice"], this.frm.doc.doctype)
-			 && this.frm.doc.docstatus < 2 && !this.frm.doc.is_return) {
-				 this.calculate_total_advance(update_paid_amount);
+			&& this.frm.doc.docstatus < 2 && !this.frm.doc.is_return) {
+			this.calculate_total_advance(update_paid_amount);
 		}
 
 		// Sales person's commission
@@ -108,13 +108,14 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 
 		$.each(this.frm.doc["taxes"] || [], function(i, tax) {
 			tax.item_wise_tax_detail = {};
-			tax_fields = ["total", "tax_amount_after_discount_amount",
+			var tax_fields = ["total", "tax_amount_after_discount_amount",
 				"tax_amount_for_current_item", "grand_total_for_current_item",
 				"tax_fraction_for_current_item", "grand_total_fraction_for_current_item"]
 
 			if (cstr(tax.charge_type) != "Actual" &&
-				!(me.discount_amount_applied && me.frm.doc.apply_discount_on=="Grand Total"))
-					tax_fields.push("tax_amount");
+				!(me.discount_amount_applied && me.frm.doc.apply_discount_on=="Grand Total")) {
+				tax_fields.push("tax_amount");
+			}
 
 			$.each(tax_fields, function(i, fieldname) { tax[fieldname] = 0.0 });
 
@@ -190,7 +191,7 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 	},
 
 	_get_tax_rate: function(tax, item_tax_map) {
-		return (keys(item_tax_map).indexOf(tax.account_head) != -1) ?
+		return (Object.keys(item_tax_map).indexOf(tax.account_head) != -1) ?
 			flt(item_tax_map[tax.account_head], precision("rate", tax)) : tax.rate;
 	},
 
@@ -236,8 +237,9 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 
 				// accumulate tax amount into tax.tax_amount
 				if (tax.charge_type != "Actual" &&
-					!(me.discount_amount_applied && me.frm.doc.apply_discount_on=="Grand Total"))
-						tax.tax_amount += current_tax_amount;
+					!(me.discount_amount_applied && me.frm.doc.apply_discount_on=="Grand Total")) {
+					tax.tax_amount += current_tax_amount;
+				}
 
 				// store tax_amount for current item as it will be used for
 				// charge type = 'On Previous Row Amount'
@@ -492,7 +494,7 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 				if (tax.charge_type == "Actual")
 					actual_taxes_dict[tax.idx] = tax.tax_amount;
 				else if (actual_taxes_dict[tax.row_id] !== null) {
-					actual_tax_amount = flt(actual_taxes_dict[tax.row_id]) * flt(tax.rate) / 100;
+					var actual_tax_amount = flt(actual_taxes_dict[tax.row_id]) * flt(tax.rate) / 100;
 					actual_taxes_dict[tax.idx] = actual_tax_amount;
 				}
 			});
@@ -571,7 +573,7 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 
 	set_default_payment: function(total_amount_to_pay, update_paid_amount){
 		var me = this;
-		payment_status = true;
+		var payment_status = true;
 		if(this.frm.doc.is_pos && (update_paid_amount===undefined || update_paid_amount)){
 			$.each(this.frm.doc['payments'] || [], function(index, data){
 				if(data.type == "Cash" && payment_status && total_amount_to_pay > 0) {
@@ -587,7 +589,8 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 
 	calculate_paid_amount: function(){
 		var me = this;
-		var paid_amount = base_paid_amount = 0.0;
+		var paid_amount = 0.0;
+		var base_paid_amount = 0.0;
 		if(this.frm.doc.is_pos) {
 			$.each(this.frm.doc['payments'] || [], function(index, data){
 				data.base_amount = flt(data.amount * me.frm.doc.conversion_rate, precision("base_amount"));
@@ -631,5 +634,99 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 		}
 		
 		this.calculate_outstanding_amount(false)
+	},
+	
+	show_item_wise_taxes: function() {
+		if(this.frm.fields_dict.other_charges_calculation) {
+			this.frm.toggle_display("other_charges_calculation", this.frm.doc.other_charges_calculation);
+		}
+	},
+	
+	set_item_wise_tax_breakup: function() {
+		if(this.frm.fields_dict.other_charges_calculation) {
+			var html = this.get_item_wise_taxes_html();
+			// console.log(html);
+			this.frm.set_value("other_charges_calculation", html);
+			this.show_item_wise_taxes();
+		}
+	},
+		
+	get_item_wise_taxes_html: function() {
+		var item_tax = {};
+		var tax_accounts = [];
+		var company_currency = this.get_company_currency();
+
+		$.each(this.frm.doc["taxes"] || [], function(i, tax) {
+			var tax_amount_precision = precision("tax_amount", tax);
+			var tax_rate_precision = precision("rate", tax);
+			$.each(JSON.parse(tax.item_wise_tax_detail || '{}'),
+				function(item_code, tax_data) {
+					if(!item_tax[item_code]) item_tax[item_code] = {};
+					if($.isArray(tax_data)) {
+						var tax_rate = "";
+						if(tax_data[0] != null) {
+							tax_rate = (tax.charge_type === "Actual") ?
+								format_currency(flt(tax_data[0], tax_amount_precision),
+									company_currency, tax_amount_precision) :
+								(flt(tax_data[0], tax_rate_precision) + "%");
+						}
+						var tax_amount = format_currency(flt(tax_data[1], tax_amount_precision),
+							company_currency, tax_amount_precision);
+
+						item_tax[item_code][tax.name] = [tax_rate, tax_amount];
+					} else {
+						item_tax[item_code][tax.name] = [flt(tax_data, tax_rate_precision) + "%", "0.00"];
+					}
+				});
+			tax_accounts.push([tax.name, tax.account_head]);
+		});
+		
+		var headings = $.map([__("Item Name"), __("Taxable Amount")].concat($.map(tax_accounts, 
+			function(head) { return head[1]; })), function(head) {
+				if(head==__("Item Name")) {
+					return '<th style="min-width: 100px;" class="text-left">' + (head || "") + "</th>";
+				} else {
+					return '<th style="min-width: 80px;" class="text-right">' + (head || "") + "</th>";
+				}	
+			}
+		).join("");
+
+		var distinct_item_names = [];
+		var distinct_items = [];
+		var taxable_amount = {};
+		$.each(this.frm.doc["items"] || [], function(i, item) {
+			var item_code = item.item_code || item.item_name;
+			if(distinct_item_names.indexOf(item_code)===-1) {
+				distinct_item_names.push(item_code);
+				distinct_items.push(item);
+				taxable_amount[item_code] = item.net_amount;
+			} else {
+				taxable_amount[item_code] = taxable_amount[item_code] + item.net_amount;
+			}
+		});
+
+		var rows = $.map(distinct_items, function(item) {
+			var item_code = item.item_code || item.item_name;
+			var item_tax_record = item_tax[item_code];
+			if(!item_tax_record) { return null; }
+
+			return repl("<tr><td>%(item_name)s</td><td class='text-right'>%(taxable_amount)s</td>%(taxes)s</tr>", {
+				item_name: item.item_name,
+				taxable_amount: format_currency(taxable_amount[item_code],
+					company_currency, precision("net_amount", item)),
+				taxes: $.map(tax_accounts, function(head) {
+					return item_tax_record[head[0]] ?
+						"<td class='text-right'>(" + item_tax_record[head[0]][0] + ") " + item_tax_record[head[0]][1] + "</td>" :
+						"<td></td>";
+				}).join("")
+			});
+		}).join("");
+
+		if(!rows) return "";
+		return '<div class="tax-break-up" style="overflow-x: auto;">\
+		<table class="table table-bordered table-hover">\
+			<thead><tr>' + headings + '</tr></thead> \
+			<tbody>' + rows + '</tbody> \
+		</table></div>';
 	}
 })
