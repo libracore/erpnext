@@ -15,15 +15,15 @@ frappe.ready(function() {
 			$(".item-cart").toggleClass("hide", (!!!r.message.price || !!!r.message.in_stock));
 			if(r.message && r.message.price) {
 				$(".item-price")
-					.html(r.message.price.formatted_price + " {{ _("pro") }} " + r.message.uom);
+					.html(r.message.price.formatted_price + " {{ _("per") }} " + r.message.uom);
 
 				if(r.message.in_stock==0) {
-					$(".item-stock").html("<div style='color: red'> <i class='fa fa-close'></i> {{ _("Leider momentan nicht verf&uumlgbar") }}<br>{{ _("Wenden Sie sich bitte an unseren Aussendienst") }}</div>");
+					$(".item-stock").html("<div style='color: red'> <i class='fa fa-close'></i> {{ _("Not in stock") }}</div>");
 				}
 				else if(r.message.in_stock==1) {
-					var qty_display = "{{ _("An Lager") }}";
+					var qty_display = "{{ _("In stock") }}";
 					if (r.message.show_stock_qty) {
-						qty_display += " ("+r.message.stock_qty+"Stk.)";
+						qty_display += " ("+r.message.stock_qty+")";
 					}
 					$(".item-stock").html("<div style='color: green'>\
 						<i class='fa fa-check'></i> "+qty_display+"</div>");
