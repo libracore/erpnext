@@ -13,6 +13,7 @@ from erpnext.exceptions import InvalidAccountCurrency, InvalidCurrency
 from erpnext.stock.doctype.serial_no.serial_no import SerialNoWarehouseError
 from frappe.model.naming import make_autoname
 from erpnext.accounts.doctype.account.test_account import get_inventory_account
+from erpnext.controllers.taxes_and_totals import get_itemised_tax_breakup_data
 
 class TestSalesInvoice(unittest.TestCase):
 	def make(self):
@@ -1105,6 +1106,93 @@ class TestSalesInvoice(unittest.TestCase):
 			for i, k in enumerate(expected_values["keys"]):
 				self.assertEquals(d.get(k), expected_values[d.item_code][i])
 
+	def test_item_wise_tax_breakup_india(self):
+		frappe.flags.country = "India"
+		
+		si = self.create_si_to_test_tax_breakup()
+		itemised_tax, itemised_taxable_amount = get_itemised_tax_breakup_data(si)
+
+		expected_itemised_tax = {
+			"999800": {
+				"Service Tax": {
+					"tax_rate": 10.0,
+					"tax_amount": 1500.0
+				}
+			}
+		}
+		expected_itemised_taxable_amount = {
+			"999800": 15000.0
+		}
+
+		self.assertEqual(itemised_tax, expected_itemised_tax)
+		self.assertEqual(itemised_taxable_amount, expected_itemised_taxable_amount)
+		
+		frappe.flags.country = None
+
+	def test_item_wise_tax_breakup_outside_india(self):
+		frappe.flags.country = "United States"
+		
+		si = self.create_si_to_test_tax_breakup()
+
+		itemised_tax, itemised_taxable_amount = get_itemised_tax_breakup_data(si)
+
+		expected_itemised_tax = {
+			"_Test Item": {
+				"Service Tax": {
+					"tax_rate": 10.0,
+					"tax_amount": 1000.0
+				}
+			},
+			"_Test Item 2": {
+				"Service Tax": {
+					"tax_rate": 10.0,
+					"tax_amount": 500.0
+				}
+			}
+		}
+		expected_itemised_taxable_amount = {
+			"_Test Item": 10000.0,
+			"_Test Item 2": 5000.0
+		}
+
+		self.assertEqual(itemised_tax, expected_itemised_tax)
+		self.assertEqual(itemised_taxable_amount, expected_itemised_taxable_amount)
+		
+		frappe.flags.country = None
+
+	def create_si_to_test_tax_breakup(self):
+		si = create_sales_invoice(qty=100, rate=50, do_not_save=True)
+		si.append("items", {
+			"item_code": "_Test Item",
+			"gst_hsn_code": "999800",
+			"warehouse": "_Test Warehouse - _TC",
+			"qty": 100,
+			"rate": 50,
+			"income_account": "Sales - _TC",
+			"expense_account": "Cost of Goods Sold - _TC",
+			"cost_center": "_Test Cost Center - _TC"
+		})
+		si.append("items", {
+			"item_code": "_Test Item 2",
+			"gst_hsn_code": "999800",
+			"warehouse": "_Test Warehouse - _TC",
+			"qty": 100,
+			"rate": 50,
+			"income_account": "Sales - _TC",
+			"expense_account": "Cost of Goods Sold - _TC",
+			"cost_center": "_Test Cost Center - _TC"
+		})
+
+		si.append("taxes", {
+			"charge_type": "On Net Total",
+			"account_head": "_Test Account Service Tax - _TC",
+			"cost_center": "_Test Cost Center - _TC",
+			"description": "Service Tax",
+			"rate": 10
+		})
+		si.insert()
+		return si
+
 def create_sales_invoice(**args):
 	si = frappe.new_doc("Sales Invoice")
 	args = frappe._dict(args)
@@ -1124,6 +1212,7 @@ def create_sales_invoice(**args):
 
 	si.append("items", {
 		"item_code": args.item or args.item_code or "_Test Item",
+		"gst_hsn_code": "999800",
 		"warehouse": args.warehouse or "_Test Warehouse - _TC",
 		"qty": args.qty or 1,
 		"rate": args.rate or 100,

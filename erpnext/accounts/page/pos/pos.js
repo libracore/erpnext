@@ -576,11 +576,15 @@ erpnext.pos.PointOfSale = erpnext.taxes_and_totals.extend({
 		})
 
 		$(this.numeric_keypad).find('.numeric-del').click(function(){
-			me.selected_field = $(me.wrapper).find('.selected-item').find('.' + me.numeric_id)
-			me.numeric_val = cstr(flt(me.selected_field.val())).slice(0, -1);
-			me.selected_field.val(me.numeric_val);
-			me.selected_field.trigger("change")
-			// me.render_selected_item()
+			if(me.numeric_id) {
+				me.selected_field = $(me.wrapper).find('.selected-item').find('.' + me.numeric_id)
+				me.numeric_val = cstr(flt(me.selected_field.val())).slice(0, -1);
+				me.selected_field.val(me.numeric_val);
+				me.selected_field.trigger("change")
+			} else {
+				//Remove an item from the cart, if focus is at selected item
+				me.remove_selected_item()
+			}
 		})
 
 		$(this.numeric_keypad).find('.pos-pay').click(function(){
@@ -589,6 +593,14 @@ erpnext.pos.PointOfSale = erpnext.taxes_and_totals.extend({
 			me.create_invoice();
 			me.make_payment();
 		})
+	},
+
+	remove_selected_item: function() {
+		this.remove_item = []
+		idx = $(this.wrapper).find(".pos-selected-item-action").attr("data-idx")
+		this.remove_item.push(idx)
+		this.remove_zero_qty_item()
+		this.update_paid_amount_status(false)
 	},
 
 	render_list_customers: function () {
@@ -1066,7 +1078,7 @@ erpnext.pos.PointOfSale = erpnext.taxes_and_totals.extend({
 					} else if (item.barcode == me.serach_item.$input.val()) {
 						search_status = false;
 						return item.barcode == me.serach_item.$input.val();
-					} else if (reg.test(item.item_code.toLowerCase()) || reg.test(item.description.toLowerCase()) ||
+					} else if (reg.test(item.item_code.toLowerCase()) || (item.description && reg.test(item.description.toLowerCase())) ||
 						reg.test(item.item_name.toLowerCase()) || reg.test(item.item_group.toLowerCase())) {
 						return true
 					}
@@ -1339,7 +1351,7 @@ erpnext.pos.PointOfSale = erpnext.taxes_and_totals.extend({
 		this.child.item_name = this.items[0].item_name;
 		this.child.stock_uom = this.items[0].stock_uom;
 		this.child.brand = this.items[0].brand;
-		this.child.description = this.items[0].description;
+		this.child.description = this.items[0].description || this.items[0].item_name;
 		this.child.discount_percentage = 0.0;
 		this.child.qty = 1;
 		this.child.item_group = this.items[0].item_group;
@@ -1384,10 +1396,6 @@ erpnext.pos.PointOfSale = erpnext.taxes_and_totals.extend({
 
 	get_company_currency: function () {
 		return erpnext.get_currency(this.frm.doc.company);
-	},
-
-	show_item_wise_taxes: function () {
-		return null;
 	},
 
 	show_items_in_item_cart: function () {

@@ -4,7 +4,6 @@ frappe.provide("erpnext.stock");
 
 frappe.ui.form.on('Stock Entry', {
 	setup: function(frm) {
-		$.extend(frm.cscript, new erpnext.stock.StockEntry({frm: frm}));
 
 		frm.set_query('production_order', function() {
 			return {
@@ -41,6 +40,8 @@ frappe.ui.form.on('Stock Entry', {
 				}
 			}
 		});
+
+
 	},
 	refresh: function(frm) {
 		if(!frm.doc.docstatus) {
@@ -174,6 +175,7 @@ frappe.ui.form.on('Stock Entry Detail', {
 							d[k] = v;
 						});
 						refresh_field("items");
+						erpnext.stock.select_batch_and_serial_no(frm, d);
 					}
 				}
 			});
@@ -337,10 +339,15 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 	production_order: function() {
 		var me = this;
 		this.toggle_enable_bom();
+		if(!me.frm.doc.production_order) {
+			return;
+		}
 
 		return frappe.call({
 			method: "erpnext.stock.doctype.stock_entry.stock_entry.get_production_order_details",
-			args: {production_order: me.frm.doc.production_order},
+			args: {
+				production_order: me.frm.doc.production_order
+			},
 			callback: function(r) {
 				if (!r.exc) {
 					$.each(["from_bom", "bom_no", "fg_completed_qty", "use_multi_level_bom"], function(i, field) {
@@ -524,7 +531,7 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 		} else {
 			doc.customer = doc.customer_name = doc.customer_address =
 				doc.delivery_note_no = doc.sales_invoice_no = doc.supplier =
-				doc.supplier_name = doc.supplier_address = doc.purchase_receipt_no = 
+				doc.supplier_name = doc.supplier_address = doc.purchase_receipt_no =
 				doc.address_display = null;
 		}
 		if(doc.purpose == "Material Receipt") {
@@ -542,3 +549,38 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 		erpnext.utils.get_party_details(this.frm, null, null, null);
 	}
 });
+
+erpnext.stock.select_batch_and_serial_no = (frm, item) => {
+	let get_warehouse_type_and_name = (item) => {
+		let value = '';
+		if(frm.fields_dict.from_warehouse.disp_status === "Write") {
+			value = cstr(item.s_warehouse) || '';
+			return {
+				type: 'Source Warehouse',
+				name: value
+			};
+		} else {
+			value = cstr(item.t_warehouse) || '';
+			return {
+				type: 'Target Warehouse',
+				name: value
+			};
+		}
+	}
+
+	if(item && item.has_serial_no
+		&& frm.doc.purpose === 'Material Receipt') {
+		return;
+	}
+
+	frappe.require("assets/erpnext/js/utils/serial_no_batch_selector.js", function() {
+		new erpnext.SerialNoBatchSelector({
+			frm: frm,
+			item: item,
+			warehouse_details: get_warehouse_type_and_name(item),
+		});
+	});
+
+}
+
+$.extend(cur_frm.cscript, new erpnext.stock.StockEntry({frm: cur_frm}));

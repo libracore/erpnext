@@ -71,17 +71,19 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 					});
 
 				if(!from_delivery_note && !is_delivered_by_supplier) {
-					cur_frm.add_custom_button(__('Delivery'), cur_frm.cscript['Make Delivery Note'],
-						__("Make"));
+					cur_frm.add_custom_button(__('Delivery'),
+						cur_frm.cscript['Make Delivery Note'], __("Make"));
 				}
 			}
 
 			if(doc.outstanding_amount!=0 && !cint(doc.is_return)) {
-				cur_frm.add_custom_button(__('Payment'), this.make_payment_entry, __("Make"));
+				cur_frm.add_custom_button(__('Payment'),
+					this.make_payment_entry, __("Make"));
 			}
 
 			if(doc.outstanding_amount>0 && !cint(doc.is_return)) {
-				cur_frm.add_custom_button(__('Payment Request'), this.make_payment_request, __("Make"));
+				cur_frm.add_custom_button(__('Payment Request'),
+					this.make_payment_request, __("Make"));
 			}
 
 
@@ -94,6 +96,26 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 		}
 
 		this.set_default_print_format();
+	},
+
+	on_submit: function(doc, dt, dn) {
+		var me = this;
+
+		$.each(doc["items"], function(i, row) {
+			if(row.delivery_note) frappe.model.clear_doc("Delivery Note", row.delivery_note)
+		})
+
+		if(this.frm.doc.is_pos) {
+			this.frm.msgbox = frappe.msgprint(
+				`<a class="btn btn-primary" onclick="cur_frm.print_preview.printit(true)" style="margin-right: 5px;">
+					${__('Print')}</a>
+				<a class="btn btn-default" href="javascript:frappe.new_doc(cur_frm.doctype);">
+					${__('New')}</a>`
+				);
+
+		} else if(cint(frappe.boot.notification_settings.sales_invoice)) {
+			this.frm.email_doc(frappe.boot.notification_settings.sales_invoice_message);
+		}
 	},
 
 	set_default_print_format: function() {
@@ -303,6 +325,23 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 		}
 
 		this.frm.refresh_fields();
+	},
+
+	company_address: function() {
+		var me = this;
+		if(this.frm.doc.company_address) {
+			frappe.call({
+				method: "frappe.contacts.doctype.address.address.get_address_display",
+				args: {"address_dict": this.frm.doc.company_address },
+				callback: function(r) {
+					if(r.message) {
+						me.frm.set_value("company_address_display", r.message)
+					}
+				}
+			})
+		} else {
+			this.frm.set_value("company_address_display", "");
+		}
 	}
 });
 
@@ -323,11 +362,6 @@ cur_frm.cscript.hide_fields = function(doc) {
 			if(!docfield.hidden) unhide_field(parent_fields[i]);
 		}
 	}
-
-	var item_fields_stock = ['batch_no', 'actual_batch_qty', 'actual_qty', 'expense_account',
-		'warehouse', 'expense_account', 'quality_inspection']
-	cur_frm.fields_dict['items'].grid.set_column_disp(item_fields_stock,
-		(cint(doc.update_stock)==1 || cint(doc.is_return)==1 ? true : false));
 
 	// India related fields
 	if (frappe.boot.sysdefaults.country == 'India') unhide_field(['c_form_applicable', 'c_form_no']);
@@ -424,24 +458,6 @@ cur_frm.cscript.cost_center = function(doc, cdt, cdn) {
 	erpnext.utils.copy_value_in_all_row(doc, cdt, cdn, "items", "cost_center");
 }
 
-cur_frm.cscript.on_submit = function(doc, cdt, cdn) {
-	$.each(doc["items"], function(i, row) {
-		if(row.delivery_note) frappe.model.clear_doc("Delivery Note", row.delivery_note)
-	})
-
-	if(cur_frm.doc.is_pos) {
-		cur_frm.msgbox = frappe.msgprint(
-			`<a class="btn btn-primary" onclick="cur_frm.print_preview.printit(true)" style="margin-right: 5px;">
-				${__('Print')}</a>
-			<a class="btn btn-default" href="javascript:frappe.new_doc(cur_frm.doctype);">
-				${__('New')}</a>`
-			);
-
-	} else if(cint(frappe.boot.notification_settings.sales_invoice)) {
-		cur_frm.email_doc(frappe.boot.notification_settings.sales_invoice_message);
-	}
-}
-
 cur_frm.set_query("debit_to", function(doc) {
 	// filter on Account
 	if (doc.customer) {
@@ -481,7 +497,7 @@ frappe.ui.form.on('Sales Invoice', {
 			'Delivery Note': 'Delivery',
 			'Sales Invoice': 'Sales Return',
 			'Payment Request': 'Payment Request',
-			'Payment': 'Payment Entry'
+			'Payment Entry': 'Payment'
 		},
 		frm.fields_dict["timesheets"].grid.get_field("time_sheet").get_query = function(doc, cdt, cdn){
 			return{
@@ -502,8 +518,20 @@ frappe.ui.form.on('Sales Invoice', {
 				}
 			}
 		}
-		
-		
+
+		frm.set_query('company_address', function(doc) {
+			if(!doc.company) {
+				frappe.throw(_('Please set Company'));
+			}
+
+			return {
+				query: 'frappe.contacts.doctype.address.address.address_query',
+				filters: {
+					link_doctype: 'Company',
+					link_name: doc.company
+				}
+			};
+		});
 	},
 
 	project: function(frm){

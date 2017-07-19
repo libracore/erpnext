@@ -89,7 +89,15 @@ frappe.ui.form.on('Salary Structure', {
 	}
 })
 
-var get_payment_mode_account = function(frm, mode_of_payment, callback){
+var get_payment_mode_account = function(frm, mode_of_payment, callback) {
+	if(!frm.doc.company) {
+		frappe.throw(__("Please select the Company first"));
+	}
+
+	if(!mode_of_payment) {
+		return;
+	}
+
 	return  frappe.call({
 		method: "erpnext.accounts.doctype.sales_invoice.sales_invoice.get_bank_cash_account",
 		args: {
@@ -215,7 +223,7 @@ if(!erpnext.taxes.flags[cur_frm.cscript.tax_table]) {
 			erpnext.taxes.set_conditional_mandatory_rate_or_amount(open_form);
 		} else {
 			// apply in current row
-			erpnext.taxes.set_conditional_mandatory_rate_or_amount(frm.get_field('taxes').grid.get_grid_row(cdn));
+			erpnext.taxes.set_conditional_mandatory_rate_or_amount(frm.get_field('taxes').grid.get_row(cdn));
 		}
 	});
 

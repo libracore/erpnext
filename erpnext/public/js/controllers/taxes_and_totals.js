@@ -54,7 +54,6 @@ erpnext.taxes_and_totals = erpnext.payments.extend({
 		this.manipulate_grand_total_for_inclusive_tax();
 		this.calculate_totals();
 		this._cleanup();
-		this.show_item_wise_taxes();
 	},
 
 	validate_conversion_rate: function() {

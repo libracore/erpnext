@@ -18,6 +18,7 @@ from erpnext.projects.doctype.timesheet.timesheet import get_projectwise_timeshe
 from erpnext.accounts.doctype.asset.depreciation \
 	import get_disposal_account_and_cost_center, get_gl_entries_on_asset_disposal
 from erpnext.stock.doctype.batch.batch import set_batch_nos
+from erpnext.stock.doctype.serial_no.serial_no import get_serial_nos, get_delivery_note_serial_no
 
 form_grid_templates = {
 	"items": "templates/form_grid/item_grid.html"
@@ -54,7 +55,10 @@ class SalesInvoice(SellingController):
 	def validate(self):
 		super(SalesInvoice, self).validate()
 		self.validate_auto_set_posting_time()
-		self.so_dn_required()
+
+		if not self.is_pos:
+			self.so_dn_required()
+
 		self.validate_proj_cust()
 		self.validate_with_previous_doc()
 		self.validate_uom_is_integer("stock_uom", "stock_qty")
@@ -80,10 +84,10 @@ class SalesInvoice(SellingController):
 
 		if not self.is_opening:
 			self.is_opening = 'No'
-			
+
 		if self._action != 'submit' and self.update_stock and not self.is_return:
 			set_batch_nos(self, 'warehouse', True)
-			
+
 
 		self.set_against_income_account()
 		self.validate_c_form()
@@ -95,7 +99,7 @@ class SalesInvoice(SellingController):
 		self.set_billing_hours_and_amount()
 		self.update_timesheet_billing_for_project()
 		self.set_status()
-	
+
 	def before_save(self):
 		set_account_for_mode_of_payment(self)
 
@@ -128,12 +132,15 @@ class SalesInvoice(SellingController):
 		if not self.is_return:
 			self.update_billing_status_for_zero_amount_refdoc("Sales Order")
 			self.check_credit_limit()
-			self.update_serial_no()
+
+		self.update_serial_no()
 
 		if not cint(self.is_pos) == 1 and not self.is_return:
 			self.update_against_document_in_jv()
 
 		self.update_time_sheet(self.name)
+
+		frappe.enqueue('erpnext.setup.doctype.company.company.update_company_current_month_sales', company=self.company)
 
 	def validate_pos_paid_amount(self):
 		if len(self.payments) == 0 and self.is_pos:
@@ -790,29 +797,36 @@ class SalesInvoice(SellingController):
 
 	def update_serial_no(self, in_cancel=False):
 		""" update Sales Invoice refrence in Serial No """
+		invoice = None if (in_cancel or self.is_return) else self.name
+		if in_cancel and self.is_return:
+			invoice = self.return_against
 
 		for item in self.items:
 			if not item.serial_no:
 				continue
 
-			serial_nos = ["'%s'"%serial_no for serial_no in item.serial_no.split("\n")]
-
-			frappe.db.sql(""" update `tabSerial No` set sales_invoice='{invoice}'
-				where name in ({serial_nos})""".format(
-					invoice='' if in_cancel else self.name,
-					serial_nos=",".join(serial_nos)
-				)
-			)
+			for serial_no in item.serial_no.split("\n"):
+				if serial_no and frappe.db.exists('Serial No', serial_no):
+					sno = frappe.get_doc('Serial No', serial_no)
+					sno.sales_invoice = invoice
+					sno.db_update()
 
 	def validate_serial_numbers(self):
 		"""
 			validate serial number agains Delivery Note and Sales Invoice
 		"""
+		self.set_serial_no_against_delivery_note()
 		self.validate_serial_against_delivery_note()
 		self.validate_serial_against_sales_invoice()
 
+	def set_serial_no_against_delivery_note(self):
+		for item in self.items:
+			if item.serial_no and item.delivery_note and \
+				item.qty != len(get_serial_nos(item.serial_no)):
+				item.serial_no = get_delivery_note_serial_no(item.item_code, item.qty, item.delivery_note)
+
 	def validate_serial_against_delivery_note(self):
-		""" 
+		"""
 			validate if the serial numbers in Sales Invoice Items are same as in
 			Delivery Note Item
 		"""
@@ -822,13 +836,17 @@ class SalesInvoice(SellingController):
 				continue
 
 			serial_nos = frappe.db.get_value("Delivery Note Item", item.dn_detail, "serial_no") or ""
-			dn_serial_nos = set(serial_nos.split("\n"))
+			dn_serial_nos = set(get_serial_nos(serial_nos))
 
 			serial_nos = item.serial_no or ""
-			si_serial_nos = set(serial_nos.split("\n"))
+			si_serial_nos = set(get_serial_nos(serial_nos))
 
 			if si_serial_nos - dn_serial_nos:
 				frappe.throw(_("Serial Numbers in row {0} does not match with Delivery Note".format(item.idx)))
+
+			if item.serial_no and cint(item.qty) != len(si_serial_nos):
+				frappe.throw(_("Row {0}: {1} Serial numbers required for Item {2}. You have provided {3}.".format(
+					item.idx, item.qty, item.item_code, len(si_serial_nos))))
 
 	def validate_serial_against_sales_invoice(self):
 		""" check if serial number is already used in other sales invoice """
@@ -913,7 +931,6 @@ def make_delivery_note(source_name, target_doc=None):
 	}, target_doc, set_missing_values)
 
 	return doclist
-
 
 @frappe.whitelist()
 def make_sales_return(source_name, target_doc=None):
