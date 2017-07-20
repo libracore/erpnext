@@ -18,7 +18,7 @@ frappe.ready(function() {
 					.html(r.message.price.formatted_price + " {{ _("per") }} " + r.message.uom);
 				if (r.message.net_weight > 0) {
 				   $(".item-price-unit")
-				      .html("CHF " + (r.message.price / r.message.net_weight) + "/" + r.message.weight_uom);
+				      .html("CHF " + (r.message.price.price_list_rate / r.message.net_weight).toFixed(2) + "/" + r.message.weight_uom);
 				}
 				else if (r.message.net_volume > 0) {
 				   $(".item-price-unit")
