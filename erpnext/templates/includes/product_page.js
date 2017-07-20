@@ -16,6 +16,14 @@ frappe.ready(function() {
 			if(r.message && r.message.price) {
 				$(".item-price")
 					.html(r.message.price.formatted_price + " {{ _("per") }} " + r.message.uom);
+				if (r.message.net_weight > 0) {
+				   $(".item-price-unit")
+				      .html("CHF " + (r.message.price / r.message.net_weight) + "/" + r.message.weight_uom);
+				}
+				else if (r.message.net_volume > 0) {
+				   $(".item-price-unit")
+				      .html("CHF " + (r.message.price / r.message.net_volume) + "/L");
+				}
 
 				if(r.message.in_stock==0) {
 					$(".item-stock").html("<div style='color: red'> <i class='fa fa-close'></i> {{ _("Not in stock") }}</div>");
