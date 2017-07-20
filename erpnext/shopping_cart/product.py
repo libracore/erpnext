@@ -42,6 +42,9 @@ def get_product_info(item_code):
 		"in_stock": in_stock,
 		"uom": frappe.db.get_value("Item", item_code, "stock_uom"),
 		"qty": qty,
+		"net_weight": frappe.db.get_value("Item", item_code, "net_weight"),
+		"weight_uom": frappe.db.get_value("Item", item_code, "net_weight_uom"),
+		"net_volume": frappe.db.get_value("Item", item_code, "net_volume"),
 		"show_stock_qty": show_quantity_in_website()
 	}
 
