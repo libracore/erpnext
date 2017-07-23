@@ -50,17 +50,22 @@ frappe.ready(function() {
 	$("#item-add-to-cart button").on("click", function() {
 		frappe.provide('erpnext.shopping_cart');
 
+		var c = "";
+		if (document.getElementById('tint') !== null) {
+			c = document.getElementById('tint').value;
+		}
+
 		erpnext.shopping_cart.update_cart({
 			item_code: get_item_code(),
 			qty: 1,
+			color: c,
 			callback: function(r) {
 				if(!r.exc) {
 					toggle_update_cart(1);
 					qty = 1;
 				}
 			},
-			btn: this,
-			color: document.getElementById('tint').value
+			btn: this
 		});
 	});
 

@@ -74,7 +74,7 @@ def place_order():
 	return sales_order.name
 
 @frappe.whitelist()
-def update_cart(item_code, qty, with_items=False, color=""):
+def update_cart(item_code, qty, color, with_items=False):
 	quotation = _get_cart_quotation()
 
 	empty_card = False
@@ -89,6 +89,7 @@ def update_cart(item_code, qty, with_items=False, color=""):
 	else:
 		quotation_items = quotation.get("items", {"item_code": item_code})
 		if not quotation_items:
+			frappe.throw("Item: " + item_code + " color: " + color)
 			quotation.append("items", {
 				"doctype": "Quotation Item",
 				"item_code": item_code,
