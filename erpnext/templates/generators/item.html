@@ -46,15 +46,19 @@
 						{% endfor %}
 						</select>
 					</div>
+
+					{%if d.attribute == "Farbe"  and selected_attributes[d.attribute] == "Abgetönt" %}
+					<h6 class="text-muted">{{ _("Abtönung") }}</h6>
+					<div class="input-group">
+						<span class="input-group-addon"><i class="fa fa-tint"></i></span>
+						<input id="tint" type="text" class="form-control" name="tint" placeholder="Abtönung">
+					</div>
+					{%- endif %}
+
 					{%- endif %}
 					{% endfor %}
 					{% endif %}
 					
-					<h6 class="text-muted">{{ _("Abtönung") }}</h6>
-					<div class="input-group">
-						<span class="input-group-addon"><i class="fa fa-tint"></i></span>
-						<input id="email" type="text" class="form-control" name="tint" placeholder="Abtönung">
-					</div>
 				</div>
 				<br>
 				<div style="min-height: 100px; margin: 10px 0;">
