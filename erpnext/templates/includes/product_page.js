@@ -60,6 +60,7 @@ frappe.ready(function() {
 				}
 			},
 			btn: this,
+			color: document.getElementById('tint').value
 		});
 	});
 
