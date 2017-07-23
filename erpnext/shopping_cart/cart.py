@@ -43,7 +43,7 @@ def get_cart_quotation(doc=None):
 	}
 
 @frappe.whitelist()
-def place_order():
+def place_order(commission="", order_person="", avis_person="", avis_phone=""):
 	quotation = _get_cart_quotation()
 	quotation.company = frappe.db.get_value("Shopping Cart Settings", None, "company")
 	for fieldname in ["customer_address", "shipping_address_name"]:
@@ -63,6 +63,10 @@ def place_order():
 		item.reserved_warehouse = frappe.db.get_value("Item", item.item_code, "website_warehouse") or None
 
 	sales_order.flags.ignore_permissions = True
+	sales_order.commission = commission
+	sales_order.order_person = order_person
+	sales_order.avis_person = avis_person
+	sales_order.avis_phone = avis_phone
 	sales_order.insert()
 	sales_order.submit()
 	todo = frappe.get_doc({"doctype":"ToDo", "description": "test"})
