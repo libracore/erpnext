@@ -53,6 +53,11 @@ frappe.ready(function() {
 		var c = "";
 		if (document.getElementById('tint') !== null) {
 			c = document.getElementById('tint').value;
+			if (c == "") {
+				window.alert("Bitte eine Tönung eingeben.");
+				document.getElementById('tint').focus();
+				return;
+			}
 		}
 
 		frappe.call({
