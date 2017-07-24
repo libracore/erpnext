@@ -9,7 +9,12 @@
         </div>
         <div class="col-xs-8 col-sm-10">
             {{ d.item_code }}
-            <div class="text-muted small item-description">{{ d.description }}</div>
+            <div class="text-muted small item-description">
+		{{ d.item_name }}
+		{% if d.color != "" %}
+		<br/>Abt&ouml;nung: {{d.color }}
+		{%- endif %}
+	   </div>
         </div>
     </div>
 {% endmacro %}
