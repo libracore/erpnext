@@ -69,8 +69,6 @@ def place_order(commission="", order_person="", avis_person="", avis_phone=""):
 	sales_order.avis_phone = avis_phone
 	sales_order.insert()
 	sales_order.submit()
-	todo = frappe.get_doc({"doctype":"ToDo", "description": "test"})
-	todo.insert()
 
 	if hasattr(frappe.local, "cookie_manager"):
 		frappe.local.cookie_manager.delete_cookie("cart_count")
