@@ -57,13 +57,18 @@ frappe.ready(function() {
 				return;
 			}
 		}
+		var quantity = 1;
+		var qtyInput = document.getElementById('cart-qty').value;
+		if (!isNaN(qtyInput)) {
+			quantity = parseInt(qtyInput);
+		}
 
 		frappe.call({
 			type: "POST",
 			method: "erpnext.shopping_cart.cart.update_cart",
 			args: {
 				item_code: get_item_code(),
-				qty: document.getElementById('cart-qty').value,
+				qty: quantity,
 				color: c
 			},
 			callback: function(r) {
@@ -103,14 +108,24 @@ frappe.ready(function() {
 
 	$("#cart-btn-more").on('click', function() {
 		var val = document.getElementById('cart-qty').value;
-		val = parseInt(val) + 1;
+		if (isNaN(val)) {
+			val = 1;
+		}
+		else {
+			val = parseInt(val) + 1;
+		}
 		document.getElementById('cart-qty').value = val;
 	});
 
 	$("#cart-btn-less").on('click', function() {
 		var val = document.getElementById('cart-qty').value;
-		val = parseInt(val) - 1;
-		if (val < 1) { val = 1; };
+		if (isNaN(val)) {
+			val = 1;
+		}
+		else {
+			val = parseInt(val) - 1;
+			if (val < 1) { val = 1; };
+		}
 		document.getElementById('cart-qty').value = val;
 	});
 });
