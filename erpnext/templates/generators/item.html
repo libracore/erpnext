@@ -68,6 +68,19 @@
 						<div class="item-stock" itemprop="availability"></div>
 					</div>
 					<div class="item-cart hide">
+						<div id="cart-items">
+						   <span style="display: inline-block">
+						     <div class="input-group number-spinner">
+						          <span class="input-group-btn">
+						               <button class="btn btn-default cart-btn-less" id="cart-btn-less">–</button>
+						          </span>
+							     <input class="form-control text-right cart-qty" id="cart-qty" value = "1">
+						          <span class="input-group-btn">
+						               <button class="btn btn-default cart-btn-more" id="cart-btn-more" style="margin-left:-2px;">+</button>
+						          </span>
+						     </div>
+						   </span>
+ 						</div>
 						<div id="item-add-to-cart">
 							<button class="btn btn-primary btn-sm">
 								{{ _("Add to Cart") }}</button>
