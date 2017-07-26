@@ -8,7 +8,7 @@ def get_data():
 		'transactions': [
 			{
 				'label': _('Pre Sales'),
-				'items': ['Opportunity', 'Quotation', 'Crono']
+				'items': ['Opportunity', 'Quotation']
 			},
 			{
 				'label': _('Orders'),
