@@ -141,7 +141,8 @@ $.extend(shopping_cart, {
 				commission: document.getElementById('kommission').value,
 				order_person: document.getElementById('auftraggeber').value,
 				avis_person: document.getElementById('avisierungsperson').value,
-				avis_phone: document.getElementById('telefon').value
+				avis_phone: document.getElementById('telefon').value,
+				desired_date: document.getElementById('desireddate').value
 			},
 			btn: btn,
 			callback: function(r) {
