@@ -11,8 +11,9 @@
             {{ d.item_code }}
             <div class="text-muted small item-description">
 		{{ d.item_name }}
-		{% if d.color != "" %}
-		<br/>Abt&ouml;nung: {{d.color }}
+		{% set c = d.color or '' %}
+		{% if c != "" %}
+		<br/>Abt&ouml;nung: {{ d.color }}
 		{%- endif %}
 	   </div>
         </div>
