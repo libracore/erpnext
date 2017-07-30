@@ -39,7 +39,7 @@
 						{% if selected_attributes and selected_attributes[d.attribute]==value -%}
 							selected
 						{%- elif disabled_attributes and value in disabled_attributes.get(d.attribute, []) -%}
-							disabled
+							hidden
 						{%- endif %}>
 							{{ _(value) }}
 						</option>
