@@ -19,6 +19,8 @@ frappe.ready(function() {
 				if ((r.message.net_weight > 0) && (r.message.weight_uom != null)) {
 				   $(".item-price-unit")
 				      .html("CHF " + (r.message.price.price_list_rate / r.message.net_weight).toFixed(2) + "/" + r.message.weight_uom);
+				   $(".item-price-volume")
+				      .html("Gebinde: " + r.message.net_weight + " " + r.message.weight_uom);
 				}
 
 				if(r.message.in_stock==0) {
