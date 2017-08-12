@@ -56,8 +56,13 @@ class Item(WebsiteGenerator):
 
 	def after_insert(self):
 		'''set opening stock and item price'''
-		if self.standard_rate:
-			self.add_price()
+                if self.standard_rate:
+                        ''' add standard price to all selling price lists (#156) '''
+                        self.selling_price_lists = frappe.db.sql_list("""select$
+                                from `tabPrice List`
+                                where `selling`='1'""")
+                        for p in self.selling_price_lists:
+                                self.add_price(price_list = p)
 
 		if self.opening_stock:
 			self.set_opening_stock()
