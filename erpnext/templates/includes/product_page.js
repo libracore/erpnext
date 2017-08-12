@@ -104,10 +104,10 @@ frappe.ready(function() {
 			}
 		}
 
-		/* removed this check, it raises issues with item codes that are part of one another
-		if (window.location.search.indexOf(item_code)!==-1) {
+		// prevent self-postback 
+		if (window.location.search == ("?variant=" + item_code)) {
 			return;
-		} */
+		} 
 
 		window.location.href = window.location.pathname + "?variant=" + item_code;
 	});
