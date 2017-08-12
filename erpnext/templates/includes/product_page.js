@@ -12,7 +12,7 @@ frappe.ready(function() {
 			item_code: get_item_code()
 		},
 		callback: function(r) {
-			$(".item-cart").toggleClass("hide", (!!!r.message.price || !!!r.message.in_stock));
+			$(".item-cart").toggleClass("hide", (!!!r.message.price));
 			if(r.message && r.message.price) {
 				$(".item-price")
 					.html(r.message.price.formatted_price + " {{ _("per") }} " + r.message.uom);
@@ -24,7 +24,14 @@ frappe.ready(function() {
 				}
 
 				if(r.message.in_stock==0) {
-					$(".item-stock").html("<div style='color: red'> <i class='fa fa-close'></i> {{ _("Not in stock") }}</div>");
+					if(r.message.is_stock_item==0) {
+						var qty_display = "{{ _("Kann in Auftrag gegeben werden") }}";
+						$(".item-stock").html("<div style='color: green'>\
+							<i class='fa fa-check'></i> "+qty_display+"</div>");
+					} else {
+						$(".item-stock").html("<div style='color: red'> <i class='fa fa-close'></i> {{ _("Not in stock") }}</div>");
+						$(".item-cart").toggleClass("hide");
+					}
 				}
 				else if(r.message.in_stock==1) {
 					var qty_display = "{{ _("In stock") }}";
