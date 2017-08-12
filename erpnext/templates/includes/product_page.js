@@ -25,7 +25,7 @@ frappe.ready(function() {
 
 				if(r.message.in_stock==0) {
 					if(r.message.is_stock_item==0) {
-						var qty_display = "{{ _("Kann in Auftrag gegeben werden") }}";
+						var qty_display = "{{ "Bestellbar" }}";
 						$(".item-stock").html("<div style='color: green'>\
 							<i class='fa fa-check'></i> "+qty_display+"</div>");
 					} else {
