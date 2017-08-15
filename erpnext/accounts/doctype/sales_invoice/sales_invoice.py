@@ -941,3 +941,27 @@ def set_account_for_mode_of_payment(self):
 	for data in self.payments:
 		if not data.account:
 			data.account = get_bank_cash_account(data.mode_of_payment, self.company).get("account")
+
+# customisation for total weight calculation
+import json
+import six
+
+@frappe.whitelist()
+def get_total_weight(items, qtys, kgperL=1.5):
+	total_weight = 0
+	if isinstance(items, six.string_types):
+		items = json.loads(items)
+	if isinstance(qtys, six.string_types):
+		qtys = json.loads(qtys)
+	i = 0
+	while i < len(items):
+		doc = frappe.get_doc("Item", items[i])
+		if doc != None:
+			if doc.net_weight > 0:
+				if doc.weight_uom == "kg":
+					total_weight += qtys[i] * doc.net_weight
+				elif doc.weight_uom == "L":
+					total_weight += qtys[i] * kgperL * doc.net_weight
+		i += 1
+	return { 'total_weight': total_weight }
+
