@@ -15,7 +15,8 @@ from frappe.contacts.doctype.address.address import (get_address_display,
 from frappe.contacts.doctype.contact.contact import get_contact_details, get_default_contact
 from erpnext.exceptions import PartyFrozen, PartyDisabled, InvalidAccountCurrency
 from erpnext.accounts.utils import get_fiscal_year
-from erpnext import get_default_currency
+from erpnext import get_default_currency, get_company_currency
+
 
 class DuplicatePartyAccountError(frappe.ValidationError): pass
 
@@ -43,6 +44,7 @@ def _get_party_details(party=None, account=None, party_type="Customer", company=
 		frappe.throw(_("Not permitted for {0}").format(party), frappe.PermissionError)
 
 	party = frappe.get_doc(party_type, party)
+	currency = party.default_currency if party.default_currency else get_company_currency(company)
 
 	set_address_details(out, party, party_type, doctype, company)
 	set_contact_details(out, party, party_type)
@@ -273,6 +275,7 @@ def get_due_date(posting_date, party_type, party, company):
 	return due_date
 
 def get_credit_days(party_type, party, company):
+	credit_days = 0
 	if party_type and party:
 		if party_type == "Customer":
 			credit_days_based_on, credit_days, customer_group = \
@@ -282,10 +285,10 @@ def get_credit_days(party_type, party, company):
 				frappe.db.get_value(party_type, party, ["credit_days_based_on", "credit_days", "supplier_type"])
 
 	if not credit_days_based_on:
-		if party_type == "Customer":
+		if party_type == "Customer" and customer_group:
 			credit_days_based_on, credit_days = \
 				frappe.db.get_value("Customer Group", customer_group, ["credit_days_based_on", "credit_days"])
-		else:
+		elif party_type == "Supplier" and supplier_type:
 			credit_days_based_on, credit_days = \
 				frappe.db.get_value("Supplier Type", supplier_type, ["credit_days_based_on", "credit_days"])
 
