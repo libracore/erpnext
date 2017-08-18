@@ -50,8 +50,12 @@ class ProductionOrder(Document):
 
 	def validate_sales_order(self):
 		if self.sales_order:
-			so = frappe.db.sql("""select name, delivery_date, project from `tabSales Order`
-				where name=%s and docstatus = 1""", self.sales_order, as_dict=1)
+			so = frappe.db.sql("""
+				select so.name, so_item.delivery_date, so.project 
+				from `tabSales Order` so, `tabSales Order Item` so_item
+				where so.name=%s and so.name=so_item.parent 
+					and so.docstatus = 1 and so_item.item_code=%s
+			""", (self.sales_order, self.production_item), as_dict=1)
 
 			if len(so):
 				if not self.expected_delivery_date:
@@ -509,6 +513,12 @@ def check_if_scrap_warehouse_mandatory(bom_no):
 			res["set_scrap_wh_mandatory"] = True
 
 	return res
+
+@frappe.whitelist()
+def set_production_order_ops(name):
+	po = frappe.get_doc('Production Order', name)
+	po.set_production_order_operations()
+	po.save()
 
 @frappe.whitelist()
 def make_stock_entry(production_order_id, purpose, qty=None):
