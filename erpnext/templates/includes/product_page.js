@@ -104,10 +104,10 @@ frappe.ready(function() {
 			}
 		}
 
-		// prevent self-postback 
+		// prevent self-postback
 		if (window.location.search == ("?variant=" + item_code)) {
 			return;
-		} 
+		}
 
 		window.location.href = window.location.pathname + "?variant=" + item_code;
 	});

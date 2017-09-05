@@ -1,5 +1,3 @@
-# Managing Multiple Companies
-
 #Managing Multiple Companies
 
 ERPNext allows you to create multiple companies in a single ERPNext instance.
@@ -37,6 +35,5 @@ Value will be auto-filled in most of these field to define company-wise defaults
 A separate Chart of Account master will be set for each company in the ERPNext. This allows you managing Accounts/Ledger master separately for each company. Also it allows you avail financial statement and reports like Balance Sheet and Profit and Loss Statement separately for each company.
 
 <img alt="New Company" class="screenshot" src="/docs/assets/img/articles/new-company-3.png">
-
 
 <!-- markdown -->
