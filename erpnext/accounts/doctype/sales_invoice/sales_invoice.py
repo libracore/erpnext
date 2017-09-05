@@ -967,7 +967,7 @@ def get_total_weight(items, qtys, kgperL=1.5):
 	while i < len(items):
 		doc = frappe.get_doc("Item", items[i])
 		if doc != None:
-			if doc.net_weight > 0:
+			if doc.net_weight > 0 and doc.has_weight:
 				if doc.weight_uom == "kg":
 					total_weight += qtys[i] * doc.net_weight
 				elif doc.weight_uom == "L":
