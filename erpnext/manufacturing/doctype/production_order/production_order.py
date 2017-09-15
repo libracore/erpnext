@@ -367,15 +367,11 @@ class ProductionOrder(Document):
 				frappe.throw(_("Completed Qty can not be greater than 'Qty to Manufacture'"))
 
 	def set_actual_dates(self):
+		self.actual_start_date = None
+		self.actual_end_date = None
 		if self.get("operations"):
-			actual_date = frappe.db.sql("""select min(actual_start_time) as start_date,
-				max(actual_end_time) as end_date from `tabProduction Order Operation`
-				where parent = %s and docstatus=1""", self.name, as_dict=1)[0]
-			self.actual_start_date = actual_date.start_date
-			self.actual_end_date = actual_date.end_date
-		else:
-			self.actual_start_date = None
-			self.actual_end_date = None
+			self.actual_start_date = min([d.actual_start_time for d in self.get("operations")])
+			self.actual_end_date = max([d.actual_end_time for d in self.get("operations")])
 
 	def delete_timesheet(self):
 		for timesheet in frappe.get_all("Timesheet", ["name"], {"production_order": self.name}):
@@ -523,7 +519,8 @@ def set_production_order_ops(name):
 @frappe.whitelist()
 def make_stock_entry(production_order_id, purpose, qty=None):
 	production_order = frappe.get_doc("Production Order", production_order_id)
-	if not frappe.db.get_value("Warehouse", production_order.wip_warehouse, "is_group"):
+	if not frappe.db.get_value("Warehouse", production_order.wip_warehouse, "is_group") \
+			and not production_order.skip_transfer:
 		wip_warehouse = production_order.wip_warehouse
 	else:
 		wip_warehouse = None
