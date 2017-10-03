@@ -8,7 +8,16 @@ frappe.pages['pos'].on_page_load = function (wrapper) {
 		single_column: true
 	});
 
-	wrapper.pos = new erpnext.pos.PointOfSale(wrapper)
+	frappe.db.get_value('POS Settings', {name: 'POS Settings'}, 'is_online', (r) => {
+		if (r && r.use_pos_in_offline_mode && cint(r.use_pos_in_offline_mode)) {
+			// offline
+			wrapper.pos = new erpnext.pos.PointOfSale(wrapper);
+			cur_pos = wrapper.pos;
+		} else {
+			// online
+			frappe.set_route('point-of-sale');
+		}
+	});
 }
 
 frappe.pages['pos'].refresh = function (wrapper) {
@@ -104,6 +113,7 @@ erpnext.pos.PointOfSale = erpnext.taxes_and_totals.extend({
 		});
 
 		this.page.add_menu_item(__("Sync Offline Invoices"), function () {
+			me.freeze_screen = true;
 			me.sync_sales_invoice()
 		});
 
@@ -1675,6 +1685,7 @@ erpnext.pos.PointOfSale = erpnext.taxes_and_totals.extend({
 	set_interval_for_si_sync: function () {
 		var me = this;
 		setInterval(function () {
+			me.freeze_screen = false;
 			me.sync_sales_invoice()
 		}, 60000)
 	},
@@ -1688,9 +1699,12 @@ erpnext.pos.PointOfSale = erpnext.taxes_and_totals.extend({
 			this.freeze = this.customer_doc.display
 		}
 
+		freeze_screen = this.freeze_screen || false;
+
 		if ((this.si_docs.length || this.email_queue_list || this.customers_list) && !this.freeze) {
 			frappe.call({
 				method: "erpnext.accounts.doctype.sales_invoice.pos.make_invoice",
+				freeze: freeze_screen,
 				args: {
 					doc_list: me.si_docs,
 					email_queue_list: me.email_queue_list,
