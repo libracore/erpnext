@@ -224,3 +224,21 @@ def get_credit_limit(customer, company):
 		credit_limit = frappe.db.get_value("Company", company, "credit_limit")
 
 	return flt(credit_limit)
+
+@frappe.whitelist()
+def expand_pricelist(customer_pricelist, standard_pricelist="Standard Selling", currency="CHF"):
+    # read standard price list
+    original_prices = frappe.get_list("Item Price", filters={'price_list':standard_pricelist}, fields=['item_code','price_list_rate'])
+    # loop through prices
+    for price in original_prices:
+        # create new record
+        new_price = frappe.new_doc("Item Price")
+        new_price.price_list = customer_pricelist
+        new_price.buying = 0
+        new_price.selling = 1
+        new_price.currency = currency
+        new_price.item_code = price.item_code
+        new_price.price_list_rate = price.price_list_rate
+        new_price.save()
+
+    return
