@@ -988,7 +988,8 @@ def get_total_weight(items, qtys, kgperL=1.5):
 				if doc.weight_uom == "kg":
 					total_weight += qtys[i] * doc.net_weight
 				elif doc.weight_uom == "L":
-					total_weight += qtys[i] * kgperL * doc.net_weight
+					# make sure, tabItem contains custom field (float) density!
+					total_weight += qtys[i] * doc.density * doc.net_weight
 		i += 1
 	return { 'total_weight': total_weight }
 
