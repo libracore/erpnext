@@ -60,7 +60,7 @@ class ItemGroup(NestedSet, WebsiteGenerator):
 
 	def get_context(self, context):
 		context.show_search=True
-		context.page_length = 6
+		context.page_length = 21
 		context.search_link = '/product_search'
 
 		start = int(frappe.form_dict.start or 0)
