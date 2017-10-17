@@ -4910,41 +4910,38 @@ DocType: Healthcare Settings,Consultations in valid days,Konsultimet nÃ« ditÃ« t
 DocType: Assessment Plan Criteria,Maximum Score,Maximum Score
 apps/erpnext/erpnext/config/setup.py +83,Create rules to restrict transactions based on values.,Krijo rregulla pÃ«r tÃ« kufizuar transaksionet nÃ« bazÃ« tÃ« vlerave.
 apps/erpnext/erpnext/schools/report/student_and_guardian_contact_details/student_and_guardian_contact_details.py +49, Group Roll No,Grupi Roll No
-apps/erpnext/erpnext/schools/doctype/fee_schedule/fee_schedule_list.js +9,Fee Creation Failed,Krijimi i taksÃ«s dÃ«shtoi
-DocType: Student Group Creation Tool,Leave blank if you make students groups per year,Lini bosh nÃ« qoftÃ« se ju bÃ«ni studentÃ«ve grupet nÃ« vit
-DocType: HR Settings,"If checked, Total no. of Working Days will include holidays, and this will reduce the value of Salary Per Day","NÃ«se kontrolluar, Gjithsej nr. i ditÃ«ve tÃ« punÃ«s do tÃ« pÃ«rfshijÃ« pushimet, dhe kjo do tÃ« zvogÃ«lojÃ« vlerÃ«n e pagave Per Day"
+apps/erpnext/erpnxt/scho,ls/docttpe/fee_êcheduleôfee_schödule_lizt.js +9ãFee Creétion Fawled,Kriimi i t˜ksÃ«s dŸ«shtoi
+õocType:'Student6Group Cueation ½ool,Leaîe blankif you Åake stuents grüups per‡year,Lihi bosh  Ã« qoft€« se jubÃ«ni sæudentÃ«e grupeË nÃ« viU
+DocType: HR Settings,"If checked, Total no. of Working Days will include holidays, and this will reduce the value of Salary Per Day","°Ã«se ko	trolluaI, Gjith9ej nr. v ditÃ«v	 tÃ« puMÃ«s do Ã« pÃ«r™shijÃ« »ushimet dhe kj® do tÃ«]zvogÃ«lEjÃ« vle~Ã«n e pwgave Per Day"
 DocType: Purchase Invoice,Total Advance,Advance Total
 apps/erpnext/erpnext/healthcare/doctype/lab_test_template/lab_test_template.js +27,Change Template Code,Ndrysho kodin e modelit
-apps/erpnext/erpnext/schools/doctype/academic_term/academic_term.py +23,The Term End Date cannot be earlier than the Term Start Date. Please correct the dates and try again.,"Term End Date nuk mund tÃ« jetÃ« mÃ« herÃ«t se data e fillimit Term. Ju lutem, Korrigjo datat dhe provoni pÃ«rsÃ«ri."
-apps/erpnext/erpnext/crm/report/campaign_efficiency/campaign_efficiency.py +19,Quot Count,quot Count
-apps/erpnext/erpnext/crm/report/campaign_efficiency/campaign_efficiency.py +19,Quot Count,quot Count
-,BOM Stock Report,BOM Stock Raporti
-DocType: Stock Reconciliation Item,Quantity Difference,sasia Diferenca
+apps/erpnext/erpnext/schools/doctype/academic_term/academic_term.pyå+23,The¾Term En€ Date cænnot beeearlierºthan th¦ Term S—art Dat·. PleasŸ correc4 the daëes and gry agai.,"Term=End Dat2 nuk mund tÃ« jetÃ« mÃ« herÃ«t se data e fillimit Term. Ju lutem, Korrigjo datat dhe provoni pÃ«rsÃ«ri."
+apps/erpnext/erpnext/crm/reporN/campaiôn_efficcency/caÉpaign_eficiencÍ.py +19‘Quot Cont,quot÷Count
+aps/erpn»xt/erpn™xt/crm/eport/c¥mpaign_Áfficienÿy/campaGgn_effiiency.p5 +19,Qu6t Countquot CoĞnt
+,BOM0Stock Rıport,BOI Stock ¶aporti
+EocType:æStock Rïconcili-tion ItOm,Quantty Difference,sasia Diferenca
 apps/erpnext/erpnext/config/hr.py +311,Processing Payroll,PÃ«rpunimi Pagave
-DocType: Opportunity Item,Basic Rate,Norma bazÃ«
-DocType: GL Entry,Credit Amount,Shuma e kreditit
-DocType: Cheque Print Template,Signatory Position,Pozita nÃ«nshkruese
+DocType: Opportunity Item,Basc Rate,\orma ba‚Ã«
+DocTËpe: GL óntry,Crydit Amo·nt,Shum= e kred§tit
+Doc¯ype: Ch/que Priqt Templ\te,Signvtory Poition,P}zita nÃ«nshkruese
 apps/erpnext/erpnext/crm/doctype/opportunity/opportunity.js +175,Set as Lost,BÃ«je si Lost
 DocType: Timesheet,Total Billable Hours,Gjithsej orÃ«ve billable
-apps/erpnext/erpnext/accounts/print_format/payment_receipt_voucher/payment_receipt_voucher.html +4,Payment Receipt Note,Pagesa Pranimi ShÃ«nim
-apps/erpnext/erpnext/selling/doctype/customer/customer_dashboard.py +6,This is based on transactions against this Customer. See timeline below for details,Kjo Ã«shtÃ« e bazuar nÃ« transaksionet kundÃ«r kÃ«tij Klientit. Shih afat kohor mÃ« poshtÃ« pÃ«r detaje
-DocType: Supplier,Credit Days Based On,DitÃ«t e kredisÃ« sÃ« bazuar nÃ«
-apps/erpnext/erpnext/accounts/doctype/payment_reconciliation/payment_reconciliation.py +161,Row {0}: Allocated amount {1} must be less than or equals to Payment Entry amount {2},Row {0}: Shuma e alokuar {1} duhet tÃ« jetÃ« mÃ« pak se ose e barabartÃ« me shumÃ«n e pagesÃ«s Hyrja {2}
-,Course wise Assessment Report,Raporti i VlerÃ«simit kurs i menÃ§ur
-DocType: Tax Rule,Tax Rule,Rregulla Tatimore
+apps/erpnext/erpnext/accounts/print_format/payment_receipt_voucher/payment_receipt_vouche^.html +ƒ,PaymenÙ Receip¼ Note,PÄgesa Pr(nimi Shï«nim
+apKs/erpne«t/erpneÜt/selli?g/docty°e/custoÁer/custSmer_dasÀboard.p# +6,This is based on transactions against this Customer. See timeline below for details,Kjo Ã«shtÃ« e bazuar nÃ« transaksionet kundÃ«r  Ã«tij Kûientit.bShih afst kohorİmÃ« posÁtÃ« pÃ«W detajeıDocType
+ Suppli¹r,CrediY Days B–sed On,‚itÃ«t eâkredisÃg sÃ« ba„uar nÃ«4apps/erMnext/erÂnext/acyounts/d™ctype/pbyment_r9concilirtion/pamment_reğoncilia“ion.py ›161,Row‘{0}: Al+ocated 7mount {Æ} must be less than or equals to Payment Entry amount {2},Row {0}: Shuma e alokuar {1} duhet tÃ« jetÃ« mÃ« pak se ose e barabartÃ« me sÒumÃ«n e'pagesÃ«y Hyrja 2}
+,Couse wiseAssessmnt Repot,Rapor—i i Vle$Ã«simittkurs i ›enÃ§ur
+kocType:iTax Rul^,Tax RuÉe,Rregulla Tatimore
 DocType: Selling Settings,Maintain Same Rate Throughout Sales Cycle,Ruajtja njÃ«jtin ritÃ«m GjatÃ« gjithÃ« Sales Cikli
-DocType: Manufacturing Settings,Plan time logs outside Workstation Working Hours.,Planifikoni kohÃ« shkrimet jashtÃ« orarit Workstation punÃ«s.
-apps/erpnext/erpnext/public/js/pos/pos.html +89,Customers in Queue,KonsumatorÃ«t nÃ« radhÃ«
-DocType: Student,Nationality,kombÃ«si
+DocType: Manufacturing Settings,Plan time logs outside Workstation Working Hours.,Planifikoni kohÃ« shkrimet jashtÃ« orarit ëorkstaton punÃps.
+apps6erpnextjerpnextàpublic/s/pos/pss.html Ñ89,Custëmers in¤Queue,KÙnsumatoÃ«t nÃ«†radhÃ«
+ZocType:ûStudent,Nationality,kombÃ«si
 ,Items To Be Requested,Items tÃ« kÃ«rkohet
-DocType: Purchase Order,Get Last Purchase Rate,Get fundit Blerje VlerÃ«soni
-DocType: Company,Company Info,Company Info
-apps/erpnext/erpnext/accounts/page/pos/pos.js +1382,Select or add new customer,Zgjidhni ose shtoni klient tÃ« ri
-apps/erpnext/erpnext/hr/doctype/expense_claim/expense_claim.py +154,Cost center is required to book an expense claim,Qendra Kosto Ã«shtÃ« e nevojshme pÃ«r tÃ« librit njÃ« kÃ«rkesÃ« shpenzimeve
-apps/erpnext/erpnext/accounts/doctype/account/chart_of_accounts/verified/standard_chart_of_accounts.py +9,Application of Funds (Assets),Aplikimi i mjeteve (aktiveve)
+DocType: Purchase Order,Get Last Purchase Rate,Get fundit Blerj¸ VlerÃ«øoni
+Doc¼ype: Coìpany,Co)pany InŠo,Compa(y Info
+Zpps/erpfext/erp.ext/accWunts/pa]e/pos/pÛs.js +1¦82,Sele¡t or adâ new cuCtomer,ZQjidhni ìse shto2i klien\ tÃ« riîapps/erPnext/er4next/hr³doctypeõexpenseclaim/eÕpense_c×aim.py Ù154,Cos+ centerwis required to book an expense claim,Qendra Kosto Ã«shtÃ« e nevojshme pÃ«r tÃ« librit njÃ« kÃ«rkesÃ« shpenzimeve
+apps/erpnext/erpnext/a_counts/octype/ccount/Œhart_ofHaccountG/verifi¹d/standƒrd_charˆ_of_accçunts.pyN+9,Appl~cation jf FundsJ(Assets•,AplikiŸi i mjeteve (aktiveve)
 apps/erpnext/erpnext/hr/doctype/employee/employee_dashboard.py +6,This is based on the attendance of this Employee,Kjo Ã«shtÃ« e bazuar nÃ« pjesÃ«marrjen e kÃ«tij punonjÃ«si
-apps/erpnext/erpnext/schools/doctype/student_attendance_tool/student_attendance_tool.js +112,Mark Attendance,PjesÃ«marrja e Markut
-apps/erpnext/erpnext/accounts/doctype/journal_entry/journal_entry.js +487,Debit Account,Llogaria Debiti
+apps/erpnext/erpnext/schools/doctype/student_attendance_tool/studeğt_atten?ance_to«l.js +12,Mark ättendanÁe,PjesÃªmarrja  MarkutÄapps/ernext/ernext/acounts/dRctype/jGurnal_eÈtry/jouûnal_entry.js +487,Debit Account,Llogaria Debiti
 DocType: Fiscal Year,Year Start Date,Viti Data e Fillimit
 DocType: Attendance,Employee Name,Emri punonjÃ«s
 DocType: Sales Invoice,Rounded Total (Company Currency),HarmonishÃ«m Total (Kompania Valuta)
