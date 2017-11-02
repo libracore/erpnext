@@ -10,12 +10,10 @@ from frappe.utils import cstr, flt, getdate
 from frappe import _
 from frappe.utils.file_manager import save_file
 from .default_website import website_maker
-from .healthcare import setup_healthcare
 import install_fixtures
 from .sample_data import make_sample_data
 from erpnext.accounts.doctype.account.account import RootNotEditable
 from frappe.core.doctype.communication.comment import add_info_comment
-from erpnext.setup.setup_wizard.domainify import setup_domain
 from erpnext.setup.doctype.company.company import install_country_fixtures
 
 def setup_complete(args=None):
@@ -33,13 +31,7 @@ def setup_complete(args=None):
 	create_feed_and_todo()
 	create_email_digest()
 	create_letter_head(args)
-
-	if args.get('domain').lower() == 'education':
-		create_academic_year()
-		create_academic_term()
-
-	if args.domain.lower() == 'healthcare':
-		setup_healthcare()
+	set_no_copy_fields_in_variant_settings()
 
 	if args.get('setup_website'):
 		website_maker(args)
@@ -47,7 +39,8 @@ def setup_complete(args=None):
 	create_logo(args)
 
 	frappe.local.message_log = []
-	setup_domain(args.get('domain'))
+	domain_settings = frappe.get_single('Domain Settings')
+	domain_settings.set_active_domains([_(args.get('domain'))])
 
 	frappe.db.commit()
 	login_as_first_user(args)
@@ -64,10 +57,6 @@ def setup_complete(args=None):
 			frappe.message_log.pop()
 
 		pass
-
-def setup_success(args=None):
-	company = frappe.db.sql("select name from tabCompany", as_dict=True)[0]["name"]
-	install_country_fixtures(company)
 
 def create_fiscal_year_and_company(args):
 	if (args.get('fy_start_date')):
@@ -354,6 +343,12 @@ def create_letter_head(args):
 			fileurl = save_file(filename, content, "Letter Head", _("Standard"), decode=True).file_url
 			frappe.db.set_value("Letter Head", _("Standard"), "content", "<img src='%s' style='max-width: 100%%;'>" % fileurl)
 
+def set_no_copy_fields_in_variant_settings():
+	# set no copy fields of an item doctype to item variant settings
+	doc = frappe.get_doc('Item Variant Settings')
+	doc.set_default_fields()
+	doc.save()
+
 def create_logo(args):
 	if args.get("attach_logo"):
 		attach_logo = args.get("attach_logo").split(",")
@@ -396,28 +391,4 @@ def create_employee_for_self(args):
 	})
 	emp.flags.ignore_mandatory = True
 	emp.insert(ignore_permissions = True)
-
-# Schools
-def create_academic_term():
-	at = ["Semester 1", "Semester 2", "Semester 3"]
-	ay = ["2013-14", "2014-15", "2015-16", "2016-17", "2017-18"]
-	for y in ay:
-		for t in at:
-			academic_term = frappe.new_doc("Academic Term")
-			academic_term.academic_year = y
-			academic_term.term_name = t
-			try:
-				academic_term.save()
-			except frappe.DuplicateEntryError:
-				pass
-
-def create_academic_year():
-	ac = ["2013-14", "2014-15", "2015-16", "2016-17", "2017-18"]
-	for d in ac:
-		academic_year = frappe.new_doc("Academic Year")
-		academic_year.academic_year_name = d
-		try:
-			academic_year.save()
-		except frappe.DuplicateEntryError:
-			pass
 
