@@ -20,7 +20,7 @@ def get_data():
 			},
 			{
 				'label': _('Projects'),
-				'items': ['Project']
+				'items': ['Project', 'Crono']
 			}
 		]
 	}
