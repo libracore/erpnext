@@ -382,6 +382,7 @@ erpnext.hub.Hub = class Hub {
 			},
 			method: "erpnext.hub_node.get_item_details",
 			callback: (r) => {
+				if (!r || !r.message) return;
 				let item = r.message;
 				this.item_cache[item_code] = item;
 				this.render_item_page(item);
@@ -483,7 +484,7 @@ erpnext.hub.Hub = class Hub {
 		}
 		frappe.call({
 			method: 'erpnext.hub_node.get_company_details',
-			args: {company_id: company_id}
+			args: {hub_sync_id: company_id}
 		}).then((r) => {
 			if (r.message) {
 				const company_details = r.message.company_details;
