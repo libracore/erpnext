@@ -252,22 +252,25 @@ frappe.ui.form.on('Payment Entry', {
 					date: frm.doc.posting_date
 				},
 				callback: function(r, rt) {
-					console.log(r, rt);
 					if(r.message) {
-						if(frm.doc.payment_type == "Receive") {
-							frm.set_value("paid_from", r.message.party_account);
-							frm.set_value("paid_from_account_currency", r.message.party_account_currency);
-							frm.set_value("paid_from_account_balance", r.message.account_balance);
-						} else if (frm.doc.payment_type == "Pay"){
-							frm.set_value("paid_to", r.message.party_account);
-							frm.set_value("paid_to_account_currency", r.message.party_account_currency);
-							frm.set_value("paid_to_account_balance", r.message.account_balance);
-						}
-						frm.set_value("party_balance", r.message.party_balance);
-						frm.events.get_outstanding_documents(frm);
-						frm.events.hide_unhide_fields(frm);
-						frm.events.set_dynamic_labels(frm);
-						frm.set_party_account_based_on_party = false;
+						frappe.run_serially([
+							() => {
+								if(frm.doc.payment_type == "Receive") {
+									frm.set_value("paid_from", r.message.party_account);
+									frm.set_value("paid_from_account_currency", r.message.party_account_currency);
+									frm.set_value("paid_from_account_balance", r.message.account_balance);
+								} else if (frm.doc.payment_type == "Pay"){
+									frm.set_value("paid_to", r.message.party_account);
+									frm.set_value("paid_to_account_currency", r.message.party_account_currency);
+									frm.set_value("paid_to_account_balance", r.message.account_balance);
+								}
+							},
+							() => frm.set_value("party_balance", r.message.party_balance),
+							() => frm.events.get_outstanding_documents(frm),
+							() => frm.events.hide_unhide_fields(frm),
+							() => frm.events.set_dynamic_labels(frm),
+							() => { frm.set_party_account_based_on_party = false; }
+						]);
 					}
 				}
 			});
@@ -648,12 +651,12 @@ frappe.ui.form.on('Payment Entry', {
 
 	set_difference_amount: function(frm) {
 		var unallocated_amount = 0;
+		var total_deductions = frappe.utils.sum($.map(frm.doc.deductions || [],
+			function(d) { return flt(d.amount) }));
+
 		if(frm.doc.party) {
 			var party_amount = frm.doc.payment_type=="Receive" ?
 				frm.doc.paid_amount : frm.doc.received_amount;
-
-			var total_deductions = frappe.utils.sum($.map(frm.doc.deductions || [],
-				function(d) { return flt(d.amount) }));
 
 			if(frm.doc.total_allocated_amount < party_amount) {
 				if(frm.doc.payment_type == "Receive") {
