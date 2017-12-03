@@ -38,5 +38,9 @@ def get_data():
 				'label': _('Payment'),
 				'items': ['Payment Entry', 'Payment Request', 'Journal Entry']
 			},
+			{
+				'label': _('Fire testing'),
+				'items': ['Classification', 'Crono']
+			}
 		]
 	}
