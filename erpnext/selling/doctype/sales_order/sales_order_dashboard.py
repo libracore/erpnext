@@ -24,7 +24,7 @@ def get_data():
 			},
 			{
 				'label': _('Projects'),
-				'items': ['Project', 'Crono']
+				'items': ['Project']
 			},
 			{
 				'label': _('Manufacturing'),
