@@ -15,7 +15,7 @@ from erpnext.controllers.selling_controller import SellingController
 from erpnext.accounts.utils import get_account_currency
 from erpnext.stock.doctype.delivery_note.delivery_note import update_billed_amount_based_on_so
 from erpnext.projects.doctype.timesheet.timesheet import get_projectwise_timesheet_data
-from erpnext.accounts.doctype.asset.depreciation \
+from erpnext.assets.doctype.asset.depreciation \
 	import get_disposal_account_and_cost_center, get_gl_entries_on_asset_disposal
 from erpnext.stock.doctype.batch.batch import set_batch_nos
 from erpnext.stock.doctype.serial_no.serial_no import get_serial_nos, get_delivery_note_serial_no
@@ -70,7 +70,6 @@ class SalesInvoice(SellingController):
 		self.clear_unallocated_advances("Sales Invoice Advance", "advances")
 		self.add_remarks()
 		self.validate_write_off_account()
-		self.validate_duplicate_offline_pos_entry()
 		self.validate_account_for_change_amount()
 		self.validate_fixed_asset()
 		self.set_income_account_for_fixed_assets()
@@ -144,6 +143,7 @@ class SalesInvoice(SellingController):
 		self.update_time_sheet(self.name)
 
 		self.update_current_month_sales()
+		self.update_project()
 
 	def validate_pos_paid_amount(self):
 		if len(self.payments) == 0 and self.is_pos:
@@ -182,6 +182,7 @@ class SalesInvoice(SellingController):
 		frappe.db.set(self, 'status', 'Cancelled')
 
 		self.update_current_month_sales()
+		self.update_project()
 
 	def update_current_month_sales(self):
 		if frappe.flags.in_test:
@@ -243,12 +244,12 @@ class SalesInvoice(SellingController):
 		if not self.debit_to:
 			self.debit_to = get_party_account("Customer", self.customer, self.company)
 		if not self.due_date and self.customer:
-			self.due_date = get_due_date(self.posting_date, "Customer", self.customer, self.company)
+			self.due_date = get_due_date(self.posting_date, "Customer", self.customer)
 
 		super(SalesInvoice, self).set_missing_values(for_validate)
 
 		if pos:
-			return {"print_format": pos.get("print_format") }
+			return {"print_format": pos.get("print_format_for_online") }
 
 	def update_time_sheet(self, sales_invoice):
 		for d in self.timesheets:
@@ -295,11 +296,16 @@ class SalesInvoice(SellingController):
 			return
 
 		from erpnext.stock.get_item_details import get_pos_profile_item_details, get_pos_profile
-		pos = get_pos_profile(self.company)
+		if not self.pos_profile:
+			pos_profile = get_pos_profile(self.company) or {}
+			self.pos_profile = pos_profile.get('name')
+
+		pos = {}
+		if self.pos_profile:
+			pos = frappe.get_doc('POS Profile', self.pos_profile)
 
 		if not self.get('payments') and not for_validate:
-			pos_profile = frappe.get_doc('POS Profile', pos.name) if pos else None
-			update_multi_mode_option(self, pos_profile)
+			update_multi_mode_option(self, pos)
 
 		if not self.account_for_change_amount:
 			self.account_for_change_amount = frappe.db.get_value('Company', self.company, 'default_cash_account')
@@ -307,8 +313,6 @@ class SalesInvoice(SellingController):
 		if pos:
 			if not for_validate and not self.customer:
 				self.customer = pos.customer
-				self.mode_of_payment = pos.mode_of_payment
-				# self.set_customer_defaults()
 
 			if pos.get('account_for_change_amount'):
 				self.account_for_change_amount = pos.get('account_for_change_amount')
@@ -462,12 +466,6 @@ class SalesInvoice(SellingController):
 
 		if flt(self.write_off_amount) and not self.write_off_account:
 			msgprint(_("Please enter Write Off Account"), raise_exception=1)
-
-	def validate_duplicate_offline_pos_entry(self):
-		if self.is_pos and self.offline_pos_name \
-			and frappe.db.get_value('Sales Invoice',
-			{'offline_pos_name': self.offline_pos_name, 'docstatus': 1}):
-			frappe.throw(_("Duplicate offline pos sales invoice {0}").format(self.offline_pos_name))
 
 	def validate_account_for_change_amount(self):
 		if flt(self.change_amount) and not self.account_for_change_amount:
@@ -638,9 +636,10 @@ class SalesInvoice(SellingController):
 		return gl_entries
 
 	def make_customer_gl_entry(self, gl_entries):
-		if self.grand_total:
+		grand_total = self.rounded_total or self.grand_total
+		if grand_total:
 			# Didnot use base_grand_total to book rounding loss gle
-			grand_total_in_company_currency = flt(self.grand_total * self.conversion_rate,
+			grand_total_in_company_currency = flt(grand_total * self.conversion_rate,
 				self.precision("grand_total"))
 
 			gl_entries.append(
@@ -651,7 +650,7 @@ class SalesInvoice(SellingController):
 					"against": self.against_income_account,
 					"debit": grand_total_in_company_currency,
 					"debit_in_account_currency": grand_total_in_company_currency \
-						if self.party_account_currency==self.company_currency else self.grand_total,
+						if self.party_account_currency==self.company_currency else grand_total,
 					"against_voucher": self.return_against if cint(self.is_return) else self.name,
 					"against_voucher_type": self.doctype
 				}, self.party_account_currency)
@@ -676,28 +675,28 @@ class SalesInvoice(SellingController):
 		# income account gl entries
 		for item in self.get("items"):
 			if flt(item.base_net_amount):
+				account_currency = get_account_currency(item.income_account)
+				gl_entries.append(
+					self.get_gl_dict({
+						"account": item.income_account,
+						"against": self.customer,
+						"credit": item.base_net_amount,
+						"credit_in_account_currency": item.base_net_amount \
+							if account_currency==self.company_currency else item.net_amount,
+						"cost_center": item.cost_center
+					}, account_currency)
+				)
+
 				if item.is_fixed_asset:
 					asset = frappe.get_doc("Asset", item.asset)
 
-					fixed_asset_gl_entries = get_gl_entries_on_asset_disposal(asset, item.base_net_amount)
+					fixed_asset_gl_entries = get_gl_entries_on_asset_disposal(asset, is_sale=True)
 					for gle in fixed_asset_gl_entries:
 						gle["against"] = self.customer
 						gl_entries.append(self.get_gl_dict(gle))
 
 					asset.db_set("disposal_date", self.posting_date)
 					asset.set_status("Sold" if self.docstatus==1 else None)
-				else:
-					account_currency = get_account_currency(item.income_account)
-					gl_entries.append(
-						self.get_gl_dict({
-							"account": item.income_account,
-							"against": self.customer,
-							"credit": item.base_net_amount,
-							"credit_in_account_currency": item.base_net_amount \
-								if account_currency==self.company_currency else item.net_amount,
-							"cost_center": item.cost_center
-						}, account_currency)
-					)
 
 		# expense account gl entries
 		if cint(self.update_stock) and \
@@ -894,6 +893,13 @@ class SalesInvoice(SellingController):
 					frappe.throw(_("Serial Number: {0} is already referenced in Sales Invoice: {1}".format(
 						serial_no, sales_invoice
 					)))
+
+	def update_project(self):
+		if self.project:
+			project = frappe.get_doc("Project", self.project)
+			project.flags.dont_sync_tasks = True
+			project.update_billed_amount()
+			project.save()
 
 def get_list_context(context=None):
 	from erpnext.controllers.website_list_for_contact import get_list_context

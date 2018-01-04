@@ -26,14 +26,14 @@ def get_product_list(search=None, start=0, limit=12):
 
 	# search term condition
 	if search:
-		query += """ and (web_long_description like %(search)s
-				or description like %(search)s
-				or item_name like %(search)s
-				or name like %(search)s)"""
+		query += """ and (I.web_long_description like %(search)s
+				or I.description like %(search)s
+				or I.item_name like %(search)s
+				or I.name like %(search)s)"""
 		search = "%" + cstr(search) + "%"
 
 	# order by
-	query += """ order by weightage desc, idx desc, modified desc limit %s, %s""" % (cint(start), cint(limit))
+	query += """ order by I.weightage desc, in_stock desc, I.item_name limit %s, %s""" % (cint(start), cint(limit))
 
 	data = frappe.db.sql(query, {
 		"search": search,
