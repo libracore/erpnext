@@ -90,7 +90,7 @@ class Bin(Document):
 
 		self.set_projected_qty()
 
-		self.db_set('reserved_qty_for_production', self.reserved_qty_for_production)
+		self.db_set('reserved_qty_for_production', flt(self.reserved_qty_for_production))
 		self.db_set('projected_qty', self.projected_qty)
 
 

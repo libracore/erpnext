@@ -14,7 +14,7 @@
  "modified_by": "joel.mesmer@libracore.com", 
  "module": "Accounts", 
  "name": "Rechnung", 
- "owner": "lars.mueller@libracore.com", 
+ "owner": "Administrator", 
  "print_format_builder": 1, 
  "print_format_type": "Server", 
  "show_section_headings": 0, 
