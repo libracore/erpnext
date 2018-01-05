@@ -997,12 +997,12 @@ def get_total_weight(items, qtys, kgperL=1.5):
 	while i < len(items):
 		doc = frappe.get_doc("Item", items[i])
 		if doc != None:
-			if doc.net_weight > 0 and doc.has_weight:
+			if doc.weight_per_unit > 0 and doc.has_weight:
 				if doc.weight_uom == "kg":
-					total_weight += qtys[i] * doc.net_weight
+					total_weight += qtys[i] * doc.weight_per_unit
 				elif doc.weight_uom == "L":
 					# make sure, tabItem contains custom field (float) density!
-					total_weight += qtys[i] * doc.density * doc.net_weight
+					total_weight += qtys[i] * doc.density * doc.weight_per_unit
 		i += 1
 	return { 'total_weight': total_weight }
 
