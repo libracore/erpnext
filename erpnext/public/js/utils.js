@@ -245,6 +245,7 @@ erpnext.utils.map_current_doc = function(opts) {
 			callback: function(r) {
 				if(!r.exc) {
 					var doc = frappe.model.sync(r.message);
+					cur_frm.dirty();
 					cur_frm.refresh();
 				}
 			}
@@ -260,7 +261,7 @@ erpnext.utils.map_current_doc = function(opts) {
 			action: function(selections, args) {
 				let values = selections;
 				if(values.length === 0){
-					frappe.msgprint(__("Please select Quotations"))
+					frappe.msgprint(__("Please select {0}", [opts.source_doctype]))
 					return;
 				}
 				opts.source_name = values;

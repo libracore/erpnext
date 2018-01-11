@@ -8,7 +8,7 @@ from frappe.utils import flt,cint, cstr, getdate
 
 from erpnext.accounts.party import get_party_details
 from erpnext.stock.get_item_details import get_conversion_factor
-from erpnext.buying.utils import validate_for_items
+from erpnext.buying.utils import validate_for_items, update_last_purchase_rate
 from erpnext.stock.stock_ledger import get_valuation_rate
 
 from erpnext.controllers.stock_controller import StockController
@@ -18,7 +18,10 @@ class BuyingController(StockController):
 		if hasattr(self, "taxes"):
 			self.flags.print_taxes_with_zero_amount = cint(frappe.db.get_single_value("Print Settings",
 				 "print_taxes_with_zero_amount"))
+			self.flags.show_inclusive_tax_in_print = self.is_inclusive_tax()
+
 			self.print_templates = {
+				"total": "templates/print_formats/includes/total.html",
 				"taxes": "templates/print_formats/includes/taxes.html"
 			}
 
@@ -171,7 +174,7 @@ class BuyingController(StockController):
 			for item in self.get("items"):
 				if self.doctype in ["Purchase Receipt", "Purchase Invoice"]:
 					item.rm_supp_cost = 0.0
-				if item.item_code in self.sub_contracted_items:
+				if item.bom and item.item_code in self.sub_contracted_items:
 					self.update_raw_materials_supplied(item, raw_material_table)
 
 					if [item.item_code, item.name] not in parent_items:
@@ -202,7 +205,8 @@ class BuyingController(StockController):
 			if not exists:
 				rm = self.append(raw_material_table, {})
 
-			required_qty = flt(bom_item.qty_consumed_per_unit) * flt(item.qty) * flt(item.conversion_factor)
+			required_qty = flt(flt(bom_item.qty_consumed_per_unit) * flt(item.qty) *
+				flt(item.conversion_factor), rm.precision("required_qty"))
 			rm.reference_name = item.name
 			rm.bom_detail_no = bom_item.name
 			rm.main_item_code = item.item_code
@@ -408,6 +412,18 @@ class BuyingController(StockController):
 					"actual_qty": -1*flt(d.consumed_qty),
 				}))
 
+	def on_submit(self):
+		if self.get('is_return'):
+			return
+
+		update_last_purchase_rate(self, is_submit = 1)
+
+	def on_cancel(self):
+		if self.get('is_return'):
+			return
+
+		update_last_purchase_rate(self, is_submit = 0)
+
 	def validate_schedule_date(self):
 		if not self.schedule_date:
 			self.schedule_date = min([d.schedule_date for d in self.get("items")])
@@ -417,7 +433,9 @@ class BuyingController(StockController):
 				if not d.schedule_date:
 					d.schedule_date = self.schedule_date
 
-				if d.schedule_date and getdate(d.schedule_date) < getdate(self.transaction_date):
-					frappe.throw(_("Expected Date cannot be before Transaction Date"))
+				if (d.schedule_date and self.transaction_date and
+					getdate(d.schedule_date) < getdate(self.transaction_date)):
+					frappe.throw(_("Row #{0}: Reqd by Date cannot be before Transaction Date").format(d.idx))
 		else:
-			frappe.throw(_("Please enter Schedule Date"))
+			frappe.throw(_("Please enter Reqd by Date"))
+
