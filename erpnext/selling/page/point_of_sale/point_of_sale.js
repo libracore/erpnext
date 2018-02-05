@@ -320,7 +320,7 @@ erpnext.pos.PointOfSale = class PointOfSale {
 		return new Promise((resolve) => {
 			const on_submit = ({ pos_profile, set_as_default }) => {
 				if (pos_profile) {
-					this.frm.doc.pos_profile = pos_profile;
+					this.pos_profile = pos_profile;
 				}
 
 				if (set_as_default) {
@@ -346,13 +346,19 @@ erpnext.pos.PointOfSale = class PointOfSale {
 	}
 
 	on_change_pos_profile() {
-		this.set_pos_profile_data()
-			.then(() => {
-				this.reset_cart();
-				if (this.items) {
-					this.items.reset_items();
-				}
-			});
+		return frappe.run_serially([
+			() => this.make_sales_invoice_frm(),
+			() => {
+				this.frm.doc.pos_profile = this.pos_profile;
+				this.set_pos_profile_data()
+					.then(() => {
+						this.reset_cart();
+						if (this.items) {
+							this.items.reset_items();
+						}
+					});
+			}
+		]);
 	}
 
 	get_promopt_fields() {
@@ -360,6 +366,7 @@ erpnext.pos.PointOfSale = class PointOfSale {
 			fieldtype: 'Link',
 			label: __('POS Profile'),
 			options: 'POS Profile',
+			reqd: 1,
 			get_query: () => {
 				return {
 					query: 'erpnext.accounts.doctype.pos_profile.pos_profile.pos_profile_query',
@@ -456,6 +463,8 @@ erpnext.pos.PointOfSale = class PointOfSale {
 
 					if (r.message) {
 						this.frm.meta.default_print_format = r.message.print_format || 'POS Invoice';
+						this.frm.allow_edit_rate = r.message.allow_edit_rate;
+						this.frm.allow_edit_discount = r.message.allow_edit_discount;
 					}
 				}
 
@@ -545,9 +554,9 @@ class POSCart {
 						<div class="taxes-and-totals">
 							${this.get_taxes_and_totals()}
 						</div>
-						<div class="discount-amount">
-							${this.get_discount_amount()}
-						</div>
+						<div class="discount-amount">`+
+						(!this.frm.allow_edit_discount ? `` : `${this.get_discount_amount()}`)+
+						`</div>
 						<div class="grand-total">
 							${this.get_grand_total()}
 						</div>
@@ -576,18 +585,31 @@ class POSCart {
 		this.numpad && this.numpad.reset_value();
 		this.customer_field.set_value("");
 
+		this.$discount_amount.find('input:text').val('');
 		this.wrapper.find('.grand-total-value').text(
 			format_currency(this.frm.doc.grand_total, this.frm.currency));
+		this.wrapper.find('.rounded-total-value').text(
+			format_currency(this.frm.doc.rounded_total, this.frm.currency));
 
 		const customer = this.frm.doc.customer;
 		this.customer_field.set_value(customer);
 	}
 
 	get_grand_total() {
+		let total = this.get_total_template('Grand Total', 'grand-total-value');
+
+		if (!cint(frappe.sys_defaults.disable_rounded_total)) {
+			total += this.get_total_template('Rounded Total', 'rounded-total-value');
+		}
+
+		return total;
+	}
+
+	get_total_template(label, class_name) {
 		return `
 			<div class="list-item">
-				<div class="list-item__content text-muted">${__('Grand Total')}</div>
-				<div class="list-item__content list-item__content--flex-2 grand-total-value">0.00</div>
+				<div class="list-item__content text-muted">${__(label)}</div>
+				<div class="list-item__content list-item__content--flex-2 ${class_name}">0.00</div>
 			</div>
 		`;
 	}
@@ -664,6 +686,10 @@ class POSCart {
 		this.$grand_total.find('.grand-total-value').text(
 			format_currency(this.frm.doc.grand_total, this.frm.currency)
 		);
+
+		this.$grand_total.find('.rounded-total-value').text(
+			format_currency(this.frm.doc.rounded_total, this.frm.currency)
+		);
 	}
 
 	make_customer_field() {
@@ -690,6 +716,17 @@ class POSCart {
 		this.customer_field.set_value(this.frm.doc.customer);
 	}
 
+	disable_numpad_control() {
+		let disabled_btns = [];
+		if(!this.frm.allow_edit_rate) {
+			disabled_btns.push('Rate');
+		}
+		if(!this.frm.allow_edit_discount) {
+			disabled_btns.push('Disc');
+		}
+		return disabled_btns;
+	}
+
 	make_numpad() {
 		this.numpad = new NumberPad({
 			button_array: [
@@ -704,6 +741,7 @@ class POSCart {
 			disable_highlight: ['Qty', 'Disc', 'Rate', 'Pay'],
 			reset_btns: ['Qty', 'Disc', 'Rate', 'Pay'],
 			del_btn: 'Del',
+			disable_btns: this.disable_numpad_control(),
 			wrapper: this.wrapper.find('.number-pad-container'),
 			onclick: (btn_value) => {
 				// on click
@@ -1211,6 +1249,7 @@ class POSItems {
 		return new Promise(res => {
 			frappe.call({
 				method: "erpnext.selling.page.point_of_sale.point_of_sale.get_items",
+				freeze: true,
 				args: {
 					start,
 					page_length,
@@ -1233,7 +1272,7 @@ class NumberPad {
 	constructor({
 		wrapper, onclick, button_array,
 		add_class={}, disable_highlight=[],
-		reset_btns=[], del_btn='',
+		reset_btns=[], del_btn='', disable_btns
 	}) {
 		this.wrapper = wrapper;
 		this.onclick = onclick;
@@ -1242,6 +1281,7 @@ class NumberPad {
 		this.disable_highlight = disable_highlight;
 		this.reset_btns = reset_btns;
 		this.del_btn = del_btn;
+		this.disable_btns = disable_btns || [];
 		this.make_dom();
 		this.bind_events();
 		this.value = '';
@@ -1272,6 +1312,16 @@ class NumberPad {
 		}
 
 		this.set_class();
+
+		if(this.disable_btns) {
+			this.disable_btns.forEach((btn) => {
+				const $btn = this.get_btn(btn);
+				$btn.prop("disabled", true)
+				$btn.hover(() => {
+					$btn.css('cursor','not-allowed');
+				})
+			})
+		}
 	}
 
 	set_class() {
@@ -1373,7 +1423,8 @@ class Payment {
 
 	set_title() {
 		let title = __('Total Amount {0}',
-			[format_currency(this.frm.doc.grand_total, this.frm.doc.currency)]);
+			[format_currency(this.frm.doc.rounded_total || this.frm.doc.grand_total,
+			this.frm.doc.currency)]);
 
 		this.dialog.set_title(title);
 	}
