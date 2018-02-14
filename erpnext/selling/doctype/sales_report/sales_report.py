@@ -49,9 +49,9 @@ class SalesReport(Document):
             {'filter': "`item_name` LIKE 'Lawicryl%' OR `item_name` LIKE 'Aqua All-Grund%' OR `item_name` LIKE 'Aquamatt%' OR `item_name` LIKE 'Samtacryl%'", 'description': 'Lacke W'},
             {'filter': "`item_name` LIKE 'Siliconharzfarbe%'", 'description': 'Siliconharzfarbe F1'},
             {'filter': "`item_name` LIKE 'Premium FF%'", 'description': 'Premiumfassadenfarbe'},
-            {'filter': "`item_name` LIKE 'Mineralit FF%' OR `item_name` LIKE 'Mineralit G%'", 'description': 'Allg. Fassadenfarben'},
+            {'filter': "`item_name` LIKE 'Mineralit F%' OR `item_name` LIKE 'Mineralit G%'", 'description': 'Allg. Fassadenfarben'},
             {'filter': "`item_name` LIKE 'Anti%'", 'description': 'Zusatzprodukte'},
-            {'filter': "`item_name` LIKE 'Abtönpaste%'", 'description': 'Abtönpasten'},
+            {'filter': "`item_group` LIKE 'Dienstleistungen Abtönung'", 'description': 'Abtönpasten'},
             {'filter': "`item_name` LIKE 'Kunststoff Eimer%'", 'description': 'Non-Farben'},
             {'filter': "`item_group` LIKE 'Dienstleistungen'", 'description': 'Dienstleistungen'}]        
 
