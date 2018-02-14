@@ -35,9 +35,9 @@ class SalesReport(Document):
         
         # define each line item
 	line_items = [{'filter': "`item_name` LIKE 'Superior RS1-20KG-WEISS'", 'description': 'Superior weiss'},
-            {'filter': "`item_name` LIKE 'Superior RS1-20KG-RAL9010', 'description': 'Superior 9010'},
-            {'filter': "`item_name` LIKE 'Superior RS1-20KG-RAL9016', 'description': 'Superior 9016'},
-            {'filter': "`item_name` LIKE 'Superior Superior RS1-20KG-NCSS0500N', 'description': 'Superior 0500'},
+            {'filter': "`item_name` LIKE 'Superior RS1-20KG-RAL9010'", 'description': 'Superior 9010'},
+            {'filter': "`item_name` LIKE 'Superior RS1-20KG-RAL9016'", 'description': 'Superior 9016'},
+            {'filter': "`item_name` LIKE 'Superior RS1-20KG-NCSS0500N'", 'description': 'Superior 0500'},
             {'filter': "`item_name` LIKE 'Super%L' OR `item_name` LIKE '%20KG' OR `item_name` LIKE 'Super%L-%'", 'description': 'Superior bunt'},
             {'filter': "`item_name` LIKE 'Palmatex 7%'", 'description': 'Palmatex 7'},
             {'filter': "`item_name` LIKE 'Polar%'", 'description': 'Polar'},
@@ -53,14 +53,14 @@ class SalesReport(Document):
             {'filter': "`item_name` LIKE 'Anti%'", 'description': 'Zusatzprodukte'},
             {'filter': "`item_name` LIKE 'Abtönpaste%'", 'description': 'Abtönpasten'},
             {'filter': "`item_name` LIKE 'Kunststoff Eimer%'", 'description': 'Non-Farben'},
-			{'filter': "`item_group` LIKE 'Dienstleistungen'", 'description': 'Dienstleistungen'}]        
+            {'filter': "`item_group` LIKE 'Dienstleistungen'", 'description': 'Dienstleistungen'}]        
 
         for line_item in line_items:
             _description = line_item['description']
             _sql_7days = """SELECT (IFNULL(SUM(`kg`), 0)) AS `qty`, 
                     (IFNULL(SUM(`net_amount`), 0)) AS `revenue`
                 FROM `viewDelivery`
-                WHERE ({0})'
+                WHERE ({0})
                 AND `docstatus` = 1
                 AND `posting_date` > DATE_SUB(NOW(), INTERVAL 7 DAY)
                 """.format(line_item['filter'])
