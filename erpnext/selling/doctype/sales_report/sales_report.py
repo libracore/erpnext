@@ -26,6 +26,7 @@ class SalesReport(Document):
         today = datetime.now()
         self.date = today.strftime("%Y-%m-%d")
         self.week = today.strftime("%W")
+        self.title = "Sales Report " + str(self.date)
         _week = int(today.strftime("%W"))
         _this_year = int(today.strftime("%Y"))
         _last_year = _this_year - 1
@@ -33,36 +34,53 @@ class SalesReport(Document):
         self.last_year = _last_year
         
         # define each line item
-        line_items = [{'field': 'item_code', 'value': 'Octocat'},
-            {'field': 'item_group', 'value': 'Products'},
-            {'field': 'item_group', 'value': 'Services'}]
-        
+	line_items = [{'filter': "`item_name` LIKE 'Superior RS1-20KG-WEISS'", 'description': 'Superior weiss'},
+            {'filter': "`item_name` LIKE 'Superior RS1-20KG-RAL9010', 'description': 'Superior 9010'},
+            {'filter': "`item_name` LIKE 'Superior RS1-20KG-RAL9016', 'description': 'Superior 9016'},
+            {'filter': "`item_name` LIKE 'Superior Superior RS1-20KG-NCSS0500N', 'description': 'Superior 0500'},
+            {'filter': "`item_name` LIKE 'Super%L' OR `item_name` LIKE '%20KG' OR `item_name` LIKE 'Super%L-%'", 'description': 'Superior bunt'},
+            {'filter': "`item_name` LIKE 'Palmatex 7%'", 'description': 'Palmatex 7'},
+            {'filter': "`item_name` LIKE 'Polar%'", 'description': 'Polar'},
+            {'filter': "`item_name` LIKE 'Isofinish%' OR `item_name` LIKE '%Grund Plus%' OR `item_name` LIKE 'Mineralit Innen%'", 'description': 'Spez. Wandfarben'},
+            {'filter': "`item_name` LIKE 'Aqua-Floor%'", 'description': 'Bodenfarben'},
+            {'filter': "`item_name` LIKE '%Tiefgrund'", 'description': 'Tiefgrund'},
+            {'filter': "`item_name` LIKE '%Lasur%'", 'description': 'Lasuren'},
+            {'filter': "`item_name` LIKE '%Fensterlack%'", 'description': 'Lacke LH'},
+            {'filter': "`item_name` LIKE 'Lawicryl%' OR `item_name` LIKE 'Aqua All-Grund%' OR `item_name` LIKE 'Aquamatt%' OR `item_name` LIKE 'Samtacryl%'", 'description': 'Lacke W'},
+            {'filter': "`item_name` LIKE 'Siliconharzfarbe%'", 'description': 'Siliconharzfarbe F1'},
+            {'filter': "`item_name` LIKE 'Premium FF%'", 'description': 'Premiumfassadenfarbe'},
+            {'filter': "`item_name` LIKE 'Mineralit FF%' OR `item_name` LIKE 'Mineralit G%'", 'description': 'Allg. Fassadenfarben'},
+            {'filter': "`item_name` LIKE 'Anti%'", 'description': 'Zusatzprodukte'},
+            {'filter': "`item_name` LIKE 'Abtönpaste%'", 'description': 'Abtönpasten'},
+            {'filter': "`item_name` LIKE 'Kunststoff Eimer%'", 'description': 'Non-Farben'},
+			{'filter': "`item_group` LIKE 'Dienstleistungen'", 'description': 'Dienstleistungen'}]        
+
         for line_item in line_items:
-            _description = line_item['value']
-            _sql_7days = """SELECT (IFNULL(SUM(`qty`), 0)) AS `qty`, 
+            _description = line_item['description']
+            _sql_7days = """SELECT (IFNULL(SUM(`kg`), 0)) AS `qty`, 
                     (IFNULL(SUM(`net_amount`), 0)) AS `revenue`
                 FROM `viewDelivery`
-                WHERE `{0}` LIKE '{1}'
+                WHERE ({0})'
                 AND `docstatus` = 1
                 AND `posting_date` > DATE_SUB(NOW(), INTERVAL 7 DAY)
-                """.format(line_item['field'], line_item['value'])
+                """.format(line_item['filter'])
             _qty_7days,_revenue_7days = get_qty_revenue(_sql_7days)
-            _sql_YTD = """SELECT (IFNULL(SUM(`qty`), 0)) AS `qty`, 
+            _sql_YTD = """SELECT (IFNULL(SUM(`kg`), 0)) AS `qty`, 
                     (IFNULL(SUM(`net_amount`), 0)) AS `revenue`
                 FROM `viewDelivery`
-                WHERE `{1}` LIKE '{2}'
+                WHERE ({1})
                 AND `docstatus` = 1
                 AND `posting_date` >= '{0}-01-01'
-                """.format(today.strftime("%Y"), line_item['field'], line_item['value'])
+                """.format(today.strftime("%Y"), line_item['filter'])
             _qty_YTD,_revenue_YTD = get_qty_revenue(_sql_YTD)
-            _sql_PY = """SELECT (IFNULL(SUM(`qty`), 0)) AS `qty`, 
+            _sql_PY = """SELECT (IFNULL(SUM(`kg`), 0)) AS `qty`, 
                     (IFNULL(SUM(`net_amount`), 0)) AS `revenue`
                 FROM `viewDelivery`
-                WHERE `{1}` LIKE '{2}'
+                WHERE ({1})
                 AND `docstatus` = 1
                 AND `posting_date` >= '{0}-01-01'
                 AND `posting_date` <= '{0}-12-31'
-                """.format(int(today.strftime("%Y")) - 1, line_item['field'], line_item['value'])
+                """.format(int(today.strftime("%Y")) - 1, line_item['filter'])
             _qty_PY,_revenue_PY = get_qty_revenue(_sql_PY)
                             
             self.append('items', 
