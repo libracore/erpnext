@@ -323,4 +323,15 @@ def get_data():
 				},
 			]
 		},
+		{
+			"label": _("Special Reports"),
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Sales Report",
+					"label": _("Sales Report"),
+					"description": _("Print-friendly sales report")
+				}
+			]
+		}
 	]

@@ -1,0 +1,22 @@
+{
+ "align_labels_right": 0, 
+ "creation": "2018-02-13 21:06:59.397590", 
+ "custom_format": 1, 
+ "disabled": 0, 
+ "doc_type": "Sales Report", 
+ "docstatus": 0, 
+ "doctype": "Print Format", 
+ "font": "Default", 
+ "html": "<!-- HEAD -->\n<div  id=\"header-html\" class=\"hidden-pdf\" >\n  <table style=\"width: 100%;\">\n    <tr>\n      <td>SEG</td>\n      <td style=\"text-align: right;\">Sales Report {{ doc.get_formatted('date') }}</td>\n    </tr>\n  </table>\n</div>\n<meta name=\"pdfkit-orientation\" content=\"Landscape\"/>\n<div id=\"footer-html\" class=\"visible-pdf\">\n  <table style=\"width:100%;\" >\n    <tr>\n      <td style=\"width: 30%;\">libracore business software</td>\n      <td style=\"text-align: center;\">Page <span class=\"page\"></span> of <span class=\"topage\"></span></span>\n      <td style=\"width:30%; text-align: right;\">https://www.libracore.com</span></p>\n    </tr>\n  </table>\n</div>\n\n<!-- CONTENT -->\n<center><h3>Sales Report</h3></center>\n<table style=\"width: 100%;\">\n  <tr>\n    <th>Ende KW {{ doc.week }}</th>\n    <th colspan=2>Aktuelle Woche</th>\n    <th colspan=2>Kumuliert {{ doc.this_year }}</th>\n    <th colspan=2>Rolling demand/Woche {{ doc.this_year }}</th>\n    <th colspan=2>Rolling demand/Woche {{ doc.last_year }}</th>\n    <th colspan=2>Kumuliert {{ doc.last_year }}</th>\n  </tr>\t\n  <tr>\n    <th>Produkt</th>\n    <th>Kg verkauft</th>\n    <th>Umsatz CHF</th>\n    <th>Kg</th>\n    <th>Umsatz kum.</th>\n    <th>Kg</th>\n    <th>Umsatz</th>\n    <th>Kg</th>\n    <th>CHF</th>\n    <th>Kg</th>\n    <th>CHF</th> \n  </tr>\n  {% for n in doc.items %}\n  <tr>\n    <td>{{ n.description }}</td>\n    <td>{{ n.qty_7days }}</td>\n    <td>CHF {{ \"{:,.0f}\".format(n.revenue_7days).replace(\",\", \"'\") }}</td>\n    <td>{{ n.qty_ytd }}</td>\n    <td>CHF {{ \"{:,.0f}\".format(n.revenue_ytd).replace(\",\", \"'\") }}</td>\n    <td>{{ n.demand_qty_ytd }}</td>\n    <td>CHF {{ \"{:,.0f}\".format(n.demand_revenue_ytd).replace(\",\", \"'\") }}</td>\n    <td>{{ n.demand_qty_py }}</td>\n    <td>CHF {{ \"{:,.0f}\".format(n.demand_revenue_py).replace(\",\", \"'\") }}</td>\n    <td>{{ n.qty_py }}</td>\n    <td>CHF {{ \"{:,.0f}\".format(n.revenue_py).replace(\",\", \"'\") }}</td>\n  </tr>\n  {% endfor %} \n  <tr>\n    <th>Summe</th>\n    <th>{{ doc.total_qty_7days }}</th>\n    <th>CHF {{ \"{:,.0f}\".format(doc.total_revenue_7days).replace(\",\", \"'\") }}</th>\n    <th>{{ doc.total_qty_ytd }}</th>\n    <th>CHF {{ \"{:,.0f}\".format(doc.total_revenue_ytd).replace(\",\", \"'\") }}</th>\n    <th>{{ doc.total_demand_qty_ytd }}</th>\n    <th>CHF {{ \"{:,.0f}\".format(doc.total_demand_revenue_ytd).replace(\",\", \"'\") }}</th>\n    <th>{{ doc.total_demand_qty_py }}</th>\n    <th>CHF {{ \"{:,.0f}\".format(doc.total_demand_revenue_py).replace(\",\", \"'\") }}</th>\n    <th>{{ doc.total_qty_py }}</th>\n    <th>CHF {{ \"{:,.0f}\".format(doc.total_revenue_py).replace(\",\", \"'\") }}</th>\n  </tr>\n</table>\n<p>{{ doc.remarks or '' }}</p>", 
+ "idx": 0, 
+ "line_breaks": 0, 
+ "modified": "2018-02-14 14:49:01.136201", 
+ "modified_by": "Administrator", 
+ "module": "Selling", 
+ "name": "Sales Report Print", 
+ "owner": "Administrator", 
+ "print_format_builder": 1, 
+ "print_format_type": "Server", 
+ "show_section_headings": 0, 
+ "standard": "Yes"
+}
