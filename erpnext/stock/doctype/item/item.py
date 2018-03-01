@@ -137,6 +137,13 @@ class Item(WebsiteGenerator):
 			})
 			item_price.insert()
 
+	def add_prices(self):
+		'''add selling prices to all selling price lists'''
+		target_price_lists = frappe.db.sql("SELECT `name` FROM `tabPrice List` WHERE `selling` = 1", as_list=True)
+		for price_list_name in target_price_lists:
+			self.add_price(price_list_name[0])
+		return
+
 	def set_opening_stock(self):
 		'''set opening stock'''
 		if not self.is_stock_item or self.has_serial_no or self.has_batch_no:
