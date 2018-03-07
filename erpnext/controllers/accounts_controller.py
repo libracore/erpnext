@@ -666,6 +666,8 @@ class AccountsController(TransactionBase):
 			self.remove(item)
 
 	def set_payment_schedule(self):
+		if self.doctype == 'Sales Invoice' and self.is_pos: return
+
 		posting_date = self.get("bill_date") or self.get("posting_date") or self.get("transaction_date")
 		date = self.get("due_date")
 		due_date = date or posting_date
@@ -695,6 +697,8 @@ class AccountsController(TransactionBase):
 		dates = []
 		li = []
 
+		if self.doctype == 'Sales Invoice' and self.is_pos: return
+
 		for d in self.get("payment_schedule"):
 			if self.doctype == "Sales Order" and getdate(d.due_date) < getdate(self.transaction_date):
 				frappe.throw(_("Row {0}: Due Date cannot be before posting date").format(d.idx))
@@ -708,6 +712,8 @@ class AccountsController(TransactionBase):
 				.format(list=duplicates))
 
 	def validate_payment_schedule_amount(self):
+		if self.doctype == 'Sales Invoice' and self.is_pos: return
+
 		if self.get("payment_schedule"):
 			total = 0
 			for d in self.get("payment_schedule"):
@@ -883,6 +889,7 @@ def get_advance_payment_entries(party_type, party, party_account,
 				t1.name = t2.parent and t1.{0} = %s and t1.payment_type = %s
 				and t1.party_type = %s and t1.party = %s and t1.docstatus = 1
 				and t2.reference_doctype = %s {1}
+			order by t1.posting_date
 		""".format(party_account_field, reference_condition),
 		[party_account, payment_type, party_type, party, order_doctype] + order_list, as_dict=1)
 
@@ -894,6 +901,7 @@ def get_advance_payment_entries(party_type, party, party_account,
 				where
 					{0} = %s and party_type = %s and party = %s and payment_type = %s
 					and docstatus = 1 and unallocated_amount > 0
+				order by posting_date
 			""".format(party_account_field), (party_account, party_type, party, payment_type), as_dict=1)
 
 	return list(payment_entries_against_order) + list(unallocated_payment_entries)
