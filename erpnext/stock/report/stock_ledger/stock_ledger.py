@@ -24,7 +24,7 @@ def execute(filters=None):
 			item_detail.stock_uom, sle.actual_qty, sle.qty_after_transaction,
 			(sle.incoming_rate if sle.actual_qty > 0 else 0.0),
 			sle.valuation_rate, sle.stock_value, sle.voucher_type, sle.voucher_no,
-			sle.batch_no, sle.serial_no, sle.company])
+			sle.batch_no, sle.serial_no, sle.project, sle.company])
 
 	return columns, data
 
@@ -45,6 +45,7 @@ def get_columns():
 		_("Voucher #") + ":Dynamic Link/" + _("Voucher Type") + ":100",
 		_("Batch") + ":Link/Batch:100",
 		_("Serial #") + ":Link/Serial No:100",
+		_("Project") + ":Link/Project:100",
 		{"label": _("Company"), "fieldtype": "Link", "width": 110,
 			"options": "company", "fieldname": "company"}
 	]
@@ -54,7 +55,7 @@ def get_columns():
 def get_stock_ledger_entries(filters):
 	return frappe.db.sql("""select concat_ws(" ", posting_date, posting_time) as date,
 			item_code, warehouse, actual_qty, qty_after_transaction, incoming_rate, valuation_rate,
-			stock_value, voucher_type, voucher_no, batch_no, serial_no, company
+			stock_value, voucher_type, voucher_no, batch_no, serial_no, company, project
 		from `tabStock Ledger Entry` sle
 		where company = %(company)s and
 			posting_date between %(from_date)s and %(to_date)s
@@ -96,6 +97,8 @@ def get_sle_conditions(filters):
 		conditions.append("voucher_no=%(voucher_no)s")
 	if filters.get("batch_no"):
 		conditions.append("batch_no=%(batch_no)s")
+	if filters.get("project"):
+		conditions.append("project=%(project)s")
 
 	return "and {}".format(" and ".join(conditions)) if conditions else ""
 
@@ -106,11 +109,10 @@ def get_opening_balance(filters, columns):
 	from erpnext.stock.stock_ledger import get_previous_sle
 	last_entry = get_previous_sle({
 		"item_code": filters.item_code,
-		"warehouse": get_warehouse_condition(filters.warehouse),
+		"warehouse_condition": get_warehouse_condition(filters.warehouse),
 		"posting_date": filters.from_date,
 		"posting_time": "00:00:00"
 	})
-
 	row = [""]*len(columns)
 	row[1] = _("'Opening'")
 	for i, v in ((9, 'qty_after_transaction'), (11, 'valuation_rate'), (12, 'stock_value')):
@@ -122,7 +124,7 @@ def get_warehouse_condition(warehouse):
 	warehouse_details = frappe.db.get_value("Warehouse", warehouse, ["lft", "rgt"], as_dict=1)
 	if warehouse_details:
 		return " exists (select name from `tabWarehouse` wh \
-			where wh.lft >= %s and wh.rgt <= %s and sle.warehouse = wh.name)"%(warehouse_details.lft,
+			where wh.lft >= %s and wh.rgt <= %s and warehouse = wh.name)"%(warehouse_details.lft,
 			warehouse_details.rgt)
 
 	return ''

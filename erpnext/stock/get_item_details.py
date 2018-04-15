@@ -10,6 +10,7 @@ from erpnext.accounts.doctype.pricing_rule.pricing_rule import get_pricing_rule_
 from erpnext.setup.utils import get_exchange_rate
 from frappe.model.meta import get_field_precision
 from erpnext.stock.doctype.batch.batch import get_batch_no
+from erpnext import get_company_currency
 
 
 @frappe.whitelist()
@@ -318,7 +319,7 @@ def get_price_list_rate(args, item_doc, out):
 		out.price_list_rate = flt(price_list_rate) * flt(args.plc_conversion_rate) \
 			/ flt(args.conversion_rate)
 		if not args.price_list_uom_dependant:
-			out.price_list_rate = flt(out.price_list_rate * (args.conversion_factor or 1.0))
+			out.price_list_rate = flt(out.price_list_rate * (flt(args.conversion_factor) or 1.0))
 
 		if not out.price_list_rate and args.transaction_type=="buying":
 			from erpnext.stock.doctype.item.item import get_last_purchase_details
@@ -394,8 +395,16 @@ def validate_conversion_rate(args, meta):
 
 def get_party_item_code(args, item_doc, out):
 	if args.transaction_type=="selling" and args.customer:
+		out.customer_item_code = None
 		customer_item_code = item_doc.get("customer_items", {"customer_name": args.customer})
-		out.customer_item_code = customer_item_code[0].ref_code if customer_item_code else None
+
+		if customer_item_code:
+			out.customer_item_code = customer_item_code[0].ref_code
+		else:
+			customer_group = frappe.db.get_value("Customer", args.customer, "customer_group")
+			customer_group_item_code = item_doc.get("customer_items", {"customer_group": customer_group})
+			if customer_group_item_code and not customer_group_item_code[0].customer_name:
+				out.customer_item_code = customer_group_item_code[0].ref_code
 
 	if args.transaction_type=="buying" and args.supplier:
 		item_supplier = item_doc.get("supplier_items", {"supplier": args.supplier})
@@ -590,11 +599,12 @@ def get_price_list_currency_and_exchange_rate(args):
 	price_list_currency = get_price_list_currency(args.price_list)
 	price_list_uom_dependant = get_price_list_uom_dependant(args.price_list)
 	plc_conversion_rate = args.plc_conversion_rate
+	company_currency = get_company_currency(args.company)
 
 	if (not plc_conversion_rate) or (price_list_currency and args.price_list_currency \
 		and price_list_currency != args.price_list_currency):
 			# cksgb 19/09/2016: added args.transaction_date as posting_date argument for get_exchange_rate
-			plc_conversion_rate = get_exchange_rate(price_list_currency, args.currency,
+			plc_conversion_rate = get_exchange_rate(price_list_currency, company_currency,
 				args.transaction_date) or plc_conversion_rate
 
 	return frappe._dict({

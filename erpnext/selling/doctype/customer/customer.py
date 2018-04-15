@@ -11,6 +11,7 @@ from frappe.desk.reportview import build_match_conditions
 from erpnext.utilities.transaction_base import TransactionBase
 from erpnext.accounts.party import validate_party_accounts, get_dashboard_info, get_timeline_data # keep this
 from frappe.contacts.address_and_contact import load_address_and_contact, delete_contact_and_address
+from frappe.model.rename_doc import update_linked_doctypes
 
 class Customer(TransactionBase):
 	def get_feed(self):
@@ -53,6 +54,14 @@ class Customer(TransactionBase):
 		self.flags.old_lead = self.lead_name
 		validate_party_accounts(self)
 		self.validate_credit_limit_on_change()
+		self.check_customer_group_change()
+
+	def check_customer_group_change(self):
+		frappe.flags.customer_group_changed = False
+
+		if not self.get('__islocal'):
+			if self.customer_group != frappe.db.get_value('Customer', self.name, 'customer_group'):
+				frappe.flags.customer_group_changed = True
 
 	def on_update(self):
 		self.validate_name_with_customer_group()
@@ -65,8 +74,16 @@ class Customer(TransactionBase):
 		if self.flags.is_new_doc:
 			self.create_lead_address_contact()
 
+		self.update_customer_groups()
+
+	def update_customer_groups(self):
+		ignore_doctypes = ["Lead", "Opportunity", "POS Profile", "Tax Rule", "Pricing Rule"]
+		if frappe.flags.customer_group_changed:
+			update_linked_doctypes('Customer', self.name, 'Customer Group',
+				self.customer_group, ignore_doctypes)
+
 	def create_primary_contact(self):
-		if not self.customer_primary_contact:
+		if not self.customer_primary_contact and not self.lead_name:
 			if self.mobile_no or self.email_id:
 				contact = make_contact(self)
 				self.db_set('customer_primary_contact', contact.name)
@@ -146,7 +163,8 @@ class Customer(TransactionBase):
 			frappe.throw(_("A Customer Group exists with same name please change the Customer name or rename the Customer Group"), frappe.NameError)
 
 	def validate_credit_limit_on_change(self):
-		if self.get("__islocal") or self.credit_limit == frappe.db.get_value("Customer", self.name, "credit_limit"):
+		if self.get("__islocal") or not self.credit_limit \
+			or self.credit_limit == frappe.db.get_value("Customer", self.name, "credit_limit"):
 			return
 
 		for company in frappe.get_all("Company"):
@@ -184,12 +202,14 @@ def get_customer_list(doctype, txt, searchfield, start, page_len, filters):
 		("%%%s%%" % txt, "%%%s%%" % txt, "%%%s%%" % txt, "%%%s%%" % txt, start, page_len))
 
 
-def check_credit_limit(customer, company):
-	customer_outstanding = get_customer_outstanding(customer, company)
+def check_credit_limit(customer, company, ignore_outstanding_sales_order=False, extra_amount=0):
+	customer_outstanding = get_customer_outstanding(customer, company, ignore_outstanding_sales_order)
+	if extra_amount > 0:
+		customer_outstanding += flt(extra_amount)
 
 	credit_limit = get_credit_limit(customer, company)
 	if credit_limit > 0 and flt(customer_outstanding) > credit_limit:
-		msgprint(_("Credit limit has been crossed for customer {0} {1}/{2}")
+		msgprint(_("Credit limit has been crossed for customer {0} ({1}/{2})")
 			.format(customer, customer_outstanding, credit_limit))
 
 		# If not authorized person raise exception
@@ -230,7 +250,8 @@ def get_customer_outstanding(customer, company, ignore_outstanding_sales_order=F
 			and dn.customer=%s and dn.company=%s
 			and dn.docstatus = 1 and dn.status not in ('Closed', 'Stopped')
 			and ifnull(dn_item.against_sales_order, '') = ''
-			and ifnull(dn_item.against_sales_invoice, '') = ''""", (customer, company), as_dict=True)
+			and ifnull(dn_item.against_sales_invoice, '') = ''
+		""", (customer, company), as_dict=True)
 
 	outstanding_based_on_dn = 0.0
 

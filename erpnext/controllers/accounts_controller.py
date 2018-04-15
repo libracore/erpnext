@@ -54,6 +54,7 @@ class AccountsController(TransactionBase):
 
 		if self.meta.get_field("taxes_and_charges"):
 			self.validate_enabled_taxes_and_charges()
+			self.validate_tax_account_company()
 
 		self.validate_party()
 		self.validate_currency()
@@ -134,9 +135,9 @@ class AccountsController(TransactionBase):
 			if not self.due_date:
 				frappe.throw(_("Due Date is mandatory"))
 
-			validate_due_date(self.posting_date, self.due_date, "Customer", self.customer)
+			validate_due_date(self.posting_date, self.due_date, "Customer", self.customer, self.company)
 		elif self.doctype == "Purchase Invoice":
-			validate_due_date(self.posting_date, self.due_date, "Supplier", self.supplier)
+			validate_due_date(self.posting_date, self.due_date, "Supplier", self.supplier, self.company)
 
 	def set_price_list_currency(self, buying_or_selling):
 		if self.meta.get_field("posting_date"):
@@ -254,6 +255,14 @@ class AccountsController(TransactionBase):
 		taxes_and_charges_doctype = self.meta.get_options("taxes_and_charges")
 		if frappe.db.get_value(taxes_and_charges_doctype, self.taxes_and_charges, "disabled"):
 			frappe.throw(_("{0} '{1}' is disabled").format(taxes_and_charges_doctype, self.taxes_and_charges))
+
+	def validate_tax_account_company(self):
+		for d in self.get("taxes"):
+			if d.account_head:
+				tax_account_company = frappe.db.get_value("Account", d.account_head, "company")
+				if tax_account_company != self.company:
+					frappe.throw(_("Row #{0}: Account {1} does not belong to company {2}")
+						.format(d.idx, d.account_head, self.company))
 
 	def get_gl_dict(self, args, account_currency=None):
 		"""this method populates the common properties of a gl entry record"""
@@ -475,7 +484,7 @@ class AccountsController(TransactionBase):
 					max_allowed_amt = flt(ref_amt * (100 + tolerance) / 100)
 
 					if total_billed_amt - max_allowed_amt > 0.01:
-						frappe.throw(_("Cannot overbill for Item {0} in row {1} more than {2}. To allow over-billing, please set in Buying Settings").format(item.item_code, item.idx, max_allowed_amt))
+						frappe.throw(_("Cannot overbill for Item {0} in row {1} more than {2}. To allow over-billing, please set in Stock Settings").format(item.item_code, item.idx, max_allowed_amt))
 
 	def get_company_default(self, fieldname):
 		from erpnext.accounts.utils import get_company_default
@@ -657,7 +666,9 @@ class AccountsController(TransactionBase):
 			self.remove(item)
 
 	def set_payment_schedule(self):
-		posting_date = self.get("posting_date") or self.get("transaction_date")
+		if self.doctype == 'Sales Invoice' and self.is_pos: return
+
+		posting_date = self.get("bill_date") or self.get("posting_date") or self.get("transaction_date")
 		date = self.get("due_date")
 		due_date = date or posting_date
 		grand_total = self.get("rounded_total") or self.grand_total
@@ -686,6 +697,8 @@ class AccountsController(TransactionBase):
 		dates = []
 		li = []
 
+		if self.doctype == 'Sales Invoice' and self.is_pos: return
+
 		for d in self.get("payment_schedule"):
 			if self.doctype == "Sales Order" and getdate(d.due_date) < getdate(self.transaction_date):
 				frappe.throw(_("Row {0}: Due Date cannot be before posting date").format(d.idx))
@@ -699,6 +712,8 @@ class AccountsController(TransactionBase):
 				.format(list=duplicates))
 
 	def validate_payment_schedule_amount(self):
+		if self.doctype == 'Sales Invoice' and self.is_pos: return
+
 		if self.get("payment_schedule"):
 			total = 0
 			for d in self.get("payment_schedule"):
@@ -722,11 +737,15 @@ def get_tax_rate(account_head):
 	return frappe.db.get_value("Account", account_head, ["tax_rate", "account_name"], as_dict=True)
 
 @frappe.whitelist()
-def get_default_taxes_and_charges(master_doctype, company=None):
+def get_default_taxes_and_charges(master_doctype, tax_template=None, company=None):
 	if not company: return {}
 
-	default_tax = frappe.db.get_value(master_doctype,
-		{"is_default": 1, "company": company})
+	if tax_template and company:
+		tax_template_company = frappe.db.get_value(master_doctype, tax_template, "company")
+		if tax_template_company == company:
+			return
+
+	default_tax = frappe.db.get_value(master_doctype, {"is_default": 1, "company": company})
 
 	return {
 		'taxes_and_charges': default_tax,
@@ -870,6 +889,7 @@ def get_advance_payment_entries(party_type, party, party_account,
 				t1.name = t2.parent and t1.{0} = %s and t1.payment_type = %s
 				and t1.party_type = %s and t1.party = %s and t1.docstatus = 1
 				and t2.reference_doctype = %s {1}
+			order by t1.posting_date
 		""".format(party_account_field, reference_condition),
 		[party_account, payment_type, party_type, party, order_doctype] + order_list, as_dict=1)
 
@@ -881,6 +901,7 @@ def get_advance_payment_entries(party_type, party, party_account,
 				where
 					{0} = %s and party_type = %s and party = %s and payment_type = %s
 					and docstatus = 1 and unallocated_amount > 0
+				order by posting_date
 			""".format(party_account_field), (party_account, party_type, party, payment_type), as_dict=1)
 
 	return list(payment_entries_against_order) + list(unallocated_payment_entries)

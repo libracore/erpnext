@@ -25,14 +25,14 @@ class POSProfile(Document):
 					`tabPOS Profile User` pfu, `tabPOS Profile` pf
 				where
 					pf.name = pfu.parent and pfu.user = %s and pf.name != %s and pf.company = %s
-					and pfu.default=1""", (row.user, self.name, self.company))
+					and pfu.default=1 and pf.disabled = 0""", (row.user, self.name, self.company))
 
 			if row.default and res:
 				msgprint(_("Already set default in pos profile {0} for user {1}, kindly disabled default")
 					.format(res[0][0], row.user), raise_exception=1)
 			elif not row.default and not res:
 				msgprint(_("User {0} doesn't have any default POS Profile. Check Default at Row {1} for this User.")
-					.format(row.user, row.idx), raise_exception=1)
+					.format(row.user, row.idx))
 
 	def validate_all_link_fields(self):
 		accounts = {"Account": [self.income_account,
