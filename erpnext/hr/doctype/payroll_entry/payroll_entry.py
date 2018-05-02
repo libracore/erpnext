@@ -175,7 +175,7 @@ class PayrollEntry(Document):
 			Get loan details from submitted salary slip based on selected criteria
 		"""
 		cond = self.get_filter_condition()
-		return frappe.db.sql(""" select eld.employee_loan_account,
+		return frappe.db.sql(""" select eld.employee_loan_account, eld.employee_loan,
 				eld.interest_income_account, eld.principal_amount, eld.interest_amount, eld.total_payment
 			from
 				`tabSalary Slip` t1, `tabSalary Slip Loan` eld
@@ -252,7 +252,7 @@ class PayrollEntry(Document):
 			journal_entry.user_remark = _('Accural Journal Entry for salaries from {0} to {1}')\
 				.format(self.start_date, self.end_date)
 			journal_entry.company = self.company
-			journal_entry.posting_date = nowdate()
+			journal_entry.posting_date = self.posting_date
 
 			accounts = []
 			payable_amount = 0
@@ -283,7 +283,12 @@ class PayrollEntry(Document):
 						"account": data.employee_loan_account,
 						"credit_in_account_currency": data.principal_amount
 					})
-				accounts.append({
+
+				if data.interest_amount and not data.interest_income_account:
+					frappe.throw(_("Select interest income account in employee loan {0}").format(data.employee_loan))
+
+				if data.interest_income_account and data.interest_amount:
+					accounts.append({
 						"account": data.interest_income_account,
 						"credit_in_account_currency": data.interest_amount,
 						"cost_center": self.cost_center,
@@ -321,7 +326,7 @@ class PayrollEntry(Document):
 			journal_entry.user_remark = _('Payment of salary from {0} to {1}')\
 				.format(self.start_date, self.end_date)
 			journal_entry.company = self.company
-			journal_entry.posting_date = nowdate()
+			journal_entry.posting_date = self.posting_date
 
 			payment_amount = flt(total_salary_amount.rounded_total, precision)
 

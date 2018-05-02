@@ -47,7 +47,6 @@ def get_batch_qty(batch_no=None, warehouse=None, item_code=None):
 	:param batch_no: Optional - give qty for this batch no
 	:param warehouse: Optional - give qty for this warehouse
 	:param item_code: Optional - give qty for this item'''
-	frappe.has_permission('Batch', throw=True)
 	out = 0
 	if batch_no and warehouse:
 		out = float(frappe.db.sql("""select sum(actual_qty)
@@ -115,8 +114,8 @@ def set_batch_nos(doc, warehouse_field, throw = False):
 				d.batch_no = get_batch_no(d.item_code, warehouse, qty, throw)
 			else:
 				batch_qty = get_batch_qty(batch_no=d.batch_no, warehouse=warehouse)
-				if flt(batch_qty) < flt(qty):
-					frappe.throw(_("Row #{0}: The batch {1} has only {2} qty. Please select another batch which has {3} qty available or split the row into multiple rows, to deliver/issue from multiple batches").format(d.idx, d.batch_no, batch_qty, d.qty))
+				if flt(batch_qty, d.precision("qty")) < flt(qty, d.precision("qty")):
+					frappe.throw(_("Row #{0}: The batch {1} has only {2} qty. Please select another batch which has {3} qty available or split the row into multiple rows, to deliver/issue from multiple batches").format(d.idx, d.batch_no, batch_qty, qty))
 
 @frappe.whitelist()
 def get_batch_no(item_code, warehouse, qty=1, throw=False):

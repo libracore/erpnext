@@ -462,7 +462,8 @@ class ProductionOrder(Document):
 
 			if reset_only_qty:
 				for d in self.get("required_items"):
-					d.required_qty = item_dict.get(d.item_code).get("qty")
+					if item_dict.get(d.item_code):
+						d.required_qty = item_dict.get(d.item_code).get("qty")
 			else:
 				for item in sorted(item_dict.values(), key=lambda d: d['idx']):
 					self.append('required_items', {
@@ -489,7 +490,7 @@ class ProductionOrder(Document):
 					and detail.parent = entry.name
 					and detail.item_code = %s''', (self.name, d.item_code))[0][0]
 
-			d.db_set('transferred_qty', transferred_qty, update_modified = False)
+			d.db_set('transferred_qty', flt(transferred_qty), update_modified = False)
 
 
 @frappe.whitelist()

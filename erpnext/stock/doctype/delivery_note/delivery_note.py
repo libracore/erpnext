@@ -235,13 +235,22 @@ class DeliveryNote(SellingController):
 	def check_credit_limit(self):
 		from erpnext.selling.doctype.customer.customer import check_credit_limit
 
+		extra_amount = 0
 		validate_against_credit_limit = False
-		for d in self.get("items"):
-			if not (d.against_sales_order or d.against_sales_invoice):
-				validate_against_credit_limit = True
-				break
+		bypass_credit_limit_check_at_sales_order = cint(frappe.db.get_value("Customer", self.customer,
+			"bypass_credit_limit_check_at_sales_order"))
+		if bypass_credit_limit_check_at_sales_order:
+			validate_against_credit_limit = True
+			extra_amount = self.base_grand_total
+		else:
+			for d in self.get("items"):
+				if not (d.against_sales_order or d.against_sales_invoice):
+					validate_against_credit_limit = True
+					break
+
 		if validate_against_credit_limit:
-			check_credit_limit(self.customer, self.company)
+			check_credit_limit(self.customer, self.company,
+				bypass_credit_limit_check_at_sales_order, extra_amount)
 
 	def validate_packed_qty(self):
 		"""
@@ -300,7 +309,8 @@ class DeliveryNote(SellingController):
 
 		for dn in set(updated_delivery_notes):
 			dn_doc = self if (dn == self.name) else frappe.get_doc("Delivery Note", dn)
-			dn_doc.update_billing_percentage(update_modified=update_modified)
+			if dn_doc.net_total > 0:
+				dn_doc.update_billing_percentage(update_modified=update_modified)
 
 		self.load_from_db()
 
@@ -378,6 +388,7 @@ def make_sales_invoice(source_name, target_doc=None):
 		target.is_pos = 0
 		target.ignore_pricing_rule = 1
 		target.run_method("set_missing_values")
+		target.run_method("set_po_nos")
 
 		if len(target.get("items")) == 0:
 			frappe.throw(_("All these items have already been invoiced"))

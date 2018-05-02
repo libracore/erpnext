@@ -14,7 +14,13 @@ frappe.query_reports["Accounts Receivable"] = {
 			"fieldname":"customer",
 			"label": __("Customer"),
 			"fieldtype": "Link",
-			"options": "Customer"
+			"options": "Customer",
+			on_change: () => {
+				var customer = frappe.query_report_filters_by_name.customer.get_value();
+				frappe.db.get_value('Customer', customer, "tax_id", function(value) {
+					frappe.query_report_filters_by_name.tax_id.set_value(value["tax_id"]);
+				});
+			}
 		},
 		{
 			"fieldname":"customer_group",
@@ -23,10 +29,10 @@ frappe.query_reports["Accounts Receivable"] = {
 			"options": "Customer Group"
 		},
 		{
-			"fieldname":"credit_days_based_on",
-			"label": __("Credit Days Based On"),
-			"fieldtype": "Select",
-			"options": "\nFixed Days\nLast Day of the Next Month"
+			"fieldname":"payment_terms_template",
+			"label": __("Payment Terms Template"),
+			"fieldtype": "Link",
+			"options": "Payment Terms Template"
 		},
 		{
 			"fieldtype": "Break",
@@ -64,6 +70,17 @@ frappe.query_reports["Accounts Receivable"] = {
 			"fieldtype": "Int",
 			"default": "90",
 			"reqd": 1
+		},
+		{
+			"fieldname":"show_pdc_in_print",
+			"label": __("Show PDC in Print"),
+			"fieldtype": "Check",
+		},
+		{
+			"fieldname":"tax_id",
+			"label": __("Tax Id"),
+			"fieldtype": "Data",
+			"hidden": 1
 		}
 	],
 

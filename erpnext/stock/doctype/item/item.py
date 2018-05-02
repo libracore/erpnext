@@ -44,7 +44,7 @@ class Item(WebsiteGenerator):
 					self.item_code = make_variant_item_code(self.variant_of, template_item_name, self)
 			else:
 				from frappe.model.naming import make_autoname
-				self.item_code = make_autoname(self.naming_series+'.#####')
+				self.item_code = make_autoname(self.naming_series+'.#####', doc=self)
 		elif not self.item_code:
 			msgprint(_("Item Code is mandatory because Item is not automatically numbered"), raise_exception=1)
 
@@ -55,8 +55,8 @@ class Item(WebsiteGenerator):
 		if not self.description:
 			self.description = self.item_name
 
-		if self.is_sales_item and not self.get('is_item_from_hub'):
-			self.publish_in_hub = 1
+		#if self.is_sales_item and not self.get('is_item_from_hub'):
+		#	self.publish_in_hub = 1
 
 	def after_insert(self):
 		'''set opening stock and item price'''

@@ -8,6 +8,10 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 	setup: function(doc) {
 		this.setup_posting_date_time_check();
 		this._super(doc);
+
+		// formatter for material request item
+		this.frm.set_indicator_formatter('item_code',
+			function(doc) { return (doc.qty<=doc.received_qty) ? "green" : "orange" })
 	},
 	onload: function() {
 		this._super();
@@ -18,12 +22,8 @@ erpnext.accounts.PurchaseInvoice = erpnext.buying.BuyingController.extend({
 				this.frm.set_df_property("credit_to", "print_hide", 0);
 			}
 		} else {
-			this.frm.set_value("disable_rounded_total", frappe.sys_defaults.disable_rounded_total);
+			this.frm.set_value("disable_rounded_total", cint(frappe.sys_defaults.disable_rounded_total));
 		}
-
-		// formatter for material request item
-		this.frm.set_indicator_formatter('item_code',
-			function(doc) { return (doc.qty<=doc.received_qty) ? "green" : "orange" })
 	},
 
 	refresh: function(doc) {

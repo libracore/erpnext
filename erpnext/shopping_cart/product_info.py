@@ -30,14 +30,14 @@ def get_product_info_for_website(item_code):
 	product_info = {
 		"price": price,
 		"stock_qty": stock_status.stock_qty,
-		"in_stock": stock_status.in_stock,
+		"in_stock": stock_status.in_stock if stock_status.is_stock_item else 1,
 		"qty": 0,
 		"uom": frappe.db.get_value("Item", item_code, "stock_uom"),
-		"show_stock_qty": show_quantity_in_website(),
 		"net_weight": frappe.db.get_value("Item", item_code, "weight_per_unit"),
  		"weight_uom": frappe.db.get_value("Item", item_code, "weight_uom"),
  		"net_volume": frappe.db.get_value("Item", item_code, "net_volume"),
  		"is_stock_item": frappe.db.get_value("Item", item_code, "is_stock_item")
+		"show_stock_qty": show_quantity_in_website() if stock_status.is_stock_item else 0
 	}
 
 	if product_info["price"]:

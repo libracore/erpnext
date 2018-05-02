@@ -72,6 +72,7 @@ frappe.ui.form.on('Stock Entry', {
 						mr_item.item_code = item.item_code;
 						mr_item.item_name = item.item_name;
 						mr_item.uom = item.uom;
+						mr_item.conversion_factor = item.conversion_factor;
 						mr_item.item_group = item.item_group;
 						mr_item.description = item.description;
 						mr_item.image = item.image;
@@ -105,8 +106,8 @@ frappe.ui.form.on('Stock Entry', {
 			frm.trigger("toggle_display_account_head");
 		}
 
-		if(frm.doc.docstatus==1 && frm.doc.purpose == "Material Receipt") {
-			frm.add_custom_button(__('Make Retention Stock Entry'), function () {
+		if(frm.doc.docstatus==1 && frm.doc.purpose == "Material Receipt" && frm.get_sum('items', 			'sample_quantity')) {
+			frm.add_custom_button(__('Make Sample Retention Stock Entry'), function () {
 				frm.trigger("make_retention_stock_entry");
 			});
 		}
@@ -276,6 +277,14 @@ frappe.ui.form.on('Stock Entry', {
 
 		frm.set_value("total_additional_costs",
 			flt(total_additional_costs, precision("total_additional_costs")));
+	},
+
+	source_warehouse_address: function(frm) {
+		erpnext.utils.get_address_display(frm, 'source_warehouse_address', 'source_address_display', false);
+	},
+
+	target_warehouse_address: function(frm) {
+		erpnext.utils.get_address_display(frm, 'target_warehouse_address', 'target_address_display', false);
 	},
 })
 
@@ -456,7 +465,13 @@ erpnext.stock.StockEntry = erpnext.stock.StockController.extend({
 		}
 
 		this.frm.set_indicator_formatter('item_code',
-			function(doc) { return (doc.qty<=doc.actual_qty) ? "green" : "orange" })
+			function(doc) { 
+				if (!doc.s_warehouse) {
+					return 'blue';
+				} else {
+					return (doc.qty<=doc.actual_qty) ? "green" : "orange" 
+				}
+			})
 
 		this.frm.add_fetch("purchase_order", "supplier", "supplier");
 

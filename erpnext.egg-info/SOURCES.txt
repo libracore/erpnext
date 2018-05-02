@@ -1,6 +1,10 @@
 .travis.yml
 MANIFEST.in
 README.md
+<<<<<<< HEAD
+=======
+__init__.py
+>>>>>>> libracore
 attributions.md
 license.txt
 requirements.txt
@@ -21,7 +25,10 @@ erpnext/accounts/README.md
 erpnext/accounts/__init__.py
 erpnext/accounts/general_ledger.py
 erpnext/accounts/party.py
+<<<<<<< HEAD
 erpnext/accounts/party_status.py
+=======
+>>>>>>> libracore
 erpnext/accounts/utils.py
 erpnext/accounts/doctype/__init__.py
 erpnext/accounts/doctype/account/README.md
@@ -89,6 +96,10 @@ erpnext/accounts/doctype/asset/__init__.py
 erpnext/accounts/doctype/asset/asset.js
 erpnext/accounts/doctype/asset/asset.json
 erpnext/accounts/doctype/asset/asset.py
+<<<<<<< HEAD
+=======
+erpnext/accounts/doctype/asset/asset_list.js
+>>>>>>> libracore
 erpnext/accounts/doctype/asset/depreciation.py
 erpnext/accounts/doctype/asset/test_asset.py
 erpnext/accounts/doctype/asset_category/__init__.py
@@ -104,6 +115,14 @@ erpnext/accounts/doctype/asset_movement/asset_movement.js
 erpnext/accounts/doctype/asset_movement/asset_movement.json
 erpnext/accounts/doctype/asset_movement/asset_movement.py
 erpnext/accounts/doctype/asset_movement/test_asset_movement.py
+<<<<<<< HEAD
+=======
+erpnext/accounts/doctype/bank_guarantee/__init__.py
+erpnext/accounts/doctype/bank_guarantee/bank_guarantee.js
+erpnext/accounts/doctype/bank_guarantee/bank_guarantee.json
+erpnext/accounts/doctype/bank_guarantee/bank_guarantee.py
+erpnext/accounts/doctype/bank_guarantee/test_bank_guarantee.py
+>>>>>>> libracore
 erpnext/accounts/doctype/bank_reconciliation/README.md
 erpnext/accounts/doctype/bank_reconciliation/__init__.py
 erpnext/accounts/doctype/bank_reconciliation/bank_reconciliation.js
@@ -208,11 +227,14 @@ erpnext/accounts/doctype/payment_entry_deduction/payment_entry_deduction.py
 erpnext/accounts/doctype/payment_entry_reference/__init__.py
 erpnext/accounts/doctype/payment_entry_reference/payment_entry_reference.json
 erpnext/accounts/doctype/payment_entry_reference/payment_entry_reference.py
+<<<<<<< HEAD
 erpnext/accounts/doctype/payment_gateway/__init__.py
 erpnext/accounts/doctype/payment_gateway/payment_gateway.js
 erpnext/accounts/doctype/payment_gateway/payment_gateway.json
 erpnext/accounts/doctype/payment_gateway/payment_gateway.py
 erpnext/accounts/doctype/payment_gateway/test_payment_gateway.py
+=======
+>>>>>>> libracore
 erpnext/accounts/doctype/payment_gateway_account/__init__.py
 erpnext/accounts/doctype/payment_gateway_account/payment_gateway_account.js
 erpnext/accounts/doctype/payment_gateway_account/payment_gateway_account.json
@@ -482,17 +504,30 @@ erpnext/accounts/report/trial_balance_for_party/__init__.py
 erpnext/accounts/report/trial_balance_for_party/trial_balance_for_party.js
 erpnext/accounts/report/trial_balance_for_party/trial_balance_for_party.json
 erpnext/accounts/report/trial_balance_for_party/trial_balance_for_party.py
+<<<<<<< HEAD
 erpnext/buying/README.md
 erpnext/buying/__init__.py
+=======
+erpnext/accounts/report/unpaid_expense_claim/__init__.py
+erpnext/accounts/report/unpaid_expense_claim/unpaid_expense_claim.js
+erpnext/accounts/report/unpaid_expense_claim/unpaid_expense_claim.json
+erpnext/accounts/report/unpaid_expense_claim/unpaid_expense_claim.py
+erpnext/buying/README.md
+erpnext/buying/__init__.py
+erpnext/buying/utils.py
+>>>>>>> libracore
 erpnext/buying/doctype/__init__.py
 erpnext/buying/doctype/buying_settings/__init__.py
 erpnext/buying/doctype/buying_settings/buying_settings.json
 erpnext/buying/doctype/buying_settings/buying_settings.py
+<<<<<<< HEAD
 erpnext/buying/doctype/purchase_common/README.md
 erpnext/buying/doctype/purchase_common/__init__.py
 erpnext/buying/doctype/purchase_common/purchase_common.js
 erpnext/buying/doctype/purchase_common/purchase_common.json
 erpnext/buying/doctype/purchase_common/purchase_common.py
+=======
+>>>>>>> libracore
 erpnext/buying/doctype/purchase_order/README.md
 erpnext/buying/doctype/purchase_order/__init__.py
 erpnext/buying/doctype/purchase_order/purchase_order.js
@@ -570,8 +605,11 @@ erpnext/buying/report/quoted_item_comparison/quoted_item_comparison.json
 erpnext/buying/report/quoted_item_comparison/quoted_item_comparison.py
 erpnext/buying/report/requested_items_to_be_ordered/__init__.py
 erpnext/buying/report/requested_items_to_be_ordered/requested_items_to_be_ordered.json
+<<<<<<< HEAD
 erpnext/buying/report/supplier_addresses_and_contacts/__init__.py
 erpnext/buying/report/supplier_addresses_and_contacts/supplier_addresses_and_contacts.json
+=======
+>>>>>>> libracore
 erpnext/change_log/current/readme.md
 erpnext/change_log/v5/v5_0_0.md
 erpnext/change_log/v5/v5_0_11.md
@@ -619,6 +657,10 @@ erpnext/change_log/v6/v6_9_1.md
 erpnext/change_log/v7/v7_0_0.md
 erpnext/change_log/v7/v7_1_0.md
 erpnext/change_log/v7/v7_2_0.md
+<<<<<<< HEAD
+=======
+erpnext/change_log/v8/v8_0_0.md
+>>>>>>> libracore
 erpnext/config/__init__.py
 erpnext/config/accounts.py
 erpnext/config/buying.py
@@ -650,8 +692,13 @@ erpnext/controllers/stock_controller.py
 erpnext/controllers/taxes_and_totals.py
 erpnext/controllers/trends.py
 erpnext/controllers/website_list_for_contact.py
+<<<<<<< HEAD
 erpnext/controllers/js/contact_address_common.js
 erpnext/controllers/tests/__init__.py
+=======
+erpnext/controllers/tests/__init__.py
+erpnext/controllers/tests/test_mapper.py
+>>>>>>> libracore
 erpnext/controllers/tests/test_recurring_document.py
 erpnext/crm/__init__.py
 erpnext/crm/doctype/__init__.py
@@ -660,6 +707,10 @@ erpnext/crm/doctype/lead/__init__.py
 erpnext/crm/doctype/lead/lead.js
 erpnext/crm/doctype/lead/lead.json
 erpnext/crm/doctype/lead/lead.py
+<<<<<<< HEAD
+=======
+erpnext/crm/doctype/lead/lead_dashboard.py
+>>>>>>> libracore
 erpnext/crm/doctype/lead/test_lead.py
 erpnext/crm/doctype/lead/test_records.json
 erpnext/crm/doctype/opportunity/README.md
@@ -675,10 +726,28 @@ erpnext/crm/doctype/opportunity_item/__init__.py
 erpnext/crm/doctype/opportunity_item/opportunity_item.json
 erpnext/crm/doctype/opportunity_item/opportunity_item.py
 erpnext/crm/report/__init__.py
+<<<<<<< HEAD
+=======
+erpnext/crm/report/campaign_efficiency/__init__.py
+erpnext/crm/report/campaign_efficiency/campaign_efficiency.js
+erpnext/crm/report/campaign_efficiency/campaign_efficiency.json
+erpnext/crm/report/campaign_efficiency/campaign_efficiency.py
+erpnext/crm/report/lead_owner_efficiency/__init__.py
+erpnext/crm/report/lead_owner_efficiency/lead_owner_efficiency.js
+erpnext/crm/report/lead_owner_efficiency/lead_owner_efficiency.json
+erpnext/crm/report/lead_owner_efficiency/lead_owner_efficiency.py
+>>>>>>> libracore
 erpnext/crm/report/minutes_to_first_response_for_opportunity/__init__.py
 erpnext/crm/report/minutes_to_first_response_for_opportunity/minutes_to_first_response_for_opportunity.js
 erpnext/crm/report/minutes_to_first_response_for_opportunity/minutes_to_first_response_for_opportunity.json
 erpnext/crm/report/minutes_to_first_response_for_opportunity/minutes_to_first_response_for_opportunity.py
+<<<<<<< HEAD
+=======
+erpnext/crm/report/prospects_engaged_but_not_converted/__init__.py
+erpnext/crm/report/prospects_engaged_but_not_converted/prospects_engaged_but_not_converted.js
+erpnext/crm/report/prospects_engaged_but_not_converted/prospects_engaged_but_not_converted.json
+erpnext/crm/report/prospects_engaged_but_not_converted/prospects_engaged_but_not_converted.py
+>>>>>>> libracore
 erpnext/demo/__init__.py
 erpnext/demo/demo.py
 erpnext/demo/domains.py
@@ -743,6 +812,10 @@ erpnext/docs/assets/img/accounts/asset-purchase-invoice.png
 erpnext/docs/assets/img/accounts/asset-sales.png
 erpnext/docs/assets/img/accounts/asset.png
 erpnext/docs/assets/img/accounts/balance_sheet_report.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/img/accounts/bank-guarantee.png
+>>>>>>> libracore
 erpnext/docs/assets/img/accounts/bank-reconciliation.png
 erpnext/docs/assets/img/accounts/budget-account.png
 erpnext/docs/assets/img/accounts/budget-variance-report.png
@@ -758,10 +831,18 @@ erpnext/docs/assets/img/accounts/credit-limit-1.png
 erpnext/docs/assets/img/accounts/credit-limit-2.png
 erpnext/docs/assets/img/accounts/depreciation-entry.png
 erpnext/docs/assets/img/accounts/depreciation-schedule.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/img/accounts/exempted-item.png
+>>>>>>> libracore
 erpnext/docs/assets/img/accounts/financial-analytics-bl.png
 erpnext/docs/assets/img/accounts/financial-analytics-pl.png
 erpnext/docs/assets/img/accounts/fiscal-year.png
 erpnext/docs/assets/img/accounts/general-ledger.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/img/accounts/item-wise-tax.png
+>>>>>>> libracore
 erpnext/docs/assets/img/accounts/journal-entry.png
 erpnext/docs/assets/img/accounts/make-payment.png
 erpnext/docs/assets/img/accounts/monthly-budget-distribution.png
@@ -789,6 +870,10 @@ erpnext/docs/assets/img/accounts/perpetual-1.png
 erpnext/docs/assets/img/accounts/perpetual-2.png
 erpnext/docs/assets/img/accounts/perpetual-3.png
 erpnext/docs/assets/img/accounts/pos-customer.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/img/accounts/pos-email.png
+>>>>>>> libracore
 erpnext/docs/assets/img/accounts/pos-item.png
 erpnext/docs/assets/img/accounts/pos-payment.png
 erpnext/docs/assets/img/accounts/pos-sales-invoice.png
@@ -802,6 +887,11 @@ erpnext/docs/assets/img/accounts/purchase-invoice.png
 erpnext/docs/assets/img/accounts/sales-invoice.png
 erpnext/docs/assets/img/accounts/sales-register.png
 erpnext/docs/assets/img/accounts/scrap-journal-entry.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/img/accounts/tax-calulation.png
+erpnext/docs/assets/img/accounts/tax-master.png
+>>>>>>> libracore
 erpnext/docs/assets/img/accounts/tax-rule-1.png
 erpnext/docs/assets/img/accounts/tax-rule-2.png
 erpnext/docs/assets/img/accounts/tax-rule.png
@@ -1059,10 +1149,23 @@ erpnext/docs/assets/img/crm/lead.png
 erpnext/docs/assets/img/crm/make-sq-from-opportunity.png
 erpnext/docs/assets/img/crm/newsletter-new.png
 erpnext/docs/assets/img/crm/newsletter-test.png
+<<<<<<< HEAD
 erpnext/docs/assets/img/crm/opportunity.png
 erpnext/docs/assets/img/crm/requirement-gathering.png
 erpnext/docs/assets/img/crm/sales-person-tree.png
 erpnext/docs/assets/img/crm/territory-tree.png
+=======
+erpnext/docs/assets/img/crm/requirement-gathering.png
+erpnext/docs/assets/img/crm/sales-person-tree.png
+erpnext/docs/assets/img/crm/territory-tree.png
+erpnext/docs/assets/img/crm/report/__init__.py
+erpnext/docs/assets/img/crm/report/customer_address_and_contact.png
+erpnext/docs/assets/img/crm/report/inactive_customers.png
+erpnext/docs/assets/img/crm/report/lead.png
+erpnext/docs/assets/img/crm/report/minutes_to_first_response.png
+erpnext/docs/assets/img/crm/report/prospects_engaged_but_not_converted.png
+erpnext/docs/assets/img/crm/report/sales_funnel.png
+>>>>>>> libracore
 erpnext/docs/assets/img/customize/__init__.py
 erpnext/docs/assets/img/customize/custom-field-3.png
 erpnext/docs/assets/img/customize/custom-field-4.png
@@ -1073,6 +1176,7 @@ erpnext/docs/assets/img/customize/customize-form-select-doctype.png
 erpnext/docs/assets/img/customize/print-format.png
 erpnext/docs/assets/img/customize/print-settings.png
 erpnext/docs/assets/img/customize/show-hide-modules.png
+<<<<<<< HEAD
 erpnext/docs/assets/img/fleet-management/__init__.py
 erpnext/docs/assets/img/fleet-management/expense-claim-3.1.png
 erpnext/docs/assets/img/fleet-management/expense-claim-3.2.png
@@ -1082,6 +1186,8 @@ erpnext/docs/assets/img/fleet-management/vehicle-1.3.png
 erpnext/docs/assets/img/fleet-management/vehicle-expenses.png
 erpnext/docs/assets/img/fleet-management/vehicle-log-2.1.png
 erpnext/docs/assets/img/fleet-management/vehicle-log-2.2.png
+=======
+>>>>>>> libracore
 erpnext/docs/assets/img/human-resources/__init__.py
 erpnext/docs/assets/img/human-resources/appraisal-employee.png
 erpnext/docs/assets/img/human-resources/appraisal.png
@@ -1103,9 +1209,21 @@ erpnext/docs/assets/img/human-resources/employee-holiday-report.png
 erpnext/docs/assets/img/human-resources/employee-information-report.png
 erpnext/docs/assets/img/human-resources/employee-leave-approver.png
 erpnext/docs/assets/img/human-resources/employee-leave-balance-report.png
+<<<<<<< HEAD
 erpnext/docs/assets/img/human-resources/employee.png
 erpnext/docs/assets/img/human-resources/employment-type.png
 erpnext/docs/assets/img/human-resources/expense_claim.png
+=======
+erpnext/docs/assets/img/human-resources/employee-loan-application.png
+erpnext/docs/assets/img/human-resources/employee-loan.png
+erpnext/docs/assets/img/human-resources/employee.png
+erpnext/docs/assets/img/human-resources/employee_account.png
+erpnext/docs/assets/img/human-resources/employment-type.png
+erpnext/docs/assets/img/human-resources/expense-claim-3.1.png
+erpnext/docs/assets/img/human-resources/expense-claim-3.2.png
+erpnext/docs/assets/img/human-resources/expense_claim.png
+erpnext/docs/assets/img/human-resources/expense_claim_book.png
+>>>>>>> libracore
 erpnext/docs/assets/img/human-resources/holiday-list.png
 erpnext/docs/assets/img/human-resources/hr-settings.png
 erpnext/docs/assets/img/human-resources/job-applicant.png
@@ -1115,6 +1233,11 @@ erpnext/docs/assets/img/human-resources/leave-allocation.png
 erpnext/docs/assets/img/human-resources/leave-application.png
 erpnext/docs/assets/img/human-resources/leave-block-list.png
 erpnext/docs/assets/img/human-resources/leave-type.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/img/human-resources/loan-repayment-salary-slip.png
+erpnext/docs/assets/img/human-resources/loan-type.png
+>>>>>>> libracore
 erpnext/docs/assets/img/human-resources/manual-leave-allocation.png
 erpnext/docs/assets/img/human-resources/monthly-attendance-sheet-report.png
 erpnext/docs/assets/img/human-resources/monthly-salary-register-report.png
@@ -1122,8 +1245,17 @@ erpnext/docs/assets/img/human-resources/new-leave-application.png
 erpnext/docs/assets/img/human-resources/new-leave-type.png
 erpnext/docs/assets/img/human-resources/offer-letter-print.png
 erpnext/docs/assets/img/human-resources/offer-letter.png
+<<<<<<< HEAD
 erpnext/docs/assets/img/human-resources/payroll-frequency.png
 erpnext/docs/assets/img/human-resources/process-payroll.png
+=======
+erpnext/docs/assets/img/human-resources/payment.png
+erpnext/docs/assets/img/human-resources/payment_entry.png
+erpnext/docs/assets/img/human-resources/payroll-frequency.png
+erpnext/docs/assets/img/human-resources/process-payroll.png
+erpnext/docs/assets/img/human-resources/repayment-info.png
+erpnext/docs/assets/img/human-resources/repayment-schedule.png
+>>>>>>> libracore
 erpnext/docs/assets/img/human-resources/salary-slip.png
 erpnext/docs/assets/img/human-resources/salary-structure-account.png
 erpnext/docs/assets/img/human-resources/salary-structure.png
@@ -1132,6 +1264,16 @@ erpnext/docs/assets/img/human-resources/training_event.png
 erpnext/docs/assets/img/human-resources/training_event_employee.png
 erpnext/docs/assets/img/human-resources/training_feedback.png
 erpnext/docs/assets/img/human-resources/training_result.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/img/human-resources/unclaimed_expense_claims.png
+erpnext/docs/assets/img/human-resources/vehicle-1.1.png
+erpnext/docs/assets/img/human-resources/vehicle-1.2.png
+erpnext/docs/assets/img/human-resources/vehicle-1.3.png
+erpnext/docs/assets/img/human-resources/vehicle-expenses.png
+erpnext/docs/assets/img/human-resources/vehicle-log-2.1.png
+erpnext/docs/assets/img/human-resources/vehicle-log-2.2.png
+>>>>>>> libracore
 erpnext/docs/assets/img/manufacturing/PO-FG-update-qty.png
 erpnext/docs/assets/img/manufacturing/PO-FG-update.png
 erpnext/docs/assets/img/manufacturing/PO-SE-for-material-transfer.png
@@ -1292,6 +1434,12 @@ erpnext/docs/assets/img/setup/stock-recon-1.png
 erpnext/docs/assets/img/setup/stock-recon-2.png
 erpnext/docs/assets/img/setup/workflow-1.png
 erpnext/docs/assets/img/setup/workflow-2.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/img/setup/workflow-3.png
+erpnext/docs/assets/img/setup/workflow-4.png
+erpnext/docs/assets/img/setup/workflow-5.png
+>>>>>>> libracore
 erpnext/docs/assets/img/setup-wizard/__init__.py
 erpnext/docs/assets/img/setup-wizard/step-1.png
 erpnext/docs/assets/img/setup-wizard/step-10.png
@@ -1333,6 +1481,7 @@ erpnext/docs/assets/img/setup/email/email-alert-2.png
 erpnext/docs/assets/img/setup/email/email-alert-condition.png
 erpnext/docs/assets/img/setup/email/email-alert-subject.png
 erpnext/docs/assets/img/setup/email/email-digest.png
+<<<<<<< HEAD
 erpnext/docs/assets/img/setup/integration-service/__init__.py
 erpnext/docs/assets/img/setup/integration-service/api-step-1.png
 erpnext/docs/assets/img/setup/integration-service/api-step-2.png
@@ -1354,6 +1503,43 @@ erpnext/docs/assets/img/setup/integration-service/razorpay_settings.png
 erpnext/docs/assets/img/setup/integration-service/sanbox-credentials.png
 erpnext/docs/assets/img/setup/integration-service/setup-backup-frequency.png
 erpnext/docs/assets/img/setup/integration-service/setup-sanbox-1.png
+=======
+erpnext/docs/assets/img/setup/feedback/__init__.py
+erpnext/docs/assets/img/setup/feedback/feedback-trigger-condition.png
+erpnext/docs/assets/img/setup/feedback/feedback-trigger-subject.png
+erpnext/docs/assets/img/setup/feedback/manual-feedback-request-option.png
+erpnext/docs/assets/img/setup/feedback/manual-feedback-request.png
+erpnext/docs/assets/img/setup/feedback/resend-feedback-request-button.png
+erpnext/docs/assets/img/setup/feedback/resend-feedback-request-custom-message.png
+erpnext/docs/assets/img/setup/feedback/setting-up-feedback-trigger-message.png
+erpnext/docs/assets/img/setup/feedback/setting-up-feedback-trigger.png
+erpnext/docs/assets/img/setup/feedback/sidebar-ratings.png
+erpnext/docs/assets/img/setup/feedback/submit-feedback.png
+erpnext/docs/assets/img/setup/feedback/timeline-rating-and-feedback.png
+erpnext/docs/assets/img/setup/integrations/__init__.py
+erpnext/docs/assets/img/setup/integrations/api-step-1.png
+erpnext/docs/assets/img/setup/integrations/api-step-2.png
+erpnext/docs/assets/img/setup/integrations/api-step-3.png
+erpnext/docs/assets/img/setup/integrations/dropbox-2.png
+erpnext/docs/assets/img/setup/integrations/dropbox-3.png
+erpnext/docs/assets/img/setup/integrations/dropbox-open-1.png
+erpnext/docs/assets/img/setup/integrations/dropbox-open-2.png
+erpnext/docs/assets/img/setup/integrations/dropbox-open-3.png
+erpnext/docs/assets/img/setup/integrations/ldap_settings.png
+erpnext/docs/assets/img/setup/integrations/login_via_ldap.png
+erpnext/docs/assets/img/setup/integrations/payment_gateway_account_paypal.png
+erpnext/docs/assets/img/setup/integrations/payment_gateway_account_razorpay.png
+erpnext/docs/assets/img/setup/integrations/payment_gateway_account_stripe.png
+erpnext/docs/assets/img/setup/integrations/paypal_coa.png
+erpnext/docs/assets/img/setup/integrations/paypal_settings.png
+erpnext/docs/assets/img/setup/integrations/razorpay_coa.png
+erpnext/docs/assets/img/setup/integrations/razorpay_settings.png
+erpnext/docs/assets/img/setup/integrations/sanbox-credentials.png
+erpnext/docs/assets/img/setup/integrations/setup-backup-frequency.png
+erpnext/docs/assets/img/setup/integrations/setup-sanbox-1.png
+erpnext/docs/assets/img/setup/integrations/stripe_coa.png
+erpnext/docs/assets/img/setup/integrations/stripe_setting.png
+>>>>>>> libracore
 erpnext/docs/assets/img/setup/print/__init__.py
 erpnext/docs/assets/img/setup/print/address-format.png
 erpnext/docs/assets/img/setup/print/cheque-1.png
@@ -1380,7 +1566,11 @@ erpnext/docs/assets/img/setup/users/user-4.png
 erpnext/docs/assets/img/stock/__init__.py
 erpnext/docs/assets/img/stock/additional-costs-general-ledger.png
 erpnext/docs/assets/img/stock/additional-costs-table.png
+<<<<<<< HEAD
 erpnext/docs/assets/img/stock/batch.png
+=======
+erpnext/docs/assets/img/stock/batch_view.png
+>>>>>>> libracore
 erpnext/docs/assets/img/stock/delivery-note.png
 erpnext/docs/assets/img/stock/installation-note.png
 erpnext/docs/assets/img/stock/item-attribute-non-numeric.png
@@ -1389,6 +1579,10 @@ erpnext/docs/assets/img/stock/item-attribute.png
 erpnext/docs/assets/img/stock/item-attributes.png
 erpnext/docs/assets/img/stock/item-group-tree.png
 erpnext/docs/assets/img/stock/item-has-variants.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/img/stock/item_setup_for_batch.png
+>>>>>>> libracore
 erpnext/docs/assets/img/stock/landed-cost.png
 erpnext/docs/assets/img/stock/make-variant-1.png
 erpnext/docs/assets/img/stock/make-variant.png
@@ -1405,7 +1599,13 @@ erpnext/docs/assets/img/stock/sales-return-against-sales-invoice.png
 erpnext/docs/assets/img/stock/sales-return-general-ledger.png
 erpnext/docs/assets/img/stock/sales-return-original-delivery-note.png
 erpnext/docs/assets/img/stock/sales-return-stock-ledger.png
+<<<<<<< HEAD
 erpnext/docs/assets/img/stock/serial-no.png
+=======
+erpnext/docs/assets/img/stock/select-mfg-for-variant.png
+erpnext/docs/assets/img/stock/serial-no.png
+erpnext/docs/assets/img/stock/set-variant-by-mfg.png
+>>>>>>> libracore
 erpnext/docs/assets/img/stock/stock-entry-item-valuation-rate.png
 erpnext/docs/assets/img/stock/stock-entry.png
 erpnext/docs/assets/img/stock/stock-settings.png
@@ -1421,6 +1621,13 @@ erpnext/docs/assets/img/taxes/item-tax.png
 erpnext/docs/assets/img/taxes/sales-tax-master.png
 erpnext/docs/assets/img/users-and-permissions/__init__.py
 erpnext/docs/assets/img/users-and-permissions/permissions-lead-list.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/img/users-and-permissions/reset-roles-permisison-for-page-report.png
+erpnext/docs/assets/img/users-and-permissions/role-permission-for-page-and-report.png
+erpnext/docs/assets/img/users-and-permissions/roles-for-page.png
+erpnext/docs/assets/img/users-and-permissions/roles-for-report.png
+>>>>>>> libracore
 erpnext/docs/assets/img/users-and-permissions/setting-up-permissions-employee-role.png
 erpnext/docs/assets/img/users-and-permissions/setting-up-permissions-hr-manager-role.png
 erpnext/docs/assets/img/users-and-permissions/setting-up-permissions-hr-user-role.png
@@ -1471,6 +1678,15 @@ erpnext/docs/assets/old_images/erpnext/backup-manager.png
 erpnext/docs/assets/old_images/erpnext/bank-reconciliation-2.png
 erpnext/docs/assets/old_images/erpnext/budgeting-4.png
 erpnext/docs/assets/old_images/erpnext/budgeting.png
+<<<<<<< HEAD
+=======
+erpnext/docs/assets/old_images/erpnext/calender-email-digest.png
+erpnext/docs/assets/old_images/erpnext/calender-event-lead.png
+erpnext/docs/assets/old_images/erpnext/calender-event-manually.png
+erpnext/docs/assets/old_images/erpnext/calender-event-notification.png
+erpnext/docs/assets/old_images/erpnext/calender-event-permission.png
+erpnext/docs/assets/old_images/erpnext/calender-event-recurring.png
+>>>>>>> libracore
 erpnext/docs/assets/old_images/erpnext/chart-of-cost-centers.png
 erpnext/docs/assets/old_images/erpnext/custom-field-document.png
 erpnext/docs/assets/old_images/erpnext/custom-field-insert.png
@@ -1498,9 +1714,12 @@ erpnext/docs/assets/old_images/erpnext/item-price-list.png
 erpnext/docs/assets/old_images/erpnext/item-price-rate.png
 erpnext/docs/assets/old_images/erpnext/item-purchase.png
 erpnext/docs/assets/old_images/erpnext/item-sales.png
+<<<<<<< HEAD
 erpnext/docs/assets/old_images/erpnext/item-wise-tax-calc.png
 erpnext/docs/assets/old_images/erpnext/item-wise-tax-master.png
 erpnext/docs/assets/old_images/erpnext/item-wise-tax.png
+=======
+>>>>>>> libracore
 erpnext/docs/assets/old_images/erpnext/opening-entry-1.png
 erpnext/docs/assets/old_images/erpnext/overview.png
 erpnext/docs/assets/old_images/erpnext/portal-invoice-paid.png
@@ -1849,6 +2068,10 @@ erpnext/docs/user/manual/en/index.md
 erpnext/docs/user/manual/en/index.txt
 erpnext/docs/user/manual/en/CRM/__init__.py
 erpnext/docs/user/manual/en/CRM/contact.md
+<<<<<<< HEAD
+=======
+erpnext/docs/user/manual/en/CRM/crm_reports.md
+>>>>>>> libracore
 erpnext/docs/user/manual/en/CRM/customer.md
 erpnext/docs/user/manual/en/CRM/index.md
 erpnext/docs/user/manual/en/CRM/index.txt
@@ -1865,6 +2088,10 @@ erpnext/docs/user/manual/en/accounts/__init__.py
 erpnext/docs/user/manual/en/accounts/accounting-entries.md
 erpnext/docs/user/manual/en/accounts/accounting-reports.md
 erpnext/docs/user/manual/en/accounts/advance-payment-entry.md
+<<<<<<< HEAD
+=======
+erpnext/docs/user/manual/en/accounts/bank-guarantee.md
+>>>>>>> libracore
 erpnext/docs/user/manual/en/accounts/budgeting.md
 erpnext/docs/user/manual/en/accounts/chart-of-accounts.md
 erpnext/docs/user/manual/en/accounts/credit-limit.md
@@ -1993,8 +2220,15 @@ erpnext/docs/user/manual/en/human-resources/__init__.py
 erpnext/docs/user/manual/en/human-resources/appraisal.md
 erpnext/docs/user/manual/en/human-resources/attendance.md
 erpnext/docs/user/manual/en/human-resources/daily-work-summary.md
+<<<<<<< HEAD
 erpnext/docs/user/manual/en/human-resources/employee.md
 erpnext/docs/user/manual/en/human-resources/expense-claim.md
+=======
+erpnext/docs/user/manual/en/human-resources/employee-loan-management.md
+erpnext/docs/user/manual/en/human-resources/employee.md
+erpnext/docs/user/manual/en/human-resources/expense-claim.md
+erpnext/docs/user/manual/en/human-resources/fleet-management.md
+>>>>>>> libracore
 erpnext/docs/user/manual/en/human-resources/holiday-list.md
 erpnext/docs/user/manual/en/human-resources/human-resource-setup.md
 erpnext/docs/user/manual/en/human-resources/human-resources-reports.md
@@ -2187,6 +2421,7 @@ erpnext/docs/user/manual/en/setting-up/email/email-reports.md
 erpnext/docs/user/manual/en/setting-up/email/index.md
 erpnext/docs/user/manual/en/setting-up/email/index.txt
 erpnext/docs/user/manual/en/setting-up/email/sending-email.md
+<<<<<<< HEAD
 erpnext/docs/user/manual/en/setting-up/integration-services/__init__.py
 erpnext/docs/user/manual/en/setting-up/integration-services/dropbox-backup.md
 erpnext/docs/user/manual/en/setting-up/integration-services/index.md
@@ -2194,6 +2429,23 @@ erpnext/docs/user/manual/en/setting-up/integration-services/index.txt
 erpnext/docs/user/manual/en/setting-up/integration-services/ldap-integration.md
 erpnext/docs/user/manual/en/setting-up/integration-services/paypal-integration.md
 erpnext/docs/user/manual/en/setting-up/integration-services/razorpay-integration.md
+=======
+erpnext/docs/user/manual/en/setting-up/feedback/__init__.py
+erpnext/docs/user/manual/en/setting-up/feedback/index.md
+erpnext/docs/user/manual/en/setting-up/feedback/index.txt
+erpnext/docs/user/manual/en/setting-up/feedback/manual-feedback-request.md
+erpnext/docs/user/manual/en/setting-up/feedback/resend-feedback-request.md
+erpnext/docs/user/manual/en/setting-up/feedback/setting-up-feedback.md
+erpnext/docs/user/manual/en/setting-up/feedback/submit-feedback.md
+erpnext/docs/user/manual/en/setting-up/integrations/__init__.py
+erpnext/docs/user/manual/en/setting-up/integrations/dropbox-backup.md
+erpnext/docs/user/manual/en/setting-up/integrations/index.md
+erpnext/docs/user/manual/en/setting-up/integrations/index.txt
+erpnext/docs/user/manual/en/setting-up/integrations/ldap-integration.md
+erpnext/docs/user/manual/en/setting-up/integrations/paypal-integration.md
+erpnext/docs/user/manual/en/setting-up/integrations/razorpay-integration.md
+erpnext/docs/user/manual/en/setting-up/integrations/stripe-integration.md
+>>>>>>> libracore
 erpnext/docs/user/manual/en/setting-up/print/__init__.py
 erpnext/docs/user/manual/en/setting-up/print/address-template.md
 erpnext/docs/user/manual/en/setting-up/print/cheque-print-template.md
@@ -2230,6 +2482,10 @@ erpnext/docs/user/manual/en/setting-up/users-and-permissions/adding-users.md
 erpnext/docs/user/manual/en/setting-up/users-and-permissions/index.md
 erpnext/docs/user/manual/en/setting-up/users-and-permissions/index.txt
 erpnext/docs/user/manual/en/setting-up/users-and-permissions/role-based-permissions.md
+<<<<<<< HEAD
+=======
+erpnext/docs/user/manual/en/setting-up/users-and-permissions/role-permisison-for-page-and-report.md
+>>>>>>> libracore
 erpnext/docs/user/manual/en/setting-up/users-and-permissions/sharing.md
 erpnext/docs/user/manual/en/setting-up/users-and-permissions/user-permissions.md
 erpnext/docs/user/manual/en/stock/__init__.py
@@ -2355,19 +2611,36 @@ erpnext/docs/user/manual/es/accounts/index.txt
 erpnext/docs/user/videos/__init__.py
 erpnext/docs/user/videos/index.md
 erpnext/docs/user/videos/index.txt
+<<<<<<< HEAD
+=======
+erpnext/docs/user/videos/learn/.txt
+>>>>>>> libracore
 erpnext/docs/user/videos/learn/__init__.py
 erpnext/docs/user/videos/learn/advance-payments.md
 erpnext/docs/user/videos/learn/batch-inventory.md
 erpnext/docs/user/videos/learn/bill-of-materials.md
+<<<<<<< HEAD
 erpnext/docs/user/videos/learn/chart-of-accounts.md
 erpnext/docs/user/videos/learn/customer-and-supplier.md
 erpnext/docs/user/videos/learn/data-import-tool.md
+=======
+erpnext/docs/user/videos/learn/budgeting.md
+erpnext/docs/user/videos/learn/bulk-update.md
+erpnext/docs/user/videos/learn/chart-of-accounts.md
+erpnext/docs/user/videos/learn/customer-and-supplier.md
+erpnext/docs/user/videos/learn/data-import-tool.md
+erpnext/docs/user/videos/learn/distributors.md
+>>>>>>> libracore
 erpnext/docs/user/videos/learn/drop-ship.md
 erpnext/docs/user/videos/learn/email-account.md
 erpnext/docs/user/videos/learn/employee.md
 erpnext/docs/user/videos/learn/expense-claim.md
 erpnext/docs/user/videos/learn/field-customization.md
 erpnext/docs/user/videos/learn/file-manager.md
+<<<<<<< HEAD
+=======
+erpnext/docs/user/videos/learn/fixed-assets.md
+>>>>>>> libracore
 erpnext/docs/user/videos/learn/index.css
 erpnext/docs/user/videos/learn/index.md
 erpnext/docs/user/videos/learn/index.txt
@@ -2375,6 +2648,11 @@ erpnext/docs/user/videos/learn/item-variant.md
 erpnext/docs/user/videos/learn/item.md
 erpnext/docs/user/videos/learn/lead-to-quotation.md
 erpnext/docs/user/videos/learn/leave-management.md
+<<<<<<< HEAD
+=======
+erpnext/docs/user/videos/learn/manufacturing-enigneer-to-order.md
+erpnext/docs/user/videos/learn/manufacturing-make-to-order.md
+>>>>>>> libracore
 erpnext/docs/user/videos/learn/material-request-to-purchase-order.md
 erpnext/docs/user/videos/learn/navigation.md
 erpnext/docs/user/videos/learn/newsletter.md
@@ -2391,8 +2669,17 @@ erpnext/docs/user/videos/learn/publish-items-on-website.md
 erpnext/docs/user/videos/learn/purchase-cycle.md
 erpnext/docs/user/videos/learn/quality-inspection.md
 erpnext/docs/user/videos/learn/report-builder.md
+<<<<<<< HEAD
 erpnext/docs/user/videos/learn/sales-cycle.md
 erpnext/docs/user/videos/learn/serialized-inventory.md
+=======
+erpnext/docs/user/videos/learn/request-for-quotation.md
+erpnext/docs/user/videos/learn/retailers.md
+erpnext/docs/user/videos/learn/sales-cycle.md
+erpnext/docs/user/videos/learn/schools.md
+erpnext/docs/user/videos/learn/serialized-inventory.md
+erpnext/docs/user/videos/learn/services.md
+>>>>>>> libracore
 erpnext/docs/user/videos/learn/setup-wizard.md
 erpnext/docs/user/videos/learn/shopping-cart.md
 erpnext/docs/user/videos/learn/stock-entries.md
@@ -2400,6 +2687,7 @@ erpnext/docs/user/videos/learn/subcontracting.md
 erpnext/docs/user/videos/learn/taxes.md
 erpnext/docs/user/videos/learn/user-and-permission.md
 erpnext/docs/user/videos/learn/workflow.md
+<<<<<<< HEAD
 erpnext/fleet_management/__init__.py
 erpnext/fleet_management/doctype/__init__.py
 erpnext/fleet_management/doctype/vehicle/__init__.py
@@ -2421,6 +2709,8 @@ erpnext/fleet_management/report/vehicle_expenses/__init__.py
 erpnext/fleet_management/report/vehicle_expenses/vehicle_expenses.js
 erpnext/fleet_management/report/vehicle_expenses/vehicle_expenses.json
 erpnext/fleet_management/report/vehicle_expenses/vehicle_expenses.py
+=======
+>>>>>>> libracore
 erpnext/hr/README.md
 erpnext/hr/__init__.py
 erpnext/hr/utils.py
@@ -2516,6 +2806,20 @@ erpnext/hr/doctype/employee_leave_approver/README.md
 erpnext/hr/doctype/employee_leave_approver/__init__.py
 erpnext/hr/doctype/employee_leave_approver/employee_leave_approver.json
 erpnext/hr/doctype/employee_leave_approver/employee_leave_approver.py
+<<<<<<< HEAD
+=======
+erpnext/hr/doctype/employee_loan/__init__.py
+erpnext/hr/doctype/employee_loan/employee_loan.js
+erpnext/hr/doctype/employee_loan/employee_loan.json
+erpnext/hr/doctype/employee_loan/employee_loan.py
+erpnext/hr/doctype/employee_loan/employee_loan_dashboard.py
+erpnext/hr/doctype/employee_loan/test_employee_loan.py
+erpnext/hr/doctype/employee_loan_application/__init__.py
+erpnext/hr/doctype/employee_loan_application/employee_loan_application.js
+erpnext/hr/doctype/employee_loan_application/employee_loan_application.json
+erpnext/hr/doctype/employee_loan_application/employee_loan_application.py
+erpnext/hr/doctype/employee_loan_application/test_employee_loan_application.py
+>>>>>>> libracore
 erpnext/hr/doctype/employment_type/README.md
 erpnext/hr/doctype/employment_type/__init__.py
 erpnext/hr/doctype/employment_type/employment_type.json
@@ -2619,6 +2923,14 @@ erpnext/hr/doctype/leave_type/leave_type.json
 erpnext/hr/doctype/leave_type/leave_type.py
 erpnext/hr/doctype/leave_type/test_leave_type.py
 erpnext/hr/doctype/leave_type/test_records.json
+<<<<<<< HEAD
+=======
+erpnext/hr/doctype/loan_type/__init__.py
+erpnext/hr/doctype/loan_type/loan_type.js
+erpnext/hr/doctype/loan_type/loan_type.json
+erpnext/hr/doctype/loan_type/loan_type.py
+erpnext/hr/doctype/loan_type/test_loan_type.py
+>>>>>>> libracore
 erpnext/hr/doctype/offer_letter/__init__.py
 erpnext/hr/doctype/offer_letter/offer_letter.js
 erpnext/hr/doctype/offer_letter/offer_letter.json
@@ -2637,6 +2949,12 @@ erpnext/hr/doctype/process_payroll/process_payroll.js
 erpnext/hr/doctype/process_payroll/process_payroll.json
 erpnext/hr/doctype/process_payroll/process_payroll.py
 erpnext/hr/doctype/process_payroll/test_process_payroll.py
+<<<<<<< HEAD
+=======
+erpnext/hr/doctype/repayment_schedule/__init__.py
+erpnext/hr/doctype/repayment_schedule/repayment_schedule.json
+erpnext/hr/doctype/repayment_schedule/repayment_schedule.py
+>>>>>>> libracore
 erpnext/hr/doctype/salary_component/README.md
 erpnext/hr/doctype/salary_component/__init__.py
 erpnext/hr/doctype/salary_component/salary_component.js
@@ -2692,7 +3010,31 @@ erpnext/hr/doctype/upload_attendance/__init__.py
 erpnext/hr/doctype/upload_attendance/upload_attendance.js
 erpnext/hr/doctype/upload_attendance/upload_attendance.json
 erpnext/hr/doctype/upload_attendance/upload_attendance.py
+<<<<<<< HEAD
 erpnext/hr/page/__init__.py
+=======
+erpnext/hr/doctype/vehicle/__init__.py
+erpnext/hr/doctype/vehicle/test_vehicle.py
+erpnext/hr/doctype/vehicle/vehicle.js
+erpnext/hr/doctype/vehicle/vehicle.json
+erpnext/hr/doctype/vehicle/vehicle.py
+erpnext/hr/doctype/vehicle/vehicle_dashboard.py
+erpnext/hr/doctype/vehicle_log/__init__.py
+erpnext/hr/doctype/vehicle_log/test_vehicle_log.py
+erpnext/hr/doctype/vehicle_log/vehicle_log.js
+erpnext/hr/doctype/vehicle_log/vehicle_log.json
+erpnext/hr/doctype/vehicle_log/vehicle_log.py
+erpnext/hr/doctype/vehicle_service/__init__.py
+erpnext/hr/doctype/vehicle_service/vehicle_service.json
+erpnext/hr/doctype/vehicle_service/vehicle_service.py
+erpnext/hr/page/__init__.py
+erpnext/hr/page/team_updates/__init__.py
+erpnext/hr/page/team_updates/team_update_row.html
+erpnext/hr/page/team_updates/team_updates.css
+erpnext/hr/page/team_updates/team_updates.js
+erpnext/hr/page/team_updates/team_updates.json
+erpnext/hr/page/team_updates/team_updates.py
+>>>>>>> libracore
 erpnext/hr/print_format/__init__.py
 erpnext/hr/print_format/offer_letter/__init__.py
 erpnext/hr/print_format/offer_letter/offer_letter.json
@@ -2719,11 +3061,23 @@ erpnext/hr/report/monthly_attendance_sheet/__init__.py
 erpnext/hr/report/monthly_attendance_sheet/monthly_attendance_sheet.js
 erpnext/hr/report/monthly_attendance_sheet/monthly_attendance_sheet.json
 erpnext/hr/report/monthly_attendance_sheet/monthly_attendance_sheet.py
+<<<<<<< HEAD
 erpnext/hr/report/monthly_salary_register/__init__.py
 erpnext/hr/report/monthly_salary_register/monthly_salary_register.html
 erpnext/hr/report/monthly_salary_register/monthly_salary_register.js
 erpnext/hr/report/monthly_salary_register/monthly_salary_register.json
 erpnext/hr/report/monthly_salary_register/monthly_salary_register.py
+=======
+erpnext/hr/report/salary_register/__init__.py
+erpnext/hr/report/salary_register/salary_register.html
+erpnext/hr/report/salary_register/salary_register.js
+erpnext/hr/report/salary_register/salary_register.json
+erpnext/hr/report/salary_register/salary_register.py
+erpnext/hr/report/vehicle_expenses/__init__.py
+erpnext/hr/report/vehicle_expenses/vehicle_expenses.js
+erpnext/hr/report/vehicle_expenses/vehicle_expenses.json
+erpnext/hr/report/vehicle_expenses/vehicle_expenses.py
+>>>>>>> libracore
 erpnext/hr/web_form/__init__.py
 erpnext/hr/web_form/job_application/__init__.py
 erpnext/hr/web_form/job_application/job_application.js
@@ -2780,6 +3134,10 @@ erpnext/manufacturing/doctype/bom/__init__.py
 erpnext/manufacturing/doctype/bom/bom.js
 erpnext/manufacturing/doctype/bom/bom.json
 erpnext/manufacturing/doctype/bom/bom.py
+<<<<<<< HEAD
+=======
+erpnext/manufacturing/doctype/bom/bom_item_preview.html
+>>>>>>> libracore
 erpnext/manufacturing/doctype/bom/bom_list.js
 erpnext/manufacturing/doctype/bom/bom_tree.js
 erpnext/manufacturing/doctype/bom/test_bom.py
@@ -2804,6 +3162,15 @@ erpnext/manufacturing/doctype/bom_replace_tool/bom_replace_tool.py
 erpnext/manufacturing/doctype/bom_scrap_item/__init__.py
 erpnext/manufacturing/doctype/bom_scrap_item/bom_scrap_item.json
 erpnext/manufacturing/doctype/bom_scrap_item/bom_scrap_item.py
+<<<<<<< HEAD
+=======
+erpnext/manufacturing/doctype/bom_website_item/__init__.py
+erpnext/manufacturing/doctype/bom_website_item/bom_website_item.json
+erpnext/manufacturing/doctype/bom_website_item/bom_website_item.py
+erpnext/manufacturing/doctype/bom_website_operation/__init__.py
+erpnext/manufacturing/doctype/bom_website_operation/bom_website_operation.json
+erpnext/manufacturing/doctype/bom_website_operation/bom_website_operation.py
+>>>>>>> libracore
 erpnext/manufacturing/doctype/manufacturing_settings/__init__.py
 erpnext/manufacturing/doctype/manufacturing_settings/manufacturing_settings.json
 erpnext/manufacturing/doctype/manufacturing_settings/manufacturing_settings.py
@@ -2820,6 +3187,10 @@ erpnext/manufacturing/doctype/production_order/production_order.js
 erpnext/manufacturing/doctype/production_order/production_order.json
 erpnext/manufacturing/doctype/production_order/production_order.py
 erpnext/manufacturing/doctype/production_order/production_order_calendar.js
+<<<<<<< HEAD
+=======
+erpnext/manufacturing/doctype/production_order/production_order_dashboard.py
+>>>>>>> libracore
 erpnext/manufacturing/doctype/production_order/production_order_list.js
 erpnext/manufacturing/doctype/production_order/test_production_order.py
 erpnext/manufacturing/doctype/production_order/test_records.json
@@ -2858,13 +3229,30 @@ erpnext/manufacturing/doctype/workstation_working_hour/__init__.py
 erpnext/manufacturing/doctype/workstation_working_hour/workstation_working_hour.json
 erpnext/manufacturing/doctype/workstation_working_hour/workstation_working_hour.py
 erpnext/manufacturing/page/__init__.py
+<<<<<<< HEAD
 erpnext/manufacturing/report/__init__.py
+=======
+erpnext/manufacturing/page/production_analytics/__init__.py
+erpnext/manufacturing/page/production_analytics/production_analytics.js
+erpnext/manufacturing/page/production_analytics/production_analytics.json
+erpnext/manufacturing/report/__init__.py
+erpnext/manufacturing/report/bom_stock_report/__init__.py
+erpnext/manufacturing/report/bom_stock_report/bom_stock_report.js
+erpnext/manufacturing/report/bom_stock_report/bom_stock_report.json
+>>>>>>> libracore
 erpnext/manufacturing/report/completed_production_orders/__init__.py
 erpnext/manufacturing/report/completed_production_orders/completed_production_orders.json
 erpnext/manufacturing/report/issued_items_against_production_order/__init__.py
 erpnext/manufacturing/report/issued_items_against_production_order/issued_items_against_production_order.json
 erpnext/manufacturing/report/open_production_orders/__init__.py
 erpnext/manufacturing/report/open_production_orders/open_production_orders.json
+<<<<<<< HEAD
+=======
+erpnext/manufacturing/report/production_order_stock_report/__init__.py
+erpnext/manufacturing/report/production_order_stock_report/production_order_stock_report.js
+erpnext/manufacturing/report/production_order_stock_report/production_order_stock_report.json
+erpnext/manufacturing/report/production_order_stock_report/production_order_stock_report.py
+>>>>>>> libracore
 erpnext/manufacturing/report/production_orders_in_progress/__init__.py
 erpnext/manufacturing/report/production_orders_in_progress/production_orders_in_progress.json
 erpnext/patches/__init__.py
@@ -3153,11 +3541,53 @@ erpnext/patches/v7_1/update_missing_salary_component_type.py
 erpnext/patches/v7_1/update_portal_roles.py
 erpnext/patches/v7_1/update_total_billing_hours.py
 erpnext/patches/v7_2/__init__.py
+<<<<<<< HEAD
 erpnext/patches/v7_2/set_null_value_to_fields.py
 erpnext/patches/v7_2/update_doctype_status.py
 erpnext/patches/v7_2/update_salary_slips.py
 erpnext/patches/v7_2/update_website_for_variant.py
 erpnext/portal/__init__.py
+=======
+erpnext/patches/v7_2/arrear_leave_encashment_as_salary_component.py
+erpnext/patches/v7_2/contact_address_links.py
+erpnext/patches/v7_2/delete_fleet_management_module_def.py
+erpnext/patches/v7_2/empty_supplied_items_for_non_subcontracted.py
+erpnext/patches/v7_2/make_all_assessment_group.py
+erpnext/patches/v7_2/mark_students_active.py
+erpnext/patches/v7_2/move_dates_from_salary_structure_to_employee.py
+erpnext/patches/v7_2/rename_att_date_attendance.py
+erpnext/patches/v7_2/rename_evaluation_criteria.py
+erpnext/patches/v7_2/set_null_value_to_fields.py
+erpnext/patches/v7_2/setup_auto_close_settings.py
+erpnext/patches/v7_2/stock_uom_in_selling.py
+erpnext/patches/v7_2/update_abbr_in_salary_slips.py
+erpnext/patches/v7_2/update_assessment_modules.py
+erpnext/patches/v7_2/update_attendance_docstatus.py
+erpnext/patches/v7_2/update_doctype_status.py
+erpnext/patches/v7_2/update_guardian_name_in_student_master.py
+erpnext/patches/v7_2/update_party_type.py
+erpnext/patches/v7_2/update_salary_slips.py
+erpnext/patches/v7_2/update_website_for_variant.py
+erpnext/patches/v8_0/__init__.py
+erpnext/patches/v8_0/addresses_linked_to_lead.py
+erpnext/patches/v8_0/delete_schools_depricated_doctypes.py
+erpnext/patches/v8_0/disable_instructor_role.py
+erpnext/patches/v8_0/enable_booking_asset_depreciation_automatically.py
+erpnext/patches/v8_0/fix_status_for_invoices_with_negative_outstanding.py
+erpnext/patches/v8_0/make_payments_table_blank_for_non_pos_invoice.py
+erpnext/patches/v8_0/merge_student_batch_and_student_group.py
+erpnext/patches/v8_0/rename_is_sample_item_to_allow_zero_valuation_rate.py
+erpnext/patches/v8_0/rename_total_margin_to_rate_with_margin.py
+erpnext/patches/v8_0/repost_reserved_qty_for_multiple_sales_uom.py
+erpnext/patches/v8_0/revert_manufacturers_table_from_item.py
+erpnext/patches/v8_0/set_null_to_serial_nos_for_disabled_sales_invoices.py
+erpnext/patches/v8_0/set_project_copied_from.py
+erpnext/patches/v8_0/update_status_as_paid_for_completed_expense_claim.py
+erpnext/patches/v8_0/update_stock_qty_value_in_purchase_invoice.py
+erpnext/patches/v8_0/update_supplier_address_in_stock_entry.py
+erpnext/portal/__init__.py
+erpnext/portal/utils.py
+>>>>>>> libracore
 erpnext/portal/doctype/__init__.py
 erpnext/portal/doctype/homepage/__init__.py
 erpnext/portal/doctype/homepage/homepage.js
@@ -3234,6 +3664,10 @@ erpnext/projects/report/daily_timesheet_summary/daily_timesheet_summary.js
 erpnext/projects/report/daily_timesheet_summary/daily_timesheet_summary.json
 erpnext/projects/report/daily_timesheet_summary/daily_timesheet_summary.py
 erpnext/projects/report/project_wise_stock_tracking/__init__.py
+<<<<<<< HEAD
+=======
+erpnext/projects/report/project_wise_stock_tracking/project_wise_stock_tracking.js
+>>>>>>> libracore
 erpnext/projects/report/project_wise_stock_tracking/project_wise_stock_tracking.json
 erpnext/projects/report/project_wise_stock_tracking/project_wise_stock_tracking.py
 erpnext/projects/web_form/__init__.py
@@ -3252,6 +3686,10 @@ erpnext/public/images/favicon.png
 erpnext/public/images/pos.svg
 erpnext/public/images/splash.png
 erpnext/public/js/account_tree_grid.js
+<<<<<<< HEAD
+=======
+erpnext/public/js/communication.js
+>>>>>>> libracore
 erpnext/public/js/conf.js
 erpnext/public/js/financial_statements.js
 erpnext/public/js/help_links.js
@@ -3266,17 +3704,33 @@ erpnext/public/js/stock_grid_report.js
 erpnext/public/js/utils.js
 erpnext/public/js/website_utils.js
 erpnext/public/js/controllers/accounts.js
+<<<<<<< HEAD
+=======
+erpnext/public/js/controllers/buying.js
+>>>>>>> libracore
 erpnext/public/js/controllers/stock_controller.js
 erpnext/public/js/controllers/taxes_and_totals.js
 erpnext/public/js/controllers/transaction.js
 erpnext/public/js/payment/payment_details.html
 erpnext/public/js/payment/payments.js
 erpnext/public/js/payment/pos_payment.html
+<<<<<<< HEAD
 erpnext/public/js/pos/pos.html
 erpnext/public/js/pos/pos_bill_item.html
 erpnext/public/js/pos/pos_invoice_list.html
 erpnext/public/js/pos/pos_item.html
 erpnext/public/js/pos/pos_tax_row.html
+=======
+erpnext/public/js/pos/customer_toolbar.html
+erpnext/public/js/pos/pos.html
+erpnext/public/js/pos/pos_bill_item.html
+erpnext/public/js/pos/pos_bill_item_new.html
+erpnext/public/js/pos/pos_invoice_list.html
+erpnext/public/js/pos/pos_item.html
+erpnext/public/js/pos/pos_selected_item.html
+erpnext/public/js/pos/pos_tax_row.html
+erpnext/public/js/schools/assessment_result_tool.html
+>>>>>>> libracore
 erpnext/public/js/schools/student_button.html
 erpnext/public/js/templates/address_list.html
 erpnext/public/js/templates/contact_list.html
@@ -3301,6 +3755,7 @@ erpnext/schools/doctype/academic_year/academic_year.json
 erpnext/schools/doctype/academic_year/academic_year.py
 erpnext/schools/doctype/academic_year/test_academic_year.py
 erpnext/schools/doctype/academic_year/test_records.json
+<<<<<<< HEAD
 erpnext/schools/doctype/announcement/__init__.py
 erpnext/schools/doctype/announcement/announcement.js
 erpnext/schools/doctype/announcement/announcement.json
@@ -3311,10 +3766,24 @@ erpnext/schools/doctype/assessment/assessment.js
 erpnext/schools/doctype/assessment/assessment.json
 erpnext/schools/doctype/assessment/assessment.py
 erpnext/schools/doctype/assessment/test_assessment.py
+=======
+erpnext/schools/doctype/assessment_criteria/__init__.py
+erpnext/schools/doctype/assessment_criteria/assessment_criteria.js
+erpnext/schools/doctype/assessment_criteria/assessment_criteria.json
+erpnext/schools/doctype/assessment_criteria/assessment_criteria.py
+erpnext/schools/doctype/assessment_criteria/test_assessment_criteria.py
+erpnext/schools/doctype/assessment_criteria/test_records.json
+erpnext/schools/doctype/assessment_criteria_group/__init__.py
+erpnext/schools/doctype/assessment_criteria_group/assessment_criteria_group.js
+erpnext/schools/doctype/assessment_criteria_group/assessment_criteria_group.json
+erpnext/schools/doctype/assessment_criteria_group/assessment_criteria_group.py
+erpnext/schools/doctype/assessment_criteria_group/test_assessment_criteria_group.py
+>>>>>>> libracore
 erpnext/schools/doctype/assessment_group/__init__.py
 erpnext/schools/doctype/assessment_group/assessment_group.js
 erpnext/schools/doctype/assessment_group/assessment_group.json
 erpnext/schools/doctype/assessment_group/assessment_group.py
+<<<<<<< HEAD
 erpnext/schools/doctype/assessment_group/test_assessment_group.py
 erpnext/schools/doctype/assessment_result/__init__.py
 erpnext/schools/doctype/assessment_result/assessment_result.json
@@ -3323,12 +3792,42 @@ erpnext/schools/doctype/attendance_tool_student/__init__.py
 erpnext/schools/doctype/attendance_tool_student/attendance_tool_student.json
 erpnext/schools/doctype/attendance_tool_student/attendance_tool_student.py
 erpnext/schools/doctype/course/.txt
+=======
+erpnext/schools/doctype/assessment_group/assessment_group_tree.js
+erpnext/schools/doctype/assessment_group/test_assessment_group.py
+erpnext/schools/doctype/assessment_plan/__init__.py
+erpnext/schools/doctype/assessment_plan/assessment_plan.js
+erpnext/schools/doctype/assessment_plan/assessment_plan.json
+erpnext/schools/doctype/assessment_plan/assessment_plan.py
+erpnext/schools/doctype/assessment_plan/test_assessment_plan.py
+erpnext/schools/doctype/assessment_plan_criteria/__init__.py
+erpnext/schools/doctype/assessment_plan_criteria/assessment_plan_criteria.json
+erpnext/schools/doctype/assessment_plan_criteria/assessment_plan_criteria.py
+erpnext/schools/doctype/assessment_result/__init__.py
+erpnext/schools/doctype/assessment_result/assessment_result.js
+erpnext/schools/doctype/assessment_result/assessment_result.json
+erpnext/schools/doctype/assessment_result/assessment_result.py
+erpnext/schools/doctype/assessment_result/test_assessment_result.py
+erpnext/schools/doctype/assessment_result_detail/__init__.py
+erpnext/schools/doctype/assessment_result_detail/assessment_result_detail.json
+erpnext/schools/doctype/assessment_result_detail/assessment_result_detail.py
+erpnext/schools/doctype/assessment_result_tool/__init__.py
+erpnext/schools/doctype/assessment_result_tool/assessment_result_tool.js
+erpnext/schools/doctype/assessment_result_tool/assessment_result_tool.json
+erpnext/schools/doctype/assessment_result_tool/assessment_result_tool.py
+>>>>>>> libracore
 erpnext/schools/doctype/course/__init__.py
 erpnext/schools/doctype/course/course.js
 erpnext/schools/doctype/course/course.json
 erpnext/schools/doctype/course/course.py
 erpnext/schools/doctype/course/test_course.py
 erpnext/schools/doctype/course/test_records.json
+<<<<<<< HEAD
+=======
+erpnext/schools/doctype/course_assessment_criteria/__init__.py
+erpnext/schools/doctype/course_assessment_criteria/course_assessment_criteria.json
+erpnext/schools/doctype/course_assessment_criteria/course_assessment_criteria.py
+>>>>>>> libracore
 erpnext/schools/doctype/course_schedule/__init__.py
 erpnext/schools/doctype/course_schedule/course_schedule.js
 erpnext/schools/doctype/course_schedule/course_schedule.json
@@ -3339,11 +3838,14 @@ erpnext/schools/doctype/course_scheduling_tool/__init__.py
 erpnext/schools/doctype/course_scheduling_tool/course_scheduling_tool.js
 erpnext/schools/doctype/course_scheduling_tool/course_scheduling_tool.json
 erpnext/schools/doctype/course_scheduling_tool/course_scheduling_tool.py
+<<<<<<< HEAD
 erpnext/schools/doctype/discussion/__init__.py
 erpnext/schools/doctype/discussion/discussion.js
 erpnext/schools/doctype/discussion/discussion.json
 erpnext/schools/doctype/discussion/discussion.py
 erpnext/schools/doctype/discussion/test_discussion.py
+=======
+>>>>>>> libracore
 erpnext/schools/doctype/fee_category/__init__.py
 erpnext/schools/doctype/fee_category/fee_category.js
 erpnext/schools/doctype/fee_category/fee_category.json
@@ -3363,6 +3865,7 @@ erpnext/schools/doctype/fees/fees.json
 erpnext/schools/doctype/fees/fees.py
 erpnext/schools/doctype/fees/fees_list.js
 erpnext/schools/doctype/fees/test_fees.py
+<<<<<<< HEAD
 erpnext/schools/doctype/grade_interval/__init__.py
 erpnext/schools/doctype/grade_interval/grade_interval.json
 erpnext/schools/doctype/grade_interval/grade_interval.py
@@ -3371,6 +3874,17 @@ erpnext/schools/doctype/grading_structure/grading_structure.js
 erpnext/schools/doctype/grading_structure/grading_structure.json
 erpnext/schools/doctype/grading_structure/grading_structure.py
 erpnext/schools/doctype/grading_structure/test_grading_structure.py
+=======
+erpnext/schools/doctype/grading_scale/__init__.py
+erpnext/schools/doctype/grading_scale/grading_scale.js
+erpnext/schools/doctype/grading_scale/grading_scale.json
+erpnext/schools/doctype/grading_scale/grading_scale.py
+erpnext/schools/doctype/grading_scale/test_grading_scale.py
+erpnext/schools/doctype/grading_scale/test_records.json
+erpnext/schools/doctype/grading_scale_interval/__init__.py
+erpnext/schools/doctype/grading_scale_interval/grading_scale_interval.json
+erpnext/schools/doctype/grading_scale_interval/grading_scale_interval.py
+>>>>>>> libracore
 erpnext/schools/doctype/guardian/__init__.py
 erpnext/schools/doctype/guardian/guardian.js
 erpnext/schools/doctype/guardian/guardian.json
@@ -3379,6 +3893,12 @@ erpnext/schools/doctype/guardian/test_guardian.py
 erpnext/schools/doctype/guardian_interest/__init__.py
 erpnext/schools/doctype/guardian_interest/guardian_interest.json
 erpnext/schools/doctype/guardian_interest/guardian_interest.py
+<<<<<<< HEAD
+=======
+erpnext/schools/doctype/guardian_student/__init__.py
+erpnext/schools/doctype/guardian_student/guardian_student.json
+erpnext/schools/doctype/guardian_student/guardian_student.py
+>>>>>>> libracore
 erpnext/schools/doctype/instructor/__init__.py
 erpnext/schools/doctype/instructor/instructor.js
 erpnext/schools/doctype/instructor/instructor.json
@@ -3399,6 +3919,12 @@ erpnext/schools/doctype/program_enrollment/program_enrollment.js
 erpnext/schools/doctype/program_enrollment/program_enrollment.json
 erpnext/schools/doctype/program_enrollment/program_enrollment.py
 erpnext/schools/doctype/program_enrollment/test_program_enrollment.py
+<<<<<<< HEAD
+=======
+erpnext/schools/doctype/program_enrollment_course/__init__.py
+erpnext/schools/doctype/program_enrollment_course/program_enrollment_course.json
+erpnext/schools/doctype/program_enrollment_course/program_enrollment_course.py
+>>>>>>> libracore
 erpnext/schools/doctype/program_enrollment_fee/__init__.py
 erpnext/schools/doctype/program_enrollment_fee/program_enrollment_fee.json
 erpnext/schools/doctype/program_enrollment_fee/program_enrollment_fee.py
@@ -3418,6 +3944,18 @@ erpnext/schools/doctype/room/room.json
 erpnext/schools/doctype/room/room.py
 erpnext/schools/doctype/room/test_records.json
 erpnext/schools/doctype/room/test_room.py
+<<<<<<< HEAD
+=======
+erpnext/schools/doctype/school_house/__init__.py
+erpnext/schools/doctype/school_house/school_house.js
+erpnext/schools/doctype/school_house/school_house.json
+erpnext/schools/doctype/school_house/school_house.py
+erpnext/schools/doctype/school_house/test_school_house.py
+erpnext/schools/doctype/school_settings/__init__.py
+erpnext/schools/doctype/school_settings/school_settings.js
+erpnext/schools/doctype/school_settings/school_settings.json
+erpnext/schools/doctype/school_settings/school_settings.py
+>>>>>>> libracore
 erpnext/schools/doctype/student/__init__.py
 erpnext/schools/doctype/student/student.js
 erpnext/schools/doctype/student/student.json
@@ -3443,11 +3981,15 @@ erpnext/schools/doctype/student_attendance/student_attendance.json
 erpnext/schools/doctype/student_attendance/student_attendance.py
 erpnext/schools/doctype/student_attendance/student_attendance_list.js
 erpnext/schools/doctype/student_attendance/test_student_attendance.py
+<<<<<<< HEAD
 erpnext/schools/doctype/student_attendance/untitled.txt
+=======
+>>>>>>> libracore
 erpnext/schools/doctype/student_attendance_tool/__init__.py
 erpnext/schools/doctype/student_attendance_tool/student_attendance_tool.js
 erpnext/schools/doctype/student_attendance_tool/student_attendance_tool.json
 erpnext/schools/doctype/student_attendance_tool/student_attendance_tool.py
+<<<<<<< HEAD
 erpnext/schools/doctype/student_batch/__init__.py
 erpnext/schools/doctype/student_batch/student_batch.js
 erpnext/schools/doctype/student_batch/student_batch.json
@@ -3460,14 +4002,21 @@ erpnext/schools/doctype/student_batch_creation_tool/student_batch_creation_tool.
 erpnext/schools/doctype/student_batch_instructor/__init__.py
 erpnext/schools/doctype/student_batch_instructor/student_batch_instructor.json
 erpnext/schools/doctype/student_batch_instructor/student_batch_instructor.py
+=======
+>>>>>>> libracore
 erpnext/schools/doctype/student_batch_name/__init__.py
 erpnext/schools/doctype/student_batch_name/student_batch_name.js
 erpnext/schools/doctype/student_batch_name/student_batch_name.json
 erpnext/schools/doctype/student_batch_name/student_batch_name.py
+<<<<<<< HEAD
 erpnext/schools/doctype/student_batch_name/test_student_batch_name.py
 erpnext/schools/doctype/student_batch_student/__init__.py
 erpnext/schools/doctype/student_batch_student/student_batch_student.json
 erpnext/schools/doctype/student_batch_student/student_batch_student.py
+=======
+erpnext/schools/doctype/student_batch_name/test_records.json
+erpnext/schools/doctype/student_batch_name/test_student_batch_name.py
+>>>>>>> libracore
 erpnext/schools/doctype/student_category/__init__.py
 erpnext/schools/doctype/student_category/student_category.js
 erpnext/schools/doctype/student_category/student_category.json
@@ -3486,12 +4035,26 @@ erpnext/schools/doctype/student_group_creation_tool/student_group_creation_tool.
 erpnext/schools/doctype/student_group_creation_tool_course/__init__.py
 erpnext/schools/doctype/student_group_creation_tool_course/student_group_creation_tool_course.json
 erpnext/schools/doctype/student_group_creation_tool_course/student_group_creation_tool_course.py
+<<<<<<< HEAD
+=======
+erpnext/schools/doctype/student_group_instructor/__init__.py
+erpnext/schools/doctype/student_group_instructor/student_group_instructor.json
+erpnext/schools/doctype/student_group_instructor/student_group_instructor.py
+>>>>>>> libracore
 erpnext/schools/doctype/student_group_student/__init__.py
 erpnext/schools/doctype/student_group_student/student_group_student.json
 erpnext/schools/doctype/student_group_student/student_group_student.py
 erpnext/schools/doctype/student_guardian/__init__.py
 erpnext/schools/doctype/student_guardian/student_guardian.json
 erpnext/schools/doctype/student_guardian/student_guardian.py
+<<<<<<< HEAD
+=======
+erpnext/schools/doctype/student_language/__init__.py
+erpnext/schools/doctype/student_language/student_language.js
+erpnext/schools/doctype/student_language/student_language.json
+erpnext/schools/doctype/student_language/student_language.py
+erpnext/schools/doctype/student_language/test_student_language.py
+>>>>>>> libracore
 erpnext/schools/doctype/student_leave_application/__init__.py
 erpnext/schools/doctype/student_leave_application/student_leave_application.js
 erpnext/schools/doctype/student_leave_application/student_leave_application.json
@@ -3508,16 +4071,26 @@ erpnext/schools/doctype/student_sibling/student_sibling.py
 erpnext/schools/doctype/student_siblings/__init__.py
 erpnext/schools/doctype/student_siblings/student_siblings.json
 erpnext/schools/doctype/student_siblings/student_siblings.py
+<<<<<<< HEAD
 erpnext/schools/doctype/topic/__init__.py
 erpnext/schools/doctype/topic/test_topic.py
 erpnext/schools/doctype/topic/topic.js
 erpnext/schools/doctype/topic/topic.json
 erpnext/schools/doctype/topic/topic.py
+=======
+>>>>>>> libracore
 erpnext/schools/report/__init__.py
 erpnext/schools/report/absent_student_report/__init__.py
 erpnext/schools/report/absent_student_report/absent_student_report.js
 erpnext/schools/report/absent_student_report/absent_student_report.json
 erpnext/schools/report/absent_student_report/absent_student_report.py
+<<<<<<< HEAD
+=======
+erpnext/schools/report/student_and_guardian_contact_details/__init__.py
+erpnext/schools/report/student_and_guardian_contact_details/student_and_guardian_contact_details.js
+erpnext/schools/report/student_and_guardian_contact_details/student_and_guardian_contact_details.json
+erpnext/schools/report/student_and_guardian_contact_details/student_and_guardian_contact_details.py
+>>>>>>> libracore
 erpnext/schools/report/student_batch_wise_attendance/__init__.py
 erpnext/schools/report/student_batch_wise_attendance/student_batch_wise_attendance.js
 erpnext/schools/report/student_batch_wise_attendance/student_batch_wise_attendance.json
@@ -3641,14 +4214,21 @@ erpnext/selling/page/sales_funnel/sales_funnel.json
 erpnext/selling/page/sales_funnel/sales_funnel.py
 erpnext/selling/report/__init__.py
 erpnext/selling/report/available_stock_for_packing_items/__init__.py
+<<<<<<< HEAD
+=======
+erpnext/selling/report/available_stock_for_packing_items/available_stock_for_packing_items.js
+>>>>>>> libracore
 erpnext/selling/report/available_stock_for_packing_items/available_stock_for_packing_items.json
 erpnext/selling/report/available_stock_for_packing_items/available_stock_for_packing_items.py
 erpnext/selling/report/customer_acquisition_and_loyalty/__init__.py
 erpnext/selling/report/customer_acquisition_and_loyalty/customer_acquisition_and_loyalty.js
 erpnext/selling/report/customer_acquisition_and_loyalty/customer_acquisition_and_loyalty.json
 erpnext/selling/report/customer_acquisition_and_loyalty/customer_acquisition_and_loyalty.py
+<<<<<<< HEAD
 erpnext/selling/report/customer_addresses_and_contacts/__init__.py
 erpnext/selling/report/customer_addresses_and_contacts/customer_addresses_and_contacts.json
+=======
+>>>>>>> libracore
 erpnext/selling/report/customer_credit_balance/__init__.py
 erpnext/selling/report/customer_credit_balance/customer_credit_balance.js
 erpnext/selling/report/customer_credit_balance/customer_credit_balance.json
@@ -3760,6 +4340,14 @@ erpnext/setup/doctype/notification_control/__init__.py
 erpnext/setup/doctype/notification_control/notification_control.js
 erpnext/setup/doctype/notification_control/notification_control.json
 erpnext/setup/doctype/notification_control/notification_control.py
+<<<<<<< HEAD
+=======
+erpnext/setup/doctype/party_type/__init__.py
+erpnext/setup/doctype/party_type/party_type.js
+erpnext/setup/doctype/party_type/party_type.json
+erpnext/setup/doctype/party_type/party_type.py
+erpnext/setup/doctype/party_type/test_party_type.py
+>>>>>>> libracore
 erpnext/setup/doctype/print_heading/README.md
 erpnext/setup/doctype/print_heading/__init__.py
 erpnext/setup/doctype/print_heading/print_heading.js
@@ -3852,6 +4440,18 @@ erpnext/setup/setup_wizard/test_setup_data.py
 erpnext/setup/setup_wizard/test_setup_wizard.py
 erpnext/setup/setup_wizard/data/country_wise_tax.json
 erpnext/setup/setup_wizard/data/sample_blog_post.html
+<<<<<<< HEAD
+=======
+erpnext/setup/setup_wizard/tasks/explore.md
+erpnext/setup/setup_wizard/tasks/go_live.md
+erpnext/setup/setup_wizard/tasks/import_data.md
+erpnext/setup/setup_wizard/tasks/masters.md
+erpnext/setup/setup_wizard/tasks/purchase.md
+erpnext/setup/setup_wizard/tasks/sales.md
+erpnext/setup/setup_wizard/tasks/school_import_data.md
+erpnext/setup/setup_wizard/tasks/school_masters.md
+erpnext/setup/setup_wizard/tasks/task_alert.json
+>>>>>>> libracore
 erpnext/shopping_cart/__init__.py
 erpnext/shopping_cart/cart.py
 erpnext/shopping_cart/product.py
@@ -3893,6 +4493,14 @@ erpnext/stock/doctype/bin/bin.js
 erpnext/stock/doctype/bin/bin.json
 erpnext/stock/doctype/bin/bin.py
 erpnext/stock/doctype/bin/test_bin.py
+<<<<<<< HEAD
+=======
+erpnext/stock/doctype/customs_tariff_number/__init__.py
+erpnext/stock/doctype/customs_tariff_number/customs_tariff_number.js
+erpnext/stock/doctype/customs_tariff_number/customs_tariff_number.json
+erpnext/stock/doctype/customs_tariff_number/customs_tariff_number.py
+erpnext/stock/doctype/customs_tariff_number/test_customs_tariff_number.py
+>>>>>>> libracore
 erpnext/stock/doctype/delivery_note/README.md
 erpnext/stock/doctype/delivery_note/__init__.py
 erpnext/stock/doctype/delivery_note/delivery_note.js
@@ -4102,6 +4710,13 @@ erpnext/stock/page/stock_balance/__init__.py
 erpnext/stock/page/stock_balance/stock_balance.js
 erpnext/stock/page/stock_balance/stock_balance.json
 erpnext/stock/report/__init__.py
+<<<<<<< HEAD
+=======
+erpnext/stock/report/batch_item_expiry_status/__init__.py
+erpnext/stock/report/batch_item_expiry_status/batch_item_expiry_status.js
+erpnext/stock/report/batch_item_expiry_status/batch_item_expiry_status.json
+erpnext/stock/report/batch_item_expiry_status/batch_item_expiry_status.py
+>>>>>>> libracore
 erpnext/stock/report/batch_wise_balance_history/__init__.py
 erpnext/stock/report/batch_wise_balance_history/batch_wise_balance_history.js
 erpnext/stock/report/batch_wise_balance_history/batch_wise_balance_history.json
@@ -4115,6 +4730,10 @@ erpnext/stock/report/delivery_note_trends/delivery_note_trends.js
 erpnext/stock/report/delivery_note_trends/delivery_note_trends.json
 erpnext/stock/report/delivery_note_trends/delivery_note_trends.py
 erpnext/stock/report/item_prices/__init__.py
+<<<<<<< HEAD
+=======
+erpnext/stock/report/item_prices/item_prices.js
+>>>>>>> libracore
 erpnext/stock/report/item_prices/item_prices.json
 erpnext/stock/report/item_prices/item_prices.py
 erpnext/stock/report/item_shortage_report/__init__.py
@@ -4175,6 +4794,13 @@ erpnext/support/doctype/issue/issue.py
 erpnext/support/doctype/issue/issue_list.js
 erpnext/support/doctype/issue/test_issue.py
 erpnext/support/doctype/issue/test_records.json
+<<<<<<< HEAD
+=======
+erpnext/support/doctype/support_settings/__init__.py
+erpnext/support/doctype/support_settings/support_settings.js
+erpnext/support/doctype/support_settings/support_settings.json
+erpnext/support/doctype/support_settings/support_settings.py
+>>>>>>> libracore
 erpnext/support/doctype/warranty_claim/__init__.py
 erpnext/support/doctype/warranty_claim/test_warranty_claim.py
 erpnext/support/doctype/warranty_claim/warranty_claim.js
@@ -4208,6 +4834,10 @@ erpnext/templates/form_grid/stock_entry_grid.html
 erpnext/templates/form_grid/includes/progress.html
 erpnext/templates/form_grid/includes/visible_cols.html
 erpnext/templates/generators/__init__.py
+<<<<<<< HEAD
+=======
+erpnext/templates/generators/bom.html
+>>>>>>> libracore
 erpnext/templates/generators/item.html
 erpnext/templates/generators/item_group.html
 erpnext/templates/generators/job_opening.html
@@ -4225,6 +4855,10 @@ erpnext/templates/includes/products_as_grid.html
 erpnext/templates/includes/products_as_list.html
 erpnext/templates/includes/projects.css
 erpnext/templates/includes/rfq.js
+<<<<<<< HEAD
+=======
+erpnext/templates/includes/salary_slip_log.html
+>>>>>>> libracore
 erpnext/templates/includes/transaction_row.html
 erpnext/templates/includes/announcement/announcement_row.html
 erpnext/templates/includes/assessment/assessment_row.html
@@ -4250,16 +4884,22 @@ erpnext/templates/includes/rfq/rfq_items.html
 erpnext/templates/includes/rfq/rfq_macros.html
 erpnext/templates/includes/topic/topic_row.html
 erpnext/templates/pages/__init__.py
+<<<<<<< HEAD
 erpnext/templates/pages/announcements.html
 erpnext/templates/pages/announcements.py
+=======
+>>>>>>> libracore
 erpnext/templates/pages/cart.html
 erpnext/templates/pages/cart.py
 erpnext/templates/pages/cart_terms.html
 erpnext/templates/pages/courses.html
 erpnext/templates/pages/courses.py
 erpnext/templates/pages/demo.html
+<<<<<<< HEAD
 erpnext/templates/pages/discussions.html
 erpnext/templates/pages/discussions.py
+=======
+>>>>>>> libracore
 erpnext/templates/pages/home.html
 erpnext/templates/pages/home.py
 erpnext/templates/pages/order.html
@@ -4277,14 +4917,22 @@ erpnext/templates/pages/task_info.html
 erpnext/templates/pages/task_info.py
 erpnext/templates/pages/timelog_info.html
 erpnext/templates/pages/timelog_info.py
+<<<<<<< HEAD
 erpnext/templates/pages/topics.html
 erpnext/templates/pages/topics.py
+=======
+>>>>>>> libracore
 erpnext/templates/print_formats/includes/item_table_description.html
 erpnext/templates/print_formats/includes/item_table_qty.html
 erpnext/templates/print_formats/includes/taxes.html
 erpnext/tests/__init__.py
 erpnext/tests/sel_tests.py
 erpnext/tests/test_client.py
+<<<<<<< HEAD
+=======
+erpnext/tests/test_init.py
+erpnext/tests/utils.py
+>>>>>>> libracore
 erpnext/translations/am.csv
 erpnext/translations/ar.csv
 erpnext/translations/bg.csv
@@ -4293,10 +4941,18 @@ erpnext/translations/bo.csv
 erpnext/translations/bs.csv
 erpnext/translations/ca.csv
 erpnext/translations/cs.csv
+<<<<<<< HEAD
 erpnext/translations/da-DK.csv
 erpnext/translations/da.csv
 erpnext/translations/de.csv
 erpnext/translations/el.csv
+=======
+erpnext/translations/cz.csv
+erpnext/translations/da.csv
+erpnext/translations/de.csv
+erpnext/translations/el.csv
+erpnext/translations/en-GB.csv
+>>>>>>> libracore
 erpnext/translations/en-US.csv
 erpnext/translations/en.csv
 erpnext/translations/es-AR.csv
@@ -4360,6 +5016,7 @@ erpnext/translations/zh-TW.csv
 erpnext/translations/zh.csv
 erpnext/utilities/README.md
 erpnext/utilities/__init__.py
+<<<<<<< HEAD
 erpnext/utilities/address_and_contact.py
 erpnext/utilities/bot.py
 erpnext/utilities/transaction_base.py
@@ -4384,6 +5041,12 @@ erpnext/utilities/doctype/contact/contact.json
 erpnext/utilities/doctype/contact/contact.py
 erpnext/utilities/doctype/contact/test_contact.py
 erpnext/utilities/doctype/contact/test_records.json
+=======
+erpnext/utilities/activation.py
+erpnext/utilities/bot.py
+erpnext/utilities/transaction_base.py
+erpnext/utilities/doctype/__init__.py
+>>>>>>> libracore
 erpnext/utilities/doctype/rename_tool/README.md
 erpnext/utilities/doctype/rename_tool/__init__.py
 erpnext/utilities/doctype/rename_tool/rename_tool.js
