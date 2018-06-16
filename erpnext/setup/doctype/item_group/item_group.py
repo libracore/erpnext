@@ -83,7 +83,7 @@ def get_product_list_for_group(product_group=None, start=0, limit=10, search=Non
 
 	# base query
 	query = """select I.name, I.item_name, I.item_code, I.route, I.image, I.website_image, I.thumbnail, I.item_group,
-			I.description, I.web_long_description as website_description, I.is_stock_item,
+			I.description, I.has_variants, I.web_long_description as website_description, I.is_stock_item,
 			case when (S.actual_qty - S.reserved_qty) > 0 then 1 else 0 end as in_stock, I.website_warehouse,
 			I.has_batch_no
 		from `tabItem` I
@@ -115,7 +115,8 @@ def adjust_qty_for_expired_items(data):
 	adjusted_data = []
 
 	for item in data:
-		if item.get('has_batch_no') and item.get('website_warehouse'):
+		if item.get('has_batch_no') and item.get('website_warehouse') and not item.get('has_variants'):
+			frappe.log_error("{0}, {1}, {2}".format(item.get('name'), 'website_warehouse', item.get('website_warehouse')))
 			stock_qty_dict = get_qty_in_stock(
 				item.get('name'), 'website_warehouse', item.get('website_warehouse'))
 			qty = stock_qty_dict.stock_qty[0][0]
