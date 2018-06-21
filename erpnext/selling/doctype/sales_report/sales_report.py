@@ -44,15 +44,15 @@ class SalesReport(Document):
             {'filter': "`item_name` LIKE 'Isofinish%' OR `item_name` LIKE '%Grund Plus%' OR `item_name` LIKE 'Mineralit Innen%'", 'description': 'Spez. Wandfarben'},
             {'filter': "`item_name` LIKE 'Aqua-Floor%'", 'description': 'Bodenfarben'},
             {'filter': "`item_name` LIKE '%Tiefgrund'", 'description': 'Tiefgrund'},
-            {'filter': "`item_name` LIKE '%Lasur%'", 'description': 'Lasuren'},
-            {'filter': "`item_name` LIKE '%Fensterlack%'", 'description': 'Lacke LH'},
-            {'filter': "`item_name` LIKE 'Lawicryl%' OR `item_name` LIKE 'Aqua All-Grund%' OR `item_name` LIKE 'Aquamatt%' OR `item_name` LIKE 'Samtacryl%'", 'description': 'Lacke W'},
+            {'filter': "`item_name` LIKE '%Lasur%' OR `item_name` LIKE '%Bläueschutz%'", 'description': 'Lasuren'},
+            {'filter': "`item_name` LIKE '%Fensterlack%' OR `item_name` LIKE '%Novasol Farbe%' OR `item_name` LIKE '%Holzgrundierung LH%'", 'description': 'Lacke LH'},
+            {'filter': "`item_name` LIKE 'Lawicryl%' OR `item_name` LIKE 'Aqua All-Grund%' OR `item_name` LIKE 'Aquamatt%' OR `item_name` LIKE 'Samtacryl%' OR `item_name` LIKE '%Holz-Color%'", 'description': 'Lacke W'},
             {'filter': "`item_name` LIKE 'Siliconharzfarbe%'", 'description': 'Siliconharzfarbe F1'},
             {'filter': "`item_name` LIKE 'Premium FF%'", 'description': 'Premiumfassadenfarbe'},
             {'filter': "`item_name` LIKE 'Mineralit F%' OR `item_name` LIKE 'Mineralit G%'", 'description': 'Allg. Fassadenfarben'},
-            {'filter': "`item_name` LIKE 'Anti%'", 'description': 'Zusatzprodukte'},
+            {'filter': "`item_name` LIKE 'Anti%' OR `item_name` LIKE '%Universal-Nitroverdünnung' OR `item_name` LIKE '%Lackverdünnung%'", 'description': 'Zusatzprodukte'},
             {'filter': "`item_group` LIKE 'Dienstleistungen Abtönung'", 'description': 'Abtönpasten'},
-            {'filter': "`item_name` LIKE 'Kunststoff Eimer%'", 'description': 'Non-Farben'},
+            {'filter': "`item_name` LIKE 'Kunststoff Eimer%' OR `item_name` LIKE '%Washi-Tec%'", 'description': 'Non-Farben'},
             {'filter': "`item_group` LIKE 'Dienstleistungen'", 'description': 'Dienstleistungen'}]        
 
         for line_item in line_items:
