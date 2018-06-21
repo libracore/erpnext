@@ -1,8 +1,8 @@
-// Copyright (c) 2018, lasalesi and contributors
+// Copyright (c) 2018, libracore and contributors
 // For license information, please see license.txt
 
 frappe.ui.form.on('Sales Report', {
-    setup: function(frm) {
+    /* setup: function(frm) {
         if (frm.doc.name.startsWith("New")) {
             frappe.call({
                 method: 'fill',
@@ -12,8 +12,18 @@ frappe.ui.form.on('Sales Report', {
                 }
             }); 
         }
-    },
+    },*/
     refresh: function(frm) {
+	// set defaults
+	if (frm.doc.__islocal) {
+	    frappe.call({
+                method: 'fill',
+                doc: frm.doc,
+                callback: function(response) {
+                    refresh_field(['items', 'week', 'date', 'this_year', 'last_year']);
+                }
+            });
+	}
         // add utility buttons
         frm.add_custom_button(__("Update totals"), function() {
             frappe.call({
@@ -29,6 +39,6 @@ frappe.ui.form.on('Sales Report', {
                 }
             });
         });
-	}
+    }
 
 });
