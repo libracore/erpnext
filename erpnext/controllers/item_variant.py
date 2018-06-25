@@ -309,8 +309,12 @@ def make_variant_item_code(template_item_code, template_item_name, variant):
 		variant.item_code = "{0}-{1}".format(template_item_code, "-".join(abbreviations))
 		variant.item_name = "{0}-{1}".format(template_item_name, "-".join(abbreviations))
 		variant.colour = abbreviations[0]
-		variant.size = abbreviations[1]
-		variant.second_size = "n/a"
+		if len(abbreviations) == 1:
+			variant.size = "n/a"
+			variant.second_size = "n/a"
+		if len(abbreviations) > 1:
+			variant.size = abbreviations[1]
+			variant.second_size = "n/a"
 		if len(abbreviations) == 3:
 			variant.second_size = abbreviations[2]
 
