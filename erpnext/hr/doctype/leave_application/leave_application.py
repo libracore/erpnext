@@ -117,7 +117,7 @@ class LeaveApplication(Document):
 					frappe.db.sql("""update `tabAttendance` set status = %s, leave_type = %s\
 						where name = %s""",(status, self.leave_type, d.name))
 
-			elif self.to_date <= nowdate():
+			elif getdate(self.to_date) <= getdate(nowdate()):
 				for dt in daterange(getdate(self.from_date), getdate(self.to_date)):
 					date = dt.strftime("%Y-%m-%d")
 					if not date == self.half_day_date:
@@ -355,7 +355,7 @@ def get_approvers(doctype, txt, searchfield, start, page_len, filters):
 @frappe.whitelist()
 def get_number_of_leave_days(employee, leave_type, from_date, to_date, half_day = None, half_day_date = None):
 	number_of_days = 0
-	if half_day == 1:
+	if cint(half_day) == 1:
 		if from_date == to_date:
 			number_of_days = 0.5
 		else:
