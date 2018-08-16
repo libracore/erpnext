@@ -873,7 +873,7 @@ DocType: BOM Item,Basic Rate (Company Currency),Grundpreis (Firmenwährung)
 DocType: Student Attendance,Student Attendance,Schülerzahl
 DocType: Sales Invoice Timesheet,Time Sheet,Zeitblatt
 DocType: Manufacturing Settings,Backflush Raw Materials Based On,Rückmeldung Rohmaterialien auf Basis von
-DocType: Lead,Lead is an Organization,Blei ist eine Organisation
+DocType: Lead,Lead is an Organization,Lead ist eine Organisation
 DocType: Guardian Interest,Interest,Zinsen
 apps/erpnext/erpnext/selling/doctype/customer/customer_dashboard.py +10,Pre Sales,Vorverkauf
 DocType: Purchase Receipt,Other Details,Sonstige Einzelheiten
