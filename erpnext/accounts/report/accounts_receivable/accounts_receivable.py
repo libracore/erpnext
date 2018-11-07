@@ -60,6 +60,7 @@ class ReceivablePayableReport(object):
 		for label in ("Invoiced Amount", "Paid Amount", credit_or_debit_note, "Outstanding Amount"):
 			columns.append({
 				"label": label,
+				"fieldname": frappe.scrub(label),
 				"fieldtype": "Currency",
 				"options": "currency",
 				"width": 120
@@ -87,25 +88,49 @@ class ReceivablePayableReport(object):
 					"width": 120
 				})
 
-		columns.append({
+		columns += [
+		{
 			"fieldname": "currency",
 			"label": _("Currency"),
 			"fieldtype": "Link",
 			"options": "Currency",
 			"width": 100
-		})
-
-		columns += [
-			_("PDC/LC Date") + ":Date:110",
-			_("PDC/LC Ref") + ":Data:110",
-			_("PDC/LC Amount") + ":Currency/currency:130",
-			_("Remaining Balance") + ":Currency/currency:130"
-		]
+		},
+		{
+			"fieldname": "pdc/lc_date",
+			"label": _("PDC/LC Date"),
+			"fieldtype": "Date",
+			"width": 110
+		},
+		{
+			"fieldname": "pdc/lc_ref",
+			"label": _("PDC/LC Ref"),
+			"fieldtype": "Data",
+			"width": 110
+		},
+		{
+			"fieldname": "pdc/lc_amount",
+			"label": _("PDC/LC Amount"),
+			"fieldtype": "Currency",
+			"options": "Currency",
+			"width": 130
+		},
+		{
+			"fieldname": "remaining_balance",
+			"label": _("Remaining Balance"),
+			"fieldtype": "Currency",
+			"options": "Currency",
+			"width": 130
+		}]
 
 		if args.get('party_type') == 'Customer':
-			columns += [_("Customer LPO") + ":Data:100"]
+			columns.append({
+				"label": _("Customer LPO"),
+				"fieldtype": "Data",
+				"fieldname": "po_no",
+				"width": 100,
+			})
 			columns += [_("Delivery Note") + ":Data:100"]
-
 		if args.get("party_type") == "Customer":
 			columns += [
 				_("Territory") + ":Link/Territory:80",
@@ -134,7 +159,6 @@ class ReceivablePayableReport(object):
 
 		data = []
 		pdc_details = get_pdc_details(args.get("party_type"), self.filters.report_date)
-
 		gl_entries_data = self.get_entries_till(self.filters.report_date, args.get("party_type"))
 
 		if gl_entries_data:
@@ -424,7 +448,6 @@ def get_pdc_details(party_type, report_date):
 			and pent.party_type = %s
 			group by pent.party, pref.reference_name""", (report_date, party_type), as_dict=1):
 			pdc_details.setdefault((pdc.invoice_no, pdc.party), pdc)
-
 	if scrub(party_type):
 		amount_field = ("jea.debit_in_account_currency"
 			if party_type == 'Supplier' else "jea.credit_in_account_currency")
