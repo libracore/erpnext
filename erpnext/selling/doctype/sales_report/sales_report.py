@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2018, lasalesi and contributors
+# Copyright (c) 2018-2019, lasalesi and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
@@ -39,13 +39,17 @@ class SalesReport(Document):
             {'filter': "`item_name` LIKE 'Superior RS1-20KG-RAL9016'", 'description': 'Superior 9016'},
             {'filter': "`item_name` LIKE 'Superior RS1-20KG-NCSS0500N'", 'description': 'Superior 0500'},
             {'filter': "`item_name` LIKE 'Super%L' OR `item_name` LIKE '%20KG' OR `item_name` LIKE 'Super%L-%'", 'description': 'Superior bunt'},
+            {'filter': "`item_name` LIKE 'Segasil Premium%WEISS%'", 'description': 'Segasil Premium Weiss'},
+            {'filter': "`item_name` LIKE 'Segasil Premium%9010%'", 'description': 'Segasil Premium 9010'},
+            {'filter': "`item_name` LIKE 'Segasil Premium%9016%'", 'description': 'Segasil Premium 9016'},
+            {'filter': "`item_name` LIKE 'Segasil Premium%0500%'", 'description': 'Segasil Premium 0500'},
             {'filter': "`item_name` LIKE 'Palmatex 7%'", 'description': 'Palmatex 7'},
             {'filter': "`item_name` LIKE 'Polar%'", 'description': 'Polar'},
-            {'filter': "`item_name` LIKE 'Isofinish%' OR `item_name` LIKE '%Grund Plus%' OR `item_name` LIKE 'Mineralit Innen%'", 'description': 'Spez. Wandfarben'},
+            {'filter': "`item_name` LIKE 'Isofinish%' OR `item_name` LIKE '%Grund Plus%' OR `item_name` LIKE 'Mineralit Innen%' OR `item_name` LIKE 'Siloxan Primer%'", 'description': 'Spez. Wandfarben'},
             {'filter': "`item_name` LIKE 'Aqua-Floor%'", 'description': 'Bodenfarben'},
             {'filter': "`item_name` LIKE '%Tiefgrund'", 'description': 'Tiefgrund'},
             {'filter': "`item_name` LIKE '%Lasur%' OR `item_name` LIKE '%Bläueschutz%'", 'description': 'Lasuren'},
-            {'filter': "`item_name` LIKE '%Fensterlack%' OR `item_name` LIKE '%Novasol Farbe%' OR `item_name` LIKE '%Holzgrundierung LH%'", 'description': 'Lacke LH'},
+            {'filter': "`item_name` LIKE '%Fensterlack%' OR `item_name` LIKE '%Novasol Farbe%' OR `item_name` LIKE '%Holzgrundierung LH%' OR `item_name` LIKE 'All-Grund%' OR `item_name` LIKE 'Vorstreichfarbe%'", 'description': 'Lacke LH'},
             {'filter': "`item_name` LIKE 'Lawicryl%' OR `item_name` LIKE 'Aqua All-Grund%' OR `item_name` LIKE 'Aquamatt%' OR `item_name` LIKE 'Samtacryl%' OR `item_name` LIKE '%Holz-Color%'", 'description': 'Lacke W'},
             {'filter': "`item_name` LIKE 'Siliconharzfarbe%'", 'description': 'Siliconharzfarbe F1'},
             {'filter': "`item_name` LIKE 'Premium FF%'", 'description': 'Premiumfassadenfarbe'},
@@ -53,7 +57,7 @@ class SalesReport(Document):
             {'filter': "`item_name` LIKE 'Anti%' OR `item_name` LIKE '%Universal-Nitroverdünnung' OR `item_name` LIKE '%Lackverdünnung%'", 'description': 'Zusatzprodukte'},
             {'filter': "`item_group` LIKE 'Dienstleistungen Abtönung'", 'description': 'Abtönpasten'},
             {'filter': "`item_name` LIKE 'Kunststoff Eimer%' OR `item_name` LIKE '%Washi-Tec%'", 'description': 'Non-Farben'},
-            {'filter': "`item_group` LIKE 'Dienstleistungen'", 'description': 'Dienstleistungen'}]        
+            {'filter': "`item_group` LIKE 'Dienstleistungen'", 'description': 'Dienstleistungen'}]
 
         for line_item in line_items:
             _description = line_item['description']
