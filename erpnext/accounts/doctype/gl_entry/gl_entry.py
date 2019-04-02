@@ -66,14 +66,16 @@ class GLEntry(Document):
 				frappe.throw(_("{0} {1}: Cost Center is required for 'Profit and Loss' account {2}. Please set up a default Cost Center for the Company.")
 					.format(self.voucher_type, self.voucher_no, self.account))
 		else:
-			if self.cost_center:
+			from erpnext.accounts.utils import get_allow_cost_center_in_entry_of_bs_account
+			if not get_allow_cost_center_in_entry_of_bs_account() and self.cost_center:
 				self.cost_center = None
 			if self.project:
 				self.project = None
 
 	def check_pl_account(self):
 		if self.is_opening=='Yes' and \
-				frappe.db.get_value("Account", self.account, "report_type")=="Profit and Loss":
+				frappe.db.get_value("Account", self.account, "report_type")=="Profit and Loss" and \
+				self.voucher_type not in ['Purchase Invoice', 'Sales Invoice']:
 			frappe.throw(_("{0} {1}: 'Profit and Loss' type account {2} not allowed in Opening Entry")
 				.format(self.voucher_type, self.voucher_no, self.account))
 

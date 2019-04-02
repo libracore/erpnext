@@ -6,6 +6,22 @@ frappe.provide("erpnext.company");
 frappe.ui.form.on("Company", {
 	setup: function(frm) {
 		erpnext.company.setup_queries(frm);
+		frm.set_query("hra_component", function(){
+			return {
+				filters: {"type": "Earning"}
+			}
+		});
+		frm.set_query("arrear_component", function(){
+			return {
+				filters: {"is_additional_component": 1}
+			}
+		});
+
+		frm.set_query("parent_company", function() {
+			return {
+				filters: {"is_group": 1}
+			}
+		});
 	},
 
 	company_name: function(frm) {
@@ -18,9 +34,28 @@ frappe.ui.form.on("Company", {
 		}
 	},
 
+	parent_company: function(frm) {
+		var bool = frm.doc.parent_company ? true : false;
+		frm.set_value('create_chart_of_accounts_based_on', bool ? "Existing Company" : "");
+		frm.set_value('existing_company', bool ? frm.doc.parent_company : "");
+		disbale_coa_fields(frm, bool);
+	},
+
+	date_of_commencement: function(frm) {
+		if(frm.doc.date_of_commencement<frm.doc.date_of_incorporation)
+		{
+			frappe.throw(__("Date of Commencement should be greater than Date of Incorporation"));
+		}
+		if(!frm.doc.date_of_commencement){
+			frm.doc.date_of_incorporation = ""
+		}
+	},
+
 	refresh: function(frm) {
-		if(frm.doc.abbr && !frm.doc.__islocal) {
-			frm.set_df_property("abbr", "read_only", 1);
+		if(!frm.doc.__islocal) {
+			frm.doc.abbr && frm.set_df_property("abbr", "read_only", 1);
+			frm.set_df_property("parent_company", "read_only", 1);
+			disbale_coa_fields(frm);
 		}
 
 		frm.toggle_display('address_html', !frm.doc.__islocal);
@@ -51,6 +86,10 @@ frappe.ui.form.on("Company", {
 			frm.add_custom_button(__('Purchase Tax Template'), function() {
 				frappe.set_route('List', 'Purchase Taxes and Charges Template', {'company': frm.doc.name});
 			}, __("View"));
+
+			frm.add_custom_button(__('Default Tax Template'), function() {
+				frm.trigger("make_default_tax_template");
+			}, __("Make"));
 		}
 
 		erpnext.company.set_chart_of_accounts_options(frm.doc);
@@ -88,7 +127,7 @@ frappe.ui.form.on("Company", {
 			},
 			function(data) {
 				if(data.company_name !== frm.doc.name) {
-					frappe.msgprint("Company name not same");
+					frappe.msgprint(__("Company name not same"));
 					return;
 				}
 				frappe.call({
@@ -182,7 +221,10 @@ erpnext.company.setup_queries = function(frm) {
 		["default_payroll_payable_account", {"root_type": "Liability"}],
 		["round_off_account", {"root_type": "Expense"}],
 		["write_off_account", {"root_type": "Expense"}],
+		["discount_allowed_account", {"root_type": "Expense"}],
+		["discount_received_account", {"root_type": "Income"}],
 		["exchange_gain_loss_account", {"root_type": "Expense"}],
+		["unrealized_exchange_gain_loss_account", {"root_type": "Expense"}],
 		["accumulated_depreciation_account",
 			{"root_type": "Asset", "account_type": "Accumulated Depreciation"}],
 		["depreciation_expense_account", {"root_type": "Expense", "account_type": "Depreciation"}],
@@ -192,6 +234,9 @@ erpnext.company.setup_queries = function(frm) {
 		["round_off_cost_center", {}],
 		["depreciation_cost_center", {}],
 		["default_employee_advance_account", {"root_type": "Asset"}],
+		["expenses_included_in_asset_valuation", {"account_type": "Expenses Included In Asset Valuation"}],
+		["capital_work_in_progress_account", {"account_type": "Capital Work in Progress"}],
+		["asset_received_but_not_billed", {"account_type": "Asset Received But Not Billed"}]
 	], function(i, v) {
 		erpnext.company.set_custom_query(frm, v);
 	});
@@ -226,3 +271,9 @@ erpnext.company.set_custom_query = function(frm, v) {
 		}
 	});
 }
+
+var disbale_coa_fields = function(frm, bool=true) {
+	frm.set_df_property("create_chart_of_accounts_based_on", "read_only", bool);
+	frm.set_df_property("chart_of_accounts", "read_only", bool);
+	frm.set_df_property("existing_company", "read_only", bool);
+};
