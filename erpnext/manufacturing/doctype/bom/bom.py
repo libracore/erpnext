@@ -158,7 +158,7 @@ class BOM(WebsiteGenerator):
 					if not self.buying_price_list:
 						frappe.throw(_("Please select Price List"))
 					rate = frappe.db.get_value("Item Price", {"price_list": self.buying_price_list,
-						"item_code": arg["item_code"]}, "price_list_rate")
+						"item_code": arg["item_code"]}, "price_list_rate") or 0.0
 
 					price_list_currency = frappe.db.get_value("Price List",
 						self.buying_price_list, "currency")
@@ -354,7 +354,8 @@ class BOM(WebsiteGenerator):
 		bom_list = self.traverse_tree(bom_list)
 		for bom in bom_list:
 			bom_obj = frappe.get_doc("BOM", bom)
-			bom_obj.on_update()
+			bom_obj.check_recursion()
+			bom_obj.update_exploded_items()
 
 		return bom_list
 

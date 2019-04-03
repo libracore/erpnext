@@ -122,6 +122,7 @@ class Company(Document):
 						if not wh_detail["is_group"] else ""
 				})
 				warehouse.flags.ignore_permissions = True
+				warehouse.flags.ignore_mandatory = True
 				warehouse.insert()
 
 	def create_default_accounts(self):
@@ -354,7 +355,7 @@ def install_country_fixtures(company):
 	path = frappe.get_app_path('erpnext', 'regional', frappe.scrub(company_doc.country))
 	if os.path.exists(path.encode("utf-8")):
 		frappe.get_attr("erpnext.regional.{0}.setup.setup"
-			.format(frappe.scrub(company_doc.country)))(company_doc)
+			.format(frappe.scrub(company_doc.country)))(company_doc, False)
 
 def update_company_current_month_sales(company):
 	current_month_year = formatdate(today(), "MM-yyyy")

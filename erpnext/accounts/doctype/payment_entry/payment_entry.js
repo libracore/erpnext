@@ -588,6 +588,10 @@ frappe.ui.form.on('Payment Entry', {
 	allocate_party_amount_against_ref_docs: function(frm, paid_amount) {
 		var total_positive_outstanding_including_order = 0;
 		var total_negative_outstanding = 0;
+		var total_deductions = frappe.utils.sum($.map(frm.doc.deductions || [],
+			function(d) { return flt(d.amount) }));
+
+		paid_amount -= total_deductions;
 
 		$.each(frm.doc.references || [], function(i, row) {
 			if(flt(row.outstanding_amount) > 0)
@@ -787,15 +791,25 @@ frappe.ui.form.on('Payment Entry', {
 						var write_off_row = $.map(frm.doc["deductions"] || [], function(t) {
 							return t.account==r.message[account] ? t : null; });
 
-						if (!write_off_row.length) {
-							var row = frm.add_child("deductions");
+						var row = [];
+
+						var difference_amount = flt(frm.doc.difference_amount,
+							precision("difference_amount"));
+
+						if (!write_off_row.length && difference_amount) {
+							row = frm.add_child("deductions");
 							row.account = r.message[account];
 							row.cost_center = r.message["cost_center"];
 						} else {
-							var row = write_off_row[0];
+							row = write_off_row[0];
 						}
 
-						row.amount = flt(row.amount) + flt(frm.doc.difference_amount);
+						if (row) {
+							row.amount = flt(row.amount) + difference_amount;
+						} else {
+							frappe.msgprint(__("No gain or loss in the exchange rate"))
+						}
+
 						refresh_field("deductions");
 
 						frm.events.set_unallocated_amount(frm);
@@ -815,23 +829,30 @@ frappe.ui.form.on('Payment Entry Reference', {
 
 	reference_name: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
-		return frappe.call({
-			method: "erpnext.accounts.doctype.payment_entry.payment_entry.get_reference_details",
-			args: {
-				reference_doctype: row.reference_doctype,
-				reference_name: row.reference_name,
-				party_account_currency: frm.doc.payment_type=="Receive" ?
-					frm.doc.paid_from_account_currency : frm.doc.paid_to_account_currency
-			},
-			callback: function(r, rt) {
-				if(r.message) {
-					$.each(r.message, function(field, value) {
-						frappe.model.set_value(cdt, cdn, field, value);
-					})
-					frm.refresh_fields();
+		if (row.reference_name && row.reference_doctype) {
+			return frappe.call({
+				method: "erpnext.accounts.doctype.payment_entry.payment_entry.get_reference_details",
+				args: {
+					reference_doctype: row.reference_doctype,
+					reference_name: row.reference_name,
+					party_account_currency: frm.doc.payment_type=="Receive" ?
+						frm.doc.paid_from_account_currency : frm.doc.paid_to_account_currency
+				},
+				callback: function(r, rt) {
+					if(r.message) {
+						$.each(r.message, function(field, value) {
+							frappe.model.set_value(cdt, cdn, field, value);
+						})
+
+						let allocated_amount = frm.doc.unallocated_amount > row.outstanding_amount ?
+							row.outstanding_amount : frm.doc.unallocated_amount;
+
+						frappe.model.set_value(cdt, cdn, 'allocated_amount', allocated_amount);
+						frm.refresh_fields();
+					}
 				}
-			}
-		})
+			})
+		}
 	},
 
 	allocated_amount: function(frm) {

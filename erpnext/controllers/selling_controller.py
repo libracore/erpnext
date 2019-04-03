@@ -8,6 +8,7 @@ from frappe import _, throw
 from erpnext.stock.get_item_details import get_bin_details
 from erpnext.stock.utils import get_incoming_rate
 from erpnext.stock.get_item_details import get_conversion_factor
+from frappe.contacts.doctype.address.address import get_address_display
 
 from erpnext.controllers.stock_controller import StockController
 
@@ -35,10 +36,12 @@ class SellingController(StockController):
 
 	def validate(self):
 		super(SellingController, self).validate()
+		self.validate_items()
 		self.validate_max_discount()
 		self.validate_selling_price()
 		self.set_qty_as_per_stock_uom()
 		self.set_po_nos()
+		self.set_customer_address()
 		check_active_sales_items(self)
 
 	def set_missing_values(self, for_validate=False):
@@ -51,9 +54,15 @@ class SellingController(StockController):
 	def set_missing_lead_customer_details(self):
 		if getattr(self, "customer", None):
 			from erpnext.accounts.party import _get_party_details
+			fetch_payment_terms_template = False
+			if (self.get("__islocal") or
+				self.company != frappe.db.get_value(self.doctype, self.name, 'company')):
+				fetch_payment_terms_template = True
+
 			party_details = _get_party_details(self.customer,
 				ignore_permissions=self.flags.ignore_permissions,
-				doctype=self.doctype, company=self.company)
+				doctype=self.doctype, company=self.company,
+				fetch_payment_terms_template=fetch_payment_terms_template)
 			if not self.meta.get_field("sales_team"):
 				party_details.pop("sales_team")
 
@@ -336,6 +345,22 @@ class SellingController(StockController):
 			if sales_orders:
 				po_nos = frappe.get_all('Sales Order', 'po_no', filters = {'name': ('in', sales_orders)})
 				self.po_no = ', '.join(list(set([d.po_no for d in po_nos if d.po_no])))
+
+	def set_customer_address(self):
+		address_dict = {
+			'customer_address': 'address_display',
+			'shipping_address_name': 'shipping_address',
+			'company_address': 'company_address_display'
+		}
+
+		for address_field, address_display_field in address_dict.items():
+			if self.get(address_field):
+				self.set(address_display_field, get_address_display(self.get(address_field)))
+
+	def validate_items(self):
+		# validate items to see if they have is_sales_item enabled
+		from erpnext.controllers.buying_controller import validate_item_type
+		validate_item_type(self, "is_sales_item", "sales")
 
 def check_active_sales_items(obj):
 	for d in obj.get("items"):

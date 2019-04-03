@@ -57,7 +57,7 @@ class StockReconciliation(StockController):
 				item.current_valuation_rate = rate
 				self.difference_amount += (flt(item.qty, item.precision("qty")) * \
 					flt(item.valuation_rate or rate, item.precision("valuation_rate")) \
-					- flt(qty) * flt(rate))
+					- flt(qty, item.precision("qty")) * flt(rate, item.precision("valuation_rate")))
 				return True
 
 		items = filter(lambda d: _changed(d), self.items)
@@ -109,7 +109,7 @@ class StockReconciliation(StockController):
 				self.validation_messages.append(_get_msg(row_num,
 					_("Negative Valuation Rate is not allowed")))
 
-			if row.qty and not row.valuation_rate:
+			if row.qty and row.valuation_rate in ["", None]:
 				row.valuation_rate = get_stock_balance(row.item_code, row.warehouse,
 							self.posting_date, self.posting_time, with_valuation_rate=True)[1]
 				if not row.valuation_rate:
@@ -180,7 +180,7 @@ class StockReconciliation(StockController):
 				frappe.throw(_("Valuation Rate required for Item in row {0}").format(row.idx))
 
 			if ((previous_sle and row.qty == previous_sle.get("qty_after_transaction")
-				and row.valuation_rate == previous_sle.get("valuation_rate"))
+				and (row.valuation_rate == previous_sle.get("valuation_rate") or row.qty == 0))
 				or (not previous_sle and not row.qty)):
 					continue
 
@@ -245,7 +245,9 @@ class StockReconciliation(StockController):
 	def set_total_qty_and_amount(self):
 		for d in self.get("items"):
 			d.amount = flt(d.qty, d.precision("qty")) * flt(d.valuation_rate, d.precision("valuation_rate"))
-			d.current_amount = flt(d.current_qty) * flt(d.current_valuation_rate)
+			d.current_amount = (flt(d.current_qty,
+				d.precision("current_qty")) * flt(d.current_valuation_rate, d.precision("current_valuation_rate")))
+
 			d.quantity_difference = flt(d.qty) - flt(d.current_qty)
 			d.amount_difference = flt(d.amount) - flt(d.current_amount)
 
@@ -268,24 +270,27 @@ class StockReconciliation(StockController):
 
 @frappe.whitelist()
 def get_items(warehouse, posting_date, posting_time):
-	items = frappe.get_list("Bin", fields=["item_code"], filters={"warehouse": warehouse}, as_list=1)
+	lft, rgt = frappe.db.get_value("Warehouse", warehouse, ["lft", "rgt"])
+	items = frappe.db.sql("""select item_code, warehouse from tabBin
+		where exists(select name from `tabWarehouse` where lft >= %s and rgt <= %s and name=`tabBin`.warehouse)
+	""", (lft, rgt))
 
-	items += frappe.get_list("Item", fields=["name"], filters= {"is_stock_item": 1, "has_serial_no": 0,
-		"has_batch_no": 0, "has_variants": 0, "disabled": 0, "default_warehouse": warehouse},
-			as_list=1)
+	items += frappe.db.sql("""select name, default_warehouse from tabItem
+		where exists(select name from `tabWarehouse` where lft >= %s and rgt <= %s and name=`tabItem`.default_warehouse)
+			and is_stock_item = 1 and has_serial_no = 0 and has_batch_no = 0 and has_variants = 0 and disabled = 0
+	""", (lft, rgt))
 
 	res = []
-	for item in set(items):
-		stock_bal = get_stock_balance(item[0], warehouse, posting_date, posting_time,
+	for item, wh in set(items):
+		stock_bal = get_stock_balance(item, wh, posting_date, posting_time,
 			with_valuation_rate=True)
 
-		if frappe.db.get_value("Item",item[0],"disabled") == 0:
-
+		if frappe.db.get_value("Item", item, "disabled") == 0:
 			res.append({
-				"item_code": item[0],
-				"warehouse": warehouse,
+				"item_code": item,
+				"warehouse": wh,
 				"qty": stock_bal[0],
-				"item_name": frappe.db.get_value('Item', item[0], 'item_name'),
+				"item_name": frappe.db.get_value('Item', item, 'item_name'),
 				"valuation_rate": stock_bal[1],
 				"current_qty": stock_bal[0],
 				"current_valuation_rate": stock_bal[1]

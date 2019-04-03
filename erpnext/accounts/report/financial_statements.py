@@ -185,14 +185,15 @@ def prepare_data(accounts, balance_must_be, period_list, company_currency):
 		has_value = False
 		total = 0
 		row = frappe._dict({
-			"account_name": _(d.account_name),
 			"account": _(d.name),
 			"parent_account": _(d.parent_account),
 			"indent": flt(d.indent),
 			"year_start_date": year_start_date,
 			"year_end_date": year_end_date,
 			"currency": company_currency,
-			"opening_balance": d.get("opening_balance", 0.0) * (1 if balance_must_be=="Debit" else -1)
+			"opening_balance": d.get("opening_balance", 0.0) * (1 if balance_must_be=="Debit" else -1),
+			"account_name": ('{} - {}'.format(_(d.account_number), _(d.account_name))
+				if d.account_number else _(d.account_name))
 		})
 		for period in period_list:
 			if d.get(period.key) and balance_must_be=="Credit":
@@ -253,7 +254,7 @@ def add_total_row(out, root_type, balance_must_be, period_list, company_currency
 		out.append({})
 
 def get_accounts(company, root_type):
-	return frappe.db.sql("""select name, parent_account, lft, rgt, root_type, report_type, account_name from `tabAccount`
+	return frappe.db.sql("""select name, account_number, parent_account, lft, rgt, root_type, report_type, account_name from `tabAccount`
 		where company=%s and root_type=%s order by lft""", (company, root_type), as_dict=True)
 
 def filter_accounts(accounts, depth=10):
@@ -305,19 +306,20 @@ def set_gl_entries_by_account(company, from_date, to_date, root_lft, root_rgt, f
 
 	additional_conditions = get_additional_conditions(from_date, ignore_closing_entries, filters)
 
+	accounts = frappe.db.sql_list("""select name from `tabAccount`
+		where lft >= %s and rgt <= %s""", (root_lft, root_rgt))
+	additional_conditions += " and account in ('{}')"\
+		.format("', '".join([frappe.db.escape(d) for d in accounts]))
+
 	gl_entries = frappe.db.sql("""select posting_date, account, debit, credit, is_opening, fiscal_year from `tabGL Entry`
 		where company=%(company)s
 		{additional_conditions}
 		and posting_date <= %(to_date)s
-		and account in (select name from `tabAccount`
-			where lft >= %(lft)s and rgt <= %(rgt)s)
 		order by account, posting_date""".format(additional_conditions=additional_conditions),
 		{
 			"company": company,
 			"from_date": from_date,
 			"to_date": to_date,
-			"lft": root_lft,
-			"rgt": root_rgt
 		},
 		as_dict=True)
 

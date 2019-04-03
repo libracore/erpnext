@@ -81,9 +81,9 @@ class SerialNo(StockController):
 			self.purchase_date = purchase_sle.posting_date
 			self.purchase_time = purchase_sle.posting_time
 			self.purchase_rate = purchase_sle.incoming_rate
-			if purchase_sle.voucher_type == "Purchase Receipt":
+			if purchase_sle.voucher_type in ("Purchase Receipt", "Purchase Invoice"):
 				self.supplier, self.supplier_name = \
-					frappe.db.get_value("Purchase Receipt", purchase_sle.voucher_no,
+					frappe.db.get_value(purchase_sle.voucher_type, purchase_sle.voucher_no,
 						["supplier", "supplier_name"])
 
 			# If sales return entry
@@ -187,18 +187,19 @@ def process_serial_no(sle):
 	update_serial_nos(sle, item_det)
 
 def validate_serial_no(sle, item_det):
+	serial_nos = get_serial_nos(sle.serial_no) if sle.serial_no else []
+
 	if item_det.has_serial_no==0:
-		if sle.serial_no:
+		if serial_nos:
 			frappe.throw(_("Item {0} is not setup for Serial Nos. Column must be blank").format(sle.item_code),
 				SerialNoNotRequiredError)
 	elif sle.is_cancelled == "No":
-		if sle.serial_no:
-			serial_nos = get_serial_nos(sle.serial_no)
+		if serial_nos:
 			if cint(sle.actual_qty) != flt(sle.actual_qty):
 				frappe.throw(_("Serial No {0} quantity {1} cannot be a fraction").format(sle.item_code, sle.actual_qty))
 
 			if len(serial_nos) and len(serial_nos) != abs(cint(sle.actual_qty)):
-				frappe.throw(_("{0} Serial Numbers required for Item {1}. You have provided {2}.").format(sle.actual_qty, sle.item_code, len(serial_nos)),
+				frappe.throw(_("{0} Serial Numbers required for Item {1}. You have provided {2}.").format(abs(sle.actual_qty), sle.item_code, len(serial_nos)),
 					SerialNoQtyError)
 
 			if len(serial_nos) != len(set(serial_nos)):
@@ -239,6 +240,12 @@ def validate_serial_no(sle, item_det):
 		elif sle.actual_qty < 0 or not item_det.serial_no_series:
 			frappe.throw(_("Serial Nos Required for Serialized Item {0}").format(sle.item_code),
 				SerialNoRequiredError)
+	elif serial_nos:
+		for serial_no in serial_nos:
+			sr = frappe.db.get_value("Serial No", serial_no, ["name", "warehouse"], as_dict=1)
+			if sr and sle.actual_qty < 0 and sr.warehouse != sle.warehouse:
+				frappe.throw(_("Cannot cancel {0} {1} because Serial No {2} does not belong to the warehouse {3}")
+					.format(sle.voucher_type, sle.voucher_no, serial_no, sle.warehouse))
 
 def has_duplicate_serial_no(sn, sle):
 	if sn.warehouse:
@@ -246,8 +253,8 @@ def has_duplicate_serial_no(sn, sle):
 
 	status = False
 	if sn.purchase_document_no:
-		if sle.voucher_type in ['Purchase Receipt', 'Stock Entry'] and \
-			sn.delivery_document_type not in ['Purchase Receipt', 'Stock Entry']:
+		if sle.voucher_type in ['Purchase Receipt', 'Stock Entry', "Purchase Invoice"] and \
+			sn.delivery_document_type not in ['Purchase Receipt', 'Stock Entry', "Purchase Invoice"]:
 			status = True
 
 		if status and sle.voucher_type == 'Stock Entry' and \

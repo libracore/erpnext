@@ -14,8 +14,12 @@ from erpnext.utilities.transaction_base import TransactionBase
 from frappe.utils.background_jobs import enqueue
 
 class SalarySlip(TransactionBase):
+	def __init__(self, *args, **kwargs):
+		super(SalarySlip, self).__init__(*args, **kwargs)
+		self.series = 'Sal Slip/{0}/.#####'.format(self.employee)
+
 	def autoname(self):
-		self.name = make_autoname('Sal Slip/' +self.employee + '/.#####')
+		self.name = make_autoname(self.series)
 
 	def validate(self):
 		self.status = self.get_status()
@@ -177,7 +181,8 @@ class SalarySlip(TransactionBase):
 			if len(st_name) > 1:
 				frappe.msgprint(_("Multiple active Salary Structures found for employee {0} for the given dates")
 					.format(self.employee), title=_('Warning'))
-			return st_name and st_name[0][0] or ''
+			self.salary_structure = st_name and st_name[0][0] or ''
+			return self.salary_structure
 		else:
 			self.salary_structure = None
 			frappe.msgprint(_("No active or default Salary Structure found for employee {0} for the given dates")
@@ -325,7 +330,7 @@ class SalarySlip(TransactionBase):
 				if frappe.db.get_value('Timesheet', data.time_sheet, 'status') == 'Payrolled':
 					frappe.throw(_("Salary Slip of employee {0} already created for time sheet {1}").format(self.employee, data.time_sheet))
 
-	def sum_components(self, component_type, total_field):
+	def sum_components(self, component_type, total_field, precision):
 		joining_date, relieving_date = frappe.db.get_value("Employee", self.employee,
 			["date_of_joining", "relieving_date"])
 		
@@ -345,7 +350,7 @@ class SalarySlip(TransactionBase):
 				)):
 
 				d.amount = rounded(
-					(flt(d.default_amount) * flt(self.payment_days)
+					(flt(d.default_amount, precision) * flt(self.payment_days)
 					/ cint(self.total_working_days)), self.precision("amount", component_type)
 				)
 
@@ -355,19 +360,19 @@ class SalarySlip(TransactionBase):
 			elif not d.amount:
 				d.amount = d.default_amount
 			if not d.do_not_include_in_total:
-				self.set(total_field, self.get(total_field) + flt(d.amount))
+				self.set(total_field, self.get(total_field) + flt(d.amount, precision))
 
 	def calculate_net_pay(self):
 		if self.salary_structure:
 			self.calculate_component_amounts()
 
 		disable_rounded_total = cint(frappe.db.get_value("Global Defaults", None, "disable_rounded_total"))
-
+		precision = frappe.defaults.get_global_default("currency_precision")
 		self.total_deduction = 0
 		self.gross_pay = 0
 
-		self.sum_components('earnings', 'gross_pay')
-		self.sum_components('deductions', 'total_deduction')
+		self.sum_components('earnings', 'gross_pay', precision)
+		self.sum_components('deductions', 'total_deduction', precision)
 
 		self.set_loan_repayment()
 
@@ -411,12 +416,16 @@ class SalarySlip(TransactionBase):
 		else:
 			self.set_status()
 			self.update_status(self.name)
-			if(frappe.db.get_single_value("HR Settings", "email_salary_slip_to_employee")):
+			if(frappe.db.get_single_value("HR Settings", "email_salary_slip_to_employee")) and not frappe.flags.via_payroll_entry:
 				self.email_salary_slip()
 
 	def on_cancel(self):
 		self.set_status()
 		self.update_status()
+
+	def on_trash(self):
+		from frappe.model.naming import revert_series_if_last
+		revert_series_if_last(self.series, self.name)
 
 	def email_salary_slip(self):
 		receiver = frappe.db.get_value("Employee", self.employee, "prefered_email")

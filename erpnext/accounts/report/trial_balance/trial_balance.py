@@ -51,7 +51,7 @@ def validate_filters(filters):
 		filters.to_date = filters.year_end_date
 
 def get_data(filters):
-	accounts = frappe.db.sql("""select name, parent_account, account_name, root_type, report_type, lft, rgt
+	accounts = frappe.db.sql("""select name, account_number, parent_account, account_name, root_type, report_type, lft, rgt
 		from `tabAccount` where company=%s order by lft""", filters.company, as_dict=True)
 	company_currency = erpnext.get_company_currency(filters.company)
 
@@ -162,8 +162,6 @@ def calculate_values(accounts, gl_entries_by_account, opening_balances, filters,
 		total_row["credit"] += d["credit"]
 		total_row["opening_debit"] += d["opening_debit"]
 		total_row["opening_credit"] += d["opening_credit"]
-		total_row["closing_debit"] += (d["opening_debit"] + d["debit"])
-		total_row["closing_credit"] += (d["opening_credit"] + d["credit"])
 
 	return total_row
 
@@ -176,16 +174,19 @@ def accumulate_values_into_parents(accounts, accounts_by_name):
 def prepare_data(accounts, filters, total_row, parent_children_map, company_currency):
 	data = []
 	
+	total_row["closing_debit"] = total_row["closing_credit"] = 0
+
 	for d in accounts:
 		has_value = False
 		row = {
-			"account_name": d.account_name,
 			"account": d.name,
 			"parent_account": d.parent_account,
 			"indent": d.indent,
 			"from_date": filters.from_date,
 			"to_date": filters.to_date,
-			"currency": company_currency
+			"currency": company_currency,
+			"account_name": ('{} - {}'.format(d.account_number, d.account_name)
+				if d.account_number else d.account_name)
 		}
 
 		prepare_opening_and_closing(d)
@@ -199,6 +200,10 @@ def prepare_data(accounts, filters, total_row, parent_children_map, company_curr
 
 		row["has_value"] = has_value
 		data.append(row)
+		
+		if not d.parent_account:
+		    total_row["closing_debit"] += (d["debit"] - d["credit"]) if (d["debit"] - d["credit"]) > 0 else 0
+		    total_row["closing_credit"] += abs(d["debit"] - d["credit"]) if (d["debit"] - d["credit"]) < 0 else 0
 		
 	data.extend([{},total_row])
 

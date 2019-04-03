@@ -79,7 +79,7 @@ class Customer(TransactionBase):
 	def update_customer_groups(self):
 		ignore_doctypes = ["Lead", "Opportunity", "POS Profile", "Tax Rule", "Pricing Rule"]
 		if frappe.flags.customer_group_changed:
-			update_linked_doctypes('Customer', self.name, 'Customer Group',
+			update_linked_doctypes('Customer', frappe.db.escape(self.name), 'Customer Group',
 				self.customer_group, ignore_doctypes)
 
 	def create_primary_contact(self):
@@ -173,6 +173,11 @@ class Customer(TransactionBase):
 				frappe.throw(_("""New credit limit is less than current outstanding amount for the customer. Credit limit has to be atleast {0}""").format(outstanding_amt))
 
 	def on_trash(self):
+		if self.customer_primary_contact:
+			frappe.db.sql("""update `tabCustomer`
+				set customer_primary_contact=null, mobile_no=null, email_id=null
+				where name=%s""", self.name)
+
 		delete_contact_and_address('Customer', self.name)
 		if self.lead_name:
 			frappe.db.sql("update `tabLead` set status='Interested' where name=%s", self.lead_name)
@@ -316,7 +321,7 @@ def make_address(args, is_primary_address=1):
 	return address
 
 def get_customer_primary_contact(doctype, txt, searchfield, start, page_len, filters):
-	customer = frappe.db.escape(filters.get('customer'))
+	customer = filters.get('customer')
 	return frappe.db.sql("""
 		select `tabContact`.name from `tabContact`, `tabDynamic Link`
 			where `tabContact`.name = `tabDynamic Link`.parent and `tabDynamic Link`.link_name = %(customer)s

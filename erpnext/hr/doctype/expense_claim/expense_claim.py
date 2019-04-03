@@ -30,7 +30,7 @@ class ExpenseClaim(AccountsController):
 		self.validate_expense_approver()
 		self.calculate_total_amount()
 		set_employee_name(self)
-		self.set_expense_account()
+		self.set_expense_account(validate=True)
 		self.set_payable_account()
 		self.set_cost_center()
 		self.set_status()
@@ -45,8 +45,9 @@ class ExpenseClaim(AccountsController):
 		}[cstr(self.docstatus or 0)]
 
 		paid_amount = flt(self.total_amount_reimbursed) + flt(self.total_advance_amount)
+		precision = self.precision("total_sanctioned_amount")
 		if (self.is_paid or (flt(self.total_sanctioned_amount) > 0
-			and flt(self.total_sanctioned_amount) ==  paid_amount)) \
+			and flt(self.total_sanctioned_amount, precision) ==  flt(paid_amount, precision))) \
 			and self.docstatus == 1 and self.approval_status == 'Approved':
 				self.status = "Paid"
 		elif flt(self.total_sanctioned_amount) > 0 and self.docstatus == 1 and self.approval_status == 'Approved':
@@ -223,10 +224,11 @@ class ExpenseClaim(AccountsController):
 			self.total_advance_amount += flt(d.allocated_amount)
 
 		if self.total_advance_amount:
-			if flt(self.total_advance_amount) > flt(self.total_claimed_amount):
+			precision = self.precision("total_advance_amount")
+			if flt(self.total_advance_amount, precision) > flt(self.total_claimed_amount, precision):
 				frappe.throw(_("Total advance amount cannot be greater than total claimed amount"))
 			if self.total_sanctioned_amount \
-					and flt(self.total_advance_amount) > flt(self.total_sanctioned_amount):
+					and flt(self.total_advance_amount, precision) > flt(self.total_sanctioned_amount, precision):
 				frappe.throw(_("Total advance amount cannot be greater than total sanctioned amount"))
 
 	def validate_sanctioned_amount(self):
@@ -234,9 +236,9 @@ class ExpenseClaim(AccountsController):
 			if flt(d.sanctioned_amount) > flt(d.claim_amount):
 				frappe.throw(_("Sanctioned Amount cannot be greater than Claim Amount in Row {0}.").format(d.idx))
 
-	def set_expense_account(self):
+	def set_expense_account(self, validate=False):
 		for expense in self.expenses:
-			if not expense.default_account:
+			if not expense.default_account or not validate:
 				expense.default_account = get_expense_claim_account(expense.expense_type, self.company)["account"]
 
 def update_reimbursed_amount(doc):

@@ -82,7 +82,8 @@ class AccountsController(TransactionBase):
 			self.validate_non_invoice_documents_schedule()
 
 	def before_print(self):
-		if self.doctype in ['Purchase Order', 'Sales Order']:
+		if self.doctype in ['Purchase Order', 'Sales Order', 'Sales Invoice', 'Purchase Invoice',
+			'Supplier Quotation', 'Purchase Receipt', 'Delivery Note', 'Quotation']:
 			if self.get("group_same_items"):
 				self.group_similar_items()
 
@@ -130,14 +131,18 @@ class AccountsController(TransactionBase):
 					self.meta.get_label(date_field), self)
 
 	def validate_due_date(self):
+		if self.get('is_pos'): return
+
 		from erpnext.accounts.party import validate_due_date
 		if self.doctype == "Sales Invoice":
 			if not self.due_date:
 				frappe.throw(_("Due Date is mandatory"))
 
-			validate_due_date(self.posting_date, self.due_date, "Customer", self.customer, self.company)
+			validate_due_date(self.posting_date, self.due_date,
+				"Customer", self.customer, self.company, self.payment_terms_template)
 		elif self.doctype == "Purchase Invoice":
-			validate_due_date(self.posting_date, self.due_date, "Supplier", self.supplier, self.company)
+			validate_due_date(self.posting_date, self.due_date,
+				"Supplier", self.supplier, self.company, self.payment_terms_template)
 
 	def set_price_list_currency(self, buying_or_selling):
 		if self.meta.get_field("posting_date"):
@@ -213,6 +218,9 @@ class AccountsController(TransactionBase):
 								if stock_qty != len(get_serial_nos(item.get('serial_no'))):
 									item.set(fieldname, value)
 
+					if self.doctype in ["Purchase Invoice", "Sales Invoice"] and item.meta.get_field('is_fixed_asset'):
+						item.set('is_fixed_asset', ret.get('is_fixed_asset', 0))
+
 					if ret.get("pricing_rule"):
 						# if user changed the discount percentage then set user's discount percentage ?
 						item.set("discount_percentage", ret.get("discount_percentage"))
@@ -232,13 +240,18 @@ class AccountsController(TransactionBase):
 
 		tax_master_doctype = self.meta.get_field("taxes_and_charges").options
 
-		if self.is_new() and not self.get("taxes"):
+		if (self.is_new() or self.is_pos_profile_changed()) and not self.get("taxes"):
 			if self.company and not self.get("taxes_and_charges"):
 				# get the default tax master
 				self.taxes_and_charges = frappe.db.get_value(tax_master_doctype,
 					{"is_default": 1, 'company': self.company})
 
 			self.append_taxes_from_master(tax_master_doctype)
+
+	def is_pos_profile_changed(self):
+		if (self.doctype == 'Sales Invoice' and self.is_pos and
+			self.pos_profile != frappe.db.get_value('Sales Invoice', self.name, 'pos_profile')):
+			return True
 
 	def append_taxes_from_master(self, tax_master_doctype=None):
 		if self.get("taxes_and_charges"):
@@ -658,6 +671,7 @@ class AccountsController(TransactionBase):
 			if item.item_code in group_item_qty:
 				item.qty = group_item_qty[item.item_code]
 				item.amount = group_item_amount[item.item_code]
+				item.rate = flt(flt(item.amount)/flt(item.qty), item.precision("rate"))
 				del group_item_qty[item.item_code]
 			else:
 				duplicate_list.append(item)
@@ -666,7 +680,9 @@ class AccountsController(TransactionBase):
 			self.remove(item)
 
 	def set_payment_schedule(self):
-		if self.doctype == 'Sales Invoice' and self.is_pos: return
+		if self.doctype == 'Sales Invoice' and self.is_pos:
+			self.payment_terms_template = ''
+			return
 
 		posting_date = self.get("bill_date") or self.get("posting_date") or self.get("transaction_date")
 		date = self.get("due_date")

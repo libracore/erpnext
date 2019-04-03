@@ -33,7 +33,7 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 				item.margin_rate_or_amount = 0;
 				item.rate_with_margin = 0;
 			}
-
+			item.base_rate_with_margin = item.rate_with_margin * flt(frm.doc.conversion_rate);
 			cur_frm.cscript.set_gross_profit(item);
 			cur_frm.cscript.calculate_taxes_and_totals();
 
@@ -106,7 +106,8 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 		}
 
 		if(
-			this.frm.fields_dict["payment_terms_template"]
+			this.frm.docstatus < 2
+			&& this.frm.fields_dict["payment_terms_template"]
 			&& this.frm.fields_dict["payment_schedule"]
 			&& this.frm.doc.payment_terms_template
 			&& !this.frm.doc.payment_schedule.length
@@ -400,7 +401,7 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 				item.serial_no = valid_serial_nos.join('\n');
 
 				refresh_field("serial_no", item.name, item.parentfield);
-				if(!doc.is_return) {
+				if(!doc.is_return && cint(user_defaults.set_qty_in_transactions_based_on_serial_no_input)) {
 					frappe.model.set_value(item.doctype, item.name,
 						"qty", valid_serial_nos.length / item.conversion_factor);
 					frappe.model.set_value(item.doctype, item.name, "stock_qty", valid_serial_nos.length);
@@ -1093,6 +1094,8 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 					me.in_apply_price_list = false;
 				}
 			}
+		}).always(() => {
+			me.in_apply_price_list = false;
 		});
 	},
 

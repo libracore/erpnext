@@ -97,6 +97,9 @@ erpnext.setup.slides_settings = [
 			if (!this.values.company_abbr) {
 				return false;
 			}
+			if (this.values.company_abbr.length > 5) {
+				return false;
+			}
 			return true;
 		}
 	},
@@ -138,10 +141,15 @@ erpnext.setup.slides_settings = [
 
 		validate: function () {
 			// validate fiscal year start and end dates
-			if (this.values.fy_start_date == 'Invalid date' || this.values.fy_end_date == 'Invalid date') {
+			const invalid = this.values.fy_start_date == 'Invalid date' ||
+				this.values.fy_end_date == 'Invalid date';
+			const start_greater_than_end = this.values.fy_start_date > this.values.fy_end_date;
+
+			if (invalid || start_greater_than_end) {
 				frappe.msgprint(__("Please enter valid Financial Year Start and End Dates"));
 				return false;
 			}
+
 			return true;
 		},
 
