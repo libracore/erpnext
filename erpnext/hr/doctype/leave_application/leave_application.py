@@ -135,6 +135,7 @@ class LeaveApplication(Document):
 					date = dt.strftime("%Y-%m-%d")
 					doc = frappe.new_doc("Attendance")
 					doc.employee = self.employee
+					doc.employee_name = self.employee_name
 					doc.attendance_date = date
 					doc.company = self.company
 					doc.leave_type = self.leave_type
@@ -512,7 +513,7 @@ def add_department_leaves(events, start, end, employee, company):
 	department_employees = frappe.db.sql_list("""select name from tabEmployee where department=%s
 		and company=%s""", (department, company))
 
-	filter_conditions = "employee in (\"%s\")" % '", "'.join(department_employees)
+	filter_conditions = " and employee in (\"%s\")" % '", "'.join(department_employees)
 	add_leaves(events, start, end, filter_conditions=filter_conditions)
 
 def add_leaves(events, start, end, filter_conditions=None):
