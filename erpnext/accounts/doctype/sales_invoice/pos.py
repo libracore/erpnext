@@ -307,7 +307,7 @@ def get_item_tax_data():
 	# example: {'Consulting Services': {'Excise 12 - TS': '12.000'}}
 
 	itemwise_tax = {}
-	taxes = frappe.db.sql(""" select parent, tax_type, tax_rate from `tabItem Tax`""", as_dict=1)
+	taxes = frappe.db.sql(""" select parent, tax_type, tax_rate from `tabItem Tax Template Detail`""", as_dict=1)
 
 	for tax in taxes:
 		if tax.parent not in itemwise_tax:
@@ -451,6 +451,10 @@ def make_customer_and_address(customers):
 
 
 def add_customer(data):
+	customer = data.get('full_name') or data.get('customer')
+	if frappe.db.exists("Customer", customer.strip()):
+		return customer.strip()
+
 	customer_doc = frappe.new_doc('Customer')
 	customer_doc.customer_name = data.get('full_name') or data.get('customer')
 	customer_doc.customer_pos_id = data.get('customer_pos_id')

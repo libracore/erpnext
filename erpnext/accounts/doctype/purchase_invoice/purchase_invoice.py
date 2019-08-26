@@ -16,13 +16,13 @@ from erpnext.stock.doctype.purchase_receipt.purchase_receipt import update_bille
 from erpnext.stock import get_warehouse_account_map
 from erpnext.accounts.general_ledger import make_gl_entries, merge_similar_entries, delete_gl_entries
 from erpnext.accounts.doctype.gl_entry.gl_entry import update_outstanding_amt
-from erpnext.buying.utils import check_for_closed_status
+from erpnext.buying.utils import check_on_hold_or_closed_status
 from erpnext.accounts.general_ledger import get_round_off_account_and_cost_center
 from erpnext.assets.doctype.asset.asset import get_asset_account, is_cwip_accounting_disabled
 from frappe.model.mapper import get_mapped_doc
 from six import iteritems
-from erpnext.accounts.doctype.sales_invoice.sales_invoice import validate_inter_company_party, update_linked_invoice,\
-	unlink_inter_company_invoice
+from erpnext.accounts.doctype.sales_invoice.sales_invoice import validate_inter_company_party, update_linked_doc,\
+	unlink_inter_company_doc
 from erpnext.accounts.doctype.tax_withholding_category.tax_withholding_category import get_party_tax_withholding_details
 from erpnext.accounts.deferred_revenue import validate_service_stop_date
 
@@ -89,7 +89,7 @@ class PurchaseInvoice(BuyingController):
 		self.check_conversion_rate()
 		self.validate_credit_to_acc()
 		self.clear_unallocated_advances("Purchase Invoice Advance", "advances")
-		self.check_for_closed_status()
+		self.check_on_hold_or_closed_status()
 		self.validate_with_previous_doc()
 		self.validate_uom_is_integer("uom", "qty")
 		self.validate_uom_is_integer("stock_uom", "stock_qty")
@@ -105,7 +105,7 @@ class PurchaseInvoice(BuyingController):
 
 	def validate_release_date(self):
 		if self.release_date and getdate(nowdate()) >= getdate(self.release_date):
-			frappe.msgprint('Release date must be in the future', raise_exception=True)
+			frappe.throw(_('Release date must be in the future'))
 
 	def validate_cash(self):
 		if not self.cash_bank_account and flt(self.paid_amount):
@@ -153,13 +153,13 @@ class PurchaseInvoice(BuyingController):
 
 		self.party_account_currency = account.account_currency
 
-	def check_for_closed_status(self):
+	def check_on_hold_or_closed_status(self):
 		check_list = []
 
 		for d in self.get('items'):
 			if d.purchase_order and not d.purchase_order in check_list and not d.purchase_receipt:
 				check_list.append(d.purchase_order)
-				check_for_closed_status('Purchase Order', d.purchase_order)
+				check_on_hold_or_closed_status('Purchase Order', d.purchase_order)
 
 	def validate_with_previous_doc(self):
 		super(PurchaseInvoice, self).validate_with_previous_doc({
@@ -336,8 +336,10 @@ class PurchaseInvoice(BuyingController):
 
 		if not self.is_return:
 			self.update_against_document_in_jv()
+			self.update_billing_status_for_zero_amount_refdoc("Purchase Receipt")
 			self.update_billing_status_for_zero_amount_refdoc("Purchase Order")
-			self.update_billing_status_in_pr()
+
+		self.update_billing_status_in_pr()
 
 		# Updating stock ledger should always be called after updating prevdoc status,
 		# because updating ordered qty in bin depends upon updated ordered qty in PO
@@ -350,7 +352,7 @@ class PurchaseInvoice(BuyingController):
 		self.make_gl_entries()
 
 		self.update_project()
-		update_linked_invoice(self.doctype, self.name, self.inter_company_invoice_reference)
+		update_linked_doc(self.doctype, self.name, self.inter_company_invoice_reference)
 
 	def make_gl_entries(self, gl_entries=None, repost_future_gle=True, from_repost=False):
 		if not self.grand_total:
@@ -416,6 +418,7 @@ class PurchaseInvoice(BuyingController):
 					"account": self.credit_to,
 					"party_type": "Supplier",
 					"party": self.supplier,
+					"due_date": self.due_date,
 					"against": self.against_expense_account,
 					"credit": grand_total_in_company_currency,
 					"credit_in_account_currency": grand_total_in_company_currency \
@@ -456,7 +459,7 @@ class PurchaseInvoice(BuyingController):
 							"remarks": self.get("remarks") or _("Accounting Entry for Stock"),
 							"cost_center": item.cost_center,
 							"project": item.project
-						}, account_currency)
+						}, account_currency, item=item)
 					)
 
 					# Amount added through landed-cost-voucher
@@ -468,7 +471,7 @@ class PurchaseInvoice(BuyingController):
 							"remarks": self.get("remarks") or _("Accounting Entry for Stock"),
 							"credit": flt(item.landed_cost_voucher_amount),
 							"project": item.project
-						}))
+						}, item=item))
 
 					# sub-contracting warehouse
 					if flt(item.rm_supp_cost):
@@ -482,7 +485,7 @@ class PurchaseInvoice(BuyingController):
 							"cost_center": item.cost_center,
 							"remarks": self.get("remarks") or _("Accounting Entry for Stock"),
 							"credit": flt(item.rm_supp_cost)
-						}, warehouse_account[self.supplier_warehouse]["account_currency"]))
+						}, warehouse_account[self.supplier_warehouse]["account_currency"], item=item))
 				elif not item.is_fixed_asset or (item.is_fixed_asset and is_cwip_accounting_disabled()):
 
 					expense_account = (item.expense_account
@@ -498,7 +501,7 @@ class PurchaseInvoice(BuyingController):
 								else flt(item.net_amount, item.precision("net_amount"))),
 							"cost_center": item.cost_center,
 							"project": item.project
-						}, account_currency)
+						}, account_currency, item=item)
 					)
 
 			if self.auto_accounting_for_stock and self.is_opening == "No" and \
@@ -517,7 +520,7 @@ class PurchaseInvoice(BuyingController):
 									"debit": flt(item.item_tax_amount, item.precision("item_tax_amount")),
 									"remarks": self.remarks or "Accounting Entry for Stock",
 									"cost_center": self.cost_center
-								})
+								}, item=item)
 							)
 
 							self.negative_expense_to_be_booked += flt(item.item_tax_amount, \
@@ -546,7 +549,7 @@ class PurchaseInvoice(BuyingController):
 						"debit_in_account_currency": (base_asset_amount
 							if asset_rbnb_currency == self.company_currency else asset_amount),
 						"cost_center": item.cost_center
-					}))
+					}, item=item))
 
 					if item.item_tax_amount:
 						asset_eiiav_currency = get_account_currency(eiiav_account)
@@ -559,7 +562,7 @@ class PurchaseInvoice(BuyingController):
 							"credit_in_account_currency": (item.item_tax_amount
 								if asset_eiiav_currency == self.company_currency else
 									item.item_tax_amount / self.conversion_rate)
-						}))
+						}, item=item))
 				else:
 					cwip_account = get_asset_account("capital_work_in_progress_account",
 						item.asset, company = self.company)
@@ -573,7 +576,7 @@ class PurchaseInvoice(BuyingController):
 						"debit_in_account_currency": (base_asset_amount
 							if cwip_account_currency == self.company_currency else asset_amount),
 						"cost_center": self.cost_center
-					}))
+					}, item=item))
 
 					if item.item_tax_amount and not cint(erpnext.is_perpetual_inventory_enabled(self.company)):
 						asset_eiiav_currency = get_account_currency(eiiav_account)
@@ -586,7 +589,7 @@ class PurchaseInvoice(BuyingController):
 							"credit_in_account_currency": (item.item_tax_amount
 								if asset_eiiav_currency == self.company_currency else
 									item.item_tax_amount / self.conversion_rate)
-						}))
+						}, item=item))
 
 		return gl_entries
 
@@ -613,7 +616,7 @@ class PurchaseInvoice(BuyingController):
 					"remarks": self.get("remarks") or _("Stock Adjustment"),
 					"cost_center": item.cost_center,
 					"project": item.project
-				}, account_currency)
+				}, account_currency, item=item)
 			)
 
 			warehouse_debit_amount = stock_amount
@@ -766,18 +769,16 @@ class PurchaseInvoice(BuyingController):
 	def on_cancel(self):
 		super(PurchaseInvoice, self).on_cancel()
 
-		self.check_for_closed_status()
+		self.check_on_hold_or_closed_status()
 
 		self.update_status_updater_args()
 		self.update_prevdoc_status()
 
 		if not self.is_return:
-			from erpnext.accounts.utils import unlink_ref_doc_from_payment_entries
-			if frappe.db.get_single_value('Accounts Settings', 'unlink_payment_on_cancellation_of_invoice'):
-				unlink_ref_doc_from_payment_entries(self)
-
+			self.update_billing_status_for_zero_amount_refdoc("Purchase Receipt")
 			self.update_billing_status_for_zero_amount_refdoc("Purchase Order")
-			self.update_billing_status_in_pr()
+
+		self.update_billing_status_in_pr()
 
 		# Updating stock ledger should always be called after updating prevdoc status,
 		# because updating ordered qty in bin depends upon updated ordered qty in PO
@@ -788,7 +789,7 @@ class PurchaseInvoice(BuyingController):
 		self.update_project()
 		frappe.db.set(self, 'status', 'Cancelled')
 
-		unlink_inter_company_invoice(self.doctype, self.name, self.inter_company_invoice_reference)
+		unlink_inter_company_doc(self.doctype, self.name, self.inter_company_invoice_reference)
 
 	def update_project(self):
 		project_list = []
@@ -926,5 +927,5 @@ def block_invoice(name, hold_comment):
 
 @frappe.whitelist()
 def make_inter_company_sales_invoice(source_name, target_doc=None):
-	from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_inter_company_invoice
-	return make_inter_company_invoice("Purchase Invoice", source_name, target_doc)
+	from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_inter_company_transaction
+	return make_inter_company_transaction("Purchase Invoice", source_name, target_doc)

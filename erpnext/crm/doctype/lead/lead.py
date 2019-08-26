@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe import _
-from frappe.utils import (cstr, validate_email_add, cint, comma_and, has_gravatar, now, getdate, nowdate)
+from frappe.utils import (cstr, validate_email_address, cint, comma_and, has_gravatar, now, getdate, nowdate)
 from frappe.model.mapper import get_mapped_doc
 
 from erpnext.controllers.selling_controller import SellingController
@@ -39,7 +39,7 @@ class Lead(SellingController):
 
 		if self.email_id:
 			if not self.flags.ignore_email_validation:
-				validate_email_add(self.email_id, True)
+				validate_email_address(self.email_id, True)
 
 			if self.email_id == self.lead_owner:
 				frappe.throw(_("Lead Owner cannot be same as the Lead"))
@@ -145,6 +145,16 @@ def _make_customer(source_name, target_doc=None, ignore_permissions=False):
 
 @frappe.whitelist()
 def make_opportunity(source_name, target_doc=None):
+	def set_missing_values(source, target):
+		address = frappe.get_all('Dynamic Link', {
+			'link_doctype': source.doctype,
+			'link_name': source.name,
+			'parenttype': 'Address',
+		}, ['parent'], limit=1)
+
+		if address:
+			target.customer_address = address[0].parent
+
 	target_doc = get_mapped_doc("Lead", source_name,
 		{"Lead": {
 			"doctype": "Opportunity",
@@ -157,7 +167,7 @@ def make_opportunity(source_name, target_doc=None):
 				"email_id": "contact_email",
 				"mobile_no": "contact_mobile"
 			}
-		}}, target_doc)
+		}}, target_doc, set_missing_values)
 
 	return target_doc
 
@@ -230,3 +240,15 @@ def make_lead_from_communication(communication, ignore_communication_links=False
 
 	link_communication_to_document(doc, "Lead", lead_name, ignore_communication_links)
 	return lead_name
+
+def get_lead_with_phone_number(number):
+	if not number: return
+
+	leads = frappe.get_all('Lead', or_filters={
+		'phone': ['like', '%{}'.format(number)],
+		'mobile_no': ['like', '%{}'.format(number)]
+	}, limit=1)
+
+	lead = leads[0].name if leads else None
+
+	return lead

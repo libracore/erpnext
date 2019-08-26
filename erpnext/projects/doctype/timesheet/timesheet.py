@@ -19,9 +19,6 @@ class OverlapError(frappe.ValidationError): pass
 class OverWorkLoggedError(frappe.ValidationError): pass
 
 class Timesheet(Document):
-	def onload(self):
-		self.get("__onload").maintain_bill_work_hours_same = frappe.db.get_single_value('HR Settings', 'maintain_bill_work_hours_same')
-
 	def validate(self):
 		self.set_employee_name()
 		self.set_status()
@@ -235,7 +232,7 @@ def get_timesheet(doctype, txt, searchfield, start, page_len, filters):
 			and tsd.parent LIKE %(txt)s {condition}
 			order by tsd.parent limit %(start)s, %(page_len)s"""
 			.format(condition=condition), {
-				"txt": "%%%s%%" % frappe.db.escape(txt),
+				'txt': '%' + txt + '%',
 				"start": start, "page_len": page_len, 'project': filters.get("project")
 			})
 

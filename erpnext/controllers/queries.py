@@ -207,10 +207,10 @@ def bom(doctype, txt, searchfield, start, page_len, filters):
 			idx desc, name
 		limit %(start)s, %(page_len)s """.format(
 			fcond=get_filters_cond(doctype, filters, conditions).replace('%', '%%'),
-			mcond=get_match_cond(doctype),
-			key=frappe.db.escape(searchfield)),
+			mcond=get_match_cond(doctype).replace('%', '%%'),
+			key=searchfield),
 		{
-			'txt': "%"+frappe.db.escape(txt)+"%",
+			'txt': '%' + txt + '%',
 			'_txt': txt.replace("%", ""),
 			'start': start or 0,
 			'page_len': page_len or 20
@@ -219,7 +219,7 @@ def bom(doctype, txt, searchfield, start, page_len, filters):
 def get_project_name(doctype, txt, searchfield, start, page_len, filters):
 	cond = ''
 	if filters.get('customer'):
-		cond = """(`tabProject`.customer = '%s' or
+		cond = """(`tabProject`.customer = %s or
 			ifnull(`tabProject`.customer,"")="") and""" %(frappe.db.escape(filters.get("customer")))
 
 	return frappe.db.sql("""select `tabProject`.name from `tabProject`
@@ -354,7 +354,7 @@ def get_income_account(doctype, txt, searchfield, start, page_len, filters):
 				{condition} {match_condition}
 			order by idx desc, name"""
 			.format(condition=condition, match_condition=get_match_cond(doctype), key=searchfield), {
-				'txt': "%%%s%%" % frappe.db.escape(txt),
+				'txt': '%' + txt + '%',
 				'company': filters.get("company", "")
 			})
 
@@ -371,15 +371,15 @@ def get_expense_account(doctype, txt, searchfield, start, page_len, filters):
 
 	return frappe.db.sql("""select tabAccount.name from `tabAccount`
 		where (tabAccount.report_type = "Profit and Loss"
-				or tabAccount.account_type in ("Expense Account", "Fixed Asset", "Temporary", "Asset Received But Not Billed"))
+				or tabAccount.account_type in ("Expense Account", "Fixed Asset", "Temporary", "Asset Received But Not Billed", "Capital Work in Progress"))
 			and tabAccount.is_group=0
 			and tabAccount.docstatus!=2
 			and tabAccount.{key} LIKE %(txt)s
 			{condition} {match_condition}"""
-		.format(condition=condition, key=frappe.db.escape(searchfield),
+		.format(condition=condition, key=searchfield,
 			match_condition=get_match_cond(doctype)), {
 			'company': filters.get("company", ""),
-			'txt': "%%%s%%" % frappe.db.escape(txt)
+			'txt': '%' + txt + '%'
 		})
 
 
@@ -399,7 +399,7 @@ def warehouse_query(doctype, txt, searchfield, start, page_len, filters):
 		CONCAT_WS(" : ", "Actual Qty", ifnull( ({sub_query}), 0) ) as actual_qty
 		from `tabWarehouse`
 		where
-		   `tabWarehouse`.`{key}` like '{txt}'
+		   `tabWarehouse`.`{key}` like {txt}
 			{fcond} {mcond}
 		order by
 			`tabWarehouse`.name desc
@@ -407,7 +407,7 @@ def warehouse_query(doctype, txt, searchfield, start, page_len, filters):
 			{start}, {page_len}
 		""".format(
 			sub_query=sub_query,
-			key=frappe.db.escape(searchfield),
+			key=searchfield,
 			fcond=get_filters_cond(doctype, filter_dict.get("Warehouse"), conditions),
 			mcond=get_match_cond(doctype),
 			start=start,
@@ -431,9 +431,26 @@ def get_batch_numbers(doctype, txt, searchfield, start, page_len, filters):
 	query = """select batch_id from `tabBatch`
 			where disabled = 0
 			and (expiry_date >= CURDATE() or expiry_date IS NULL)
-			and name like '{txt}'""".format(txt = frappe.db.escape('%{0}%'.format(txt)))
+			and name like {txt}""".format(txt = frappe.db.escape('%{0}%'.format(txt)))
 
 	if filters and filters.get('item'):
-		query += " and item = '{item}'".format(item = frappe.db.escape(filters.get('item')))
+		query += " and item = {item}".format(item = frappe.db.escape(filters.get('item')))
 
 	return frappe.db.sql(query, filters)
+
+@frappe.whitelist()
+def item_manufacturer_query(doctype, txt, searchfield, start, page_len, filters):
+	search_txt = "{0}%".format(txt)
+
+	item_filters = {
+		'manufacturer': ('like', search_txt),
+		'item_code': filters.get("item_code")
+	}
+
+	return frappe.get_all("Item Manufacturer",
+		fields = "manufacturer",
+		filters = item_filters,
+		limit_start=start,
+		limit_page_length=page_len,
+		as_list=1
+	)

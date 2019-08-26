@@ -362,7 +362,6 @@ erpnext.patches.v7_1.set_budget_against_as_cost_center
 erpnext.patches.v7_1.set_currency_exchange_date
 erpnext.patches.v7_1.set_sales_person_status
 erpnext.patches.v7_1.repost_stock_for_deleted_bins_for_merging_items
-execute:frappe.delete_doc('Desktop Icon', {'module_name': 'Profit and Loss Statment'})
 erpnext.patches.v7_2.update_website_for_variant
 erpnext.patches.v7_2.update_assessment_modules
 erpnext.patches.v7_2.update_doctype_status
@@ -506,6 +505,7 @@ erpnext.patches.v10_0.update_hub_connector_domain
 erpnext.patches.v10_0.set_student_party_type
 erpnext.patches.v10_0.update_project_in_sle
 erpnext.patches.v10_0.fix_reserved_qty_for_sub_contract
+erpnext.patches.v10_0.repost_requested_qty_for_non_stock_uom_items
 erpnext.patches.v11_0.merge_land_unit_with_location
 erpnext.patches.v11_0.add_index_on_nestedset_doctypes
 erpnext.patches.v11_0.remove_modules_setup_page
@@ -513,6 +513,7 @@ erpnext.patches.v11_0.rename_employee_loan_to_loan
 erpnext.patches.v11_0.move_leave_approvers_from_employee #13-06-2018
 erpnext.patches.v11_0.update_department_lft_rgt
 erpnext.patches.v11_0.add_default_email_template_for_leave
+execute:frappe.reload_doc("HR", "doctype", "HR Settings")
 erpnext.patches.v11_0.set_default_email_template_in_hr #08-06-2018
 erpnext.patches.v11_0.uom_conversion_data #30-06-2018
 erpnext.patches.v10_0.taxes_issue_with_pos
@@ -544,7 +545,6 @@ erpnext.patches.v11_0.set_update_field_and_value_in_workflow_state
 erpnext.patches.v11_0.update_total_qty_field
 erpnext.patches.v11_0.update_sales_partner_type
 erpnext.patches.v11_0.rename_asset_adjustment_doctype
-execute:frappe.db.sql("update `tabDesktop Icon` set type = 'module' where module_name = 'Restaurant'")
 erpnext.patches.v11_0.set_salary_component_properties
 erpnext.patches.v11_0.set_user_permissions_for_department
 erpnext.patches.v11_0.hr_ux_cleanups
@@ -563,7 +563,6 @@ erpnext.patches.v11_0.make_job_card
 erpnext.patches.v11_0.redesign_healthcare_billing_work_flow
 erpnext.patches.v10_0.delete_hub_documents # 12-08-2018
 erpnext.patches.v11_0.rename_healthcare_fields
-erpnext.patches.v11_0.remove_land_unit_icon
 erpnext.patches.v11_0.add_default_dispatch_notification_template
 erpnext.patches.v11_0.add_market_segments
 erpnext.patches.v11_0.add_sales_stages
@@ -573,34 +572,58 @@ execute:frappe.delete_doc_if_exists("Page", "stock-analytics")
 execute:frappe.delete_doc_if_exists("Page", "production-analytics")
 erpnext.patches.v11_0.ewaybill_fields_gst_india #2018-11-13 #2019-01-09 #2019-04-01 #2019-04-26 #2019-05-03
 erpnext.patches.v11_0.drop_column_max_days_allowed
-erpnext.patches.v11_0.change_healthcare_desktop_icons
 erpnext.patches.v10_0.update_user_image_in_employee
 erpnext.patches.v10_0.repost_gle_for_purchase_receipts_with_rejected_items
 erpnext.patches.v10_0.allow_operators_in_supplier_scorecard
+erpnext.patches.v10_0.item_barcode_childtable_migrate # 16-02-2019
 erpnext.patches.v11_0.update_delivery_trip_status
 erpnext.patches.v11_0.set_missing_gst_hsn_code
 erpnext.patches.v11_0.rename_bom_wo_fields
+erpnext.patches.v12_0.set_default_homepage_type
 erpnext.patches.v11_0.rename_additional_salary_component_additional_salary
 erpnext.patches.v11_0.renamed_from_to_fields_in_project
 erpnext.patches.v11_0.add_permissions_in_gst_settings
 erpnext.patches.v11_1.setup_guardian_role
 execute:frappe.delete_doc('DocType', 'Notification Control')
+erpnext.patches.v12_0.set_gst_category
 erpnext.patches.v11_0.remove_barcodes_field_from_copy_fields_to_variants
-erpnext.patches.v10_0.item_barcode_childtable_migrate # 16-02-2019 #25-06-2019
+erpnext.patches.v12_0.set_task_status
 erpnext.patches.v11_0.make_italian_localization_fields # 26-03-2019
+erpnext.patches.v12_0.add_item_name_in_work_orders
+erpnext.patches.v12_0.update_pricing_rule_fields
 erpnext.patches.v11_1.make_job_card_time_logs
+erpnext.patches.v12_0.rename_pricing_rule_child_doctypes
+erpnext.patches.v12_0.move_target_distribution_from_parent_to_child
+erpnext.patches.v12_0.stock_entry_enhancements
+erpnext.patches.v10_0.item_barcode_childtable_migrate # 16-02-2019 #25-06-2019
+erpnext.patches.v12_0.make_item_manufacturer
+erpnext.patches.v12_0.move_item_tax_to_item_tax_template
 erpnext.patches.v11_1.set_variant_based_on
-erpnext.patches.v11_1.move_customer_lead_to_dynamic_column
 erpnext.patches.v11_1.woocommerce_set_creation_user
-erpnext.patches.v11_1.set_default_action_for_quality_inspection
-erpnext.patches.v11_1.delete_bom_browser
 erpnext.patches.v11_1.set_salary_details_submittable
 erpnext.patches.v11_1.rename_depends_on_lwp
-erpnext.patches.v11_1.set_missing_title_for_quotation
 execute:frappe.delete_doc("Report", "Inactive Items")
 erpnext.patches.v11_1.delete_scheduling_tool
+erpnext.patches.v12_0.rename_tolerance_fields
+erpnext.patches.v12_0.make_custom_fields_for_bank_remittance #14-06-2019
+execute:frappe.delete_doc_if_exists("Page", "support-analytics")
+erpnext.patches.v12_0.remove_patient_medical_record_page
+erpnext.patches.v11_1.move_customer_lead_to_dynamic_column
+erpnext.patches.v11_1.set_default_action_for_quality_inspection
+erpnext.patches.v11_1.delete_bom_browser
+erpnext.patches.v11_1.set_missing_title_for_quotation
 erpnext.patches.v11_1.update_bank_transaction_status
 erpnext.patches.v11_1.renamed_delayed_item_report
 erpnext.patches.v11_1.set_missing_opportunity_from
-erpnext.patches.v11_1.set_quotation_status
+erpnext.patches.v12_0.set_quotation_status
+erpnext.patches.v12_0.set_priority_for_support
+erpnext.patches.v12_0.delete_priority_property_setter
+erpnext.patches.v12_0.set_default_batch_size
+execute:frappe.delete_doc("DocType", "Project Task")
 erpnext.patches.v11_1.update_default_supplier_in_item_defaults
+erpnext.patches.v12_0.update_due_date_in_gle
+erpnext.patches.v12_0.add_default_buying_selling_terms_in_company
+erpnext.patches.v12_0.update_ewaybill_field_position
+erpnext.patches.v12_0.create_accounting_dimensions_in_missing_doctypes
+erpnext.patches.v11_1.set_status_for_material_request_type_manufacture
+erpnext.patches.v12_0.generate_leave_ledger_entries

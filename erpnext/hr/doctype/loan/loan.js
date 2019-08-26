@@ -39,30 +39,18 @@ frappe.ui.form.on('Loan', {
 	},
 
 	refresh: function (frm) {
-		if (frm.doc.docstatus == 1 && frm.doc.status == "Sanctioned") {
-			frm.add_custom_button(__('Make Disbursement Entry'), function() {
-				frm.trigger("make_jv");
-			})
-		}
-		if (frm.doc.repayment_schedule) {
-			let total_amount_paid = 0;
-			$.each(frm.doc.repayment_schedule || [], function(i, row) {
-				if (row.paid) {
-					total_amount_paid += row.total_payment;
-				}
-			});
-			frm.set_value("total_amount_paid", total_amount_paid);
-;		}
-		if (frm.doc.docstatus == 1 && frm.doc.repayment_start_date && (frm.doc.applicant_type == 'Member' || frm.doc.repay_from_salary == 0)) {
-			frm.add_custom_button(__('Make Repayment Entry'), function() {
-				frm.trigger("make_repayment_entry");
-			})
+		if (frm.doc.docstatus == 1) {
+			if (frm.doc.status == "Sanctioned") {
+				frm.add_custom_button(__('Create Disbursement Entry'), function() {
+					frm.trigger("make_jv");
+				}).addClass("btn-primary");
+			} else if (frm.doc.status == "Disbursed" && frm.doc.repayment_start_date && (frm.doc.applicant_type == 'Member' || frm.doc.repay_from_salary == 0)) {
+				frm.add_custom_button(__('Create Repayment Entry'), function() {
+					frm.trigger("make_repayment_entry");
+				}).addClass("btn-primary");
+			}
 		}
 		frm.trigger("toggle_fields");
-	},
-	status: function (frm) {
-		frm.toggle_reqd("disbursement_date", frm.doc.status == 'Disbursed')
-		frm.toggle_reqd("repayment_start_date", frm.doc.status == 'Disbursed')
 	},
 
 	make_jv: function (frm) {
@@ -157,7 +145,7 @@ frappe.ui.form.on('Loan', {
 		}
 
 		dialog.show()
-		dialog.set_primary_action(__('Make Repayment Entry'), function() {
+		dialog.set_primary_action(__('Create Repayment Entry'), function() {
 			frm.values = dialog.get_values();
 			if(frm.values) {
 				_make_repayment_entry(frm, dialog.fields_dict.payments.grid.get_selected_children());

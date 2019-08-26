@@ -10,6 +10,8 @@ app_color = "#e74c3c"
 app_email = "info@erpnext.com"
 app_license = "GNU General Public License (v3)"
 source_link = "https://github.com/frappe/erpnext"
+app_logo_url = '/assets/erpnext/images/erp-icon.svg'
+
 
 develop_version = '12.x.x-develop'
 
@@ -20,7 +22,9 @@ web_include_css = "assets/css/erpnext-web.css"
 
 doctype_js = {
 	"Communication": "public/js/communication.js",
-	"Event": "public/js/event.js"
+	"Event": "public/js/event.js",
+	"Website Theme": "public/js/website_theme.js",
+	"Newsletter": "public/js/newsletter.js"
 }
 
 welcome_email = "erpnext.setup.utils.welcome_email"
@@ -45,7 +49,7 @@ on_logout = "erpnext.shopping_cart.utils.clear_cart_count"
 treeviews = ['Account', 'Cost Center', 'Warehouse', 'Item Group', 'Customer Group', 'Sales Person', 'Territory', 'Assessment Group', 'Department']
 
 # website
-update_website_context = "erpnext.shopping_cart.utils.update_website_context"
+update_website_context = ["erpnext.shopping_cart.utils.update_website_context", "erpnext.education.doctype.education_settings.education_settings.update_website_context"]
 my_account_context = "erpnext.shopping_cart.utils.update_my_account_context"
 
 email_append_to = ["Job Applicant", "Lead", "Opportunity", "Issue"]
@@ -128,6 +132,13 @@ website_route_rules = [
 	{"from_route": "/admissions", "to_route": "Student Admission"},
 	{"from_route": "/boms", "to_route": "BOM"},
 	{"from_route": "/timesheets", "to_route": "Timesheet"},
+	{"from_route": "/material-requests", "to_route": "Material Request"},
+	{"from_route": "/material-requests/<path:name>", "to_route": "material_request_info",
+		"defaults": {
+			"doctype": "Material Request",
+			"parents": [{"label": _("Material Request"), "route": "material-requests"}]
+		}
+	},
 ]
 
 standard_portal_menu_items = [
@@ -142,7 +153,6 @@ standard_portal_menu_items = [
 	{"title": _("Issues"), "route": "/issues", "reference_doctype": "Issue", "role":"Customer"},
 	{"title": _("Addresses"), "route": "/addresses", "reference_doctype": "Address"},
 	{"title": _("Timesheets"), "route": "/timesheets", "reference_doctype": "Timesheet", "role":"Customer"},
-	{"title": _("Timesheets"), "route": "/timesheets", "reference_doctype": "Timesheet", "role":"Customer"},
 	{"title": _("Lab Test"), "route": "/lab-test", "reference_doctype": "Lab Test", "role":"Patient"},
 	{"title": _("Prescription"), "route": "/prescription", "reference_doctype": "Patient Encounter", "role":"Patient"},
 	{"title": _("Patient Appointment"), "route": "/patient-appointments", "reference_doctype": "Patient Appointment", "role":"Patient"},
@@ -150,6 +160,7 @@ standard_portal_menu_items = [
 	{"title": _("Newsletter"), "route": "/newsletters", "reference_doctype": "Newsletter"},
 	{"title": _("Admission"), "route": "/admissions", "reference_doctype": "Student Admission"},
 	{"title": _("Certification"), "route": "/certification", "reference_doctype": "Certification Application"},
+	{"title": _("Material Request"), "route": "/material-requests", "reference_doctype": "Material Request", "role": "Customer"},
 ]
 
 default_roles = [
@@ -158,11 +169,17 @@ default_roles = [
 	{'role': 'Student', 'doctype':'Student', 'email_field': 'student_email_id'},
 ]
 
+sounds = [
+	{"name": "incoming-call", "src": "/assets/erpnext/sounds/incoming-call.mp3", "volume": 0.2},
+	{"name": "call-disconnect", "src": "/assets/erpnext/sounds/call-disconnect.mp3", "volume": 0.2},
+]
+
 has_website_permission = {
 	"Sales Order": "erpnext.controllers.website_list_for_contact.has_website_permission",
 	"Quotation": "erpnext.controllers.website_list_for_contact.has_website_permission",
 	"Sales Invoice": "erpnext.controllers.website_list_for_contact.has_website_permission",
 	"Supplier Quotation": "erpnext.controllers.website_list_for_contact.has_website_permission",
+	"Material Request": "erpnext.controllers.website_list_for_contact.has_website_permission",
 	"Delivery Note": "erpnext.controllers.website_list_for_contact.has_website_permission",
 	"Issue": "erpnext.support.doctype.issue.issue.has_website_permission",
 	"Timesheet": "erpnext.controllers.website_list_for_contact.has_website_permission",
@@ -214,8 +231,15 @@ doc_events = {
 	('Sales Invoice', 'Purchase Invoice', 'Delivery Note'): {
 		'validate': 'erpnext.regional.india.utils.set_place_of_supply'
 	},
-	"Contact":{
-		"on_trash": "erpnext.support.doctype.issue.issue.update_issue"
+	"Contact": {
+		"on_trash": "erpnext.support.doctype.issue.issue.update_issue",
+		"after_insert": "erpnext.communication.doctype.call_log.call_log.set_caller_information"
+	},
+	"Lead": {
+		"after_insert": "erpnext.communication.doctype.call_log.call_log.set_caller_information"
+	},
+	"Email Unsubscribe": {
+		"after_insert": "erpnext.crm.doctype.email_campaign.email_campaign.unsubscribe_recipient"
 	}
 }
 
@@ -227,9 +251,12 @@ scheduler_events = {
 		'erpnext.hr.doctype.daily_work_summary_group.daily_work_summary_group.trigger_emails',
 		"erpnext.accounts.doctype.subscription.subscription.process_all",
 		"erpnext.erpnext_integrations.doctype.amazon_mws_settings.amazon_mws_settings.schedule_get_order_details",
+		"erpnext.accounts.doctype.gl_entry.gl_entry.rename_gle_sle_docs",
 		"erpnext.erpnext_integrations.doctype.plaid_settings.plaid_settings.automatic_synchronization",
 		"erpnext.projects.doctype.project.project.hourly_reminder",
-		"erpnext.projects.doctype.project.project.collect_project_status"
+		"erpnext.projects.doctype.project.project.collect_project_status",
+		"erpnext.hr.doctype.shift_type.shift_type.process_auto_attendance_for_all_shifts",
+		"erpnext.support.doctype.issue.issue.set_service_level_agreement_variance",
 	],
 	"daily": [
 		"erpnext.stock.reorder_item.reorder_item",
@@ -249,10 +276,16 @@ scheduler_events = {
 		"erpnext.assets.doctype.asset.asset.make_post_gl_entry",
 		"erpnext.crm.doctype.contract.contract.update_status_for_contracts",
 		"erpnext.projects.doctype.project.project.update_project_sales_billing",
-		"erpnext.projects.doctype.project.project.send_project_status_email_to_users"
+		"erpnext.projects.doctype.project.project.send_project_status_email_to_users",
+		"erpnext.quality_management.doctype.quality_review.quality_review.review",
+		"erpnext.support.doctype.service_level_agreement.service_level_agreement.check_agreement_status",
+		"erpnext.crm.doctype.email_campaign.email_campaign.send_email_to_leads_or_contacts",
+		"erpnext.crm.doctype.email_campaign.email_campaign.set_email_campaign_status"
 	],
 	"daily_long": [
-		"erpnext.manufacturing.doctype.bom_update_tool.bom_update_tool.update_latest_price_in_all_boms"
+		"erpnext.manufacturing.doctype.bom_update_tool.bom_update_tool.update_latest_price_in_all_boms",
+		"erpnext.hr.doctype.leave_ledger_entry.leave_ledger_entry.process_expired_allocation",
+		"erpnext.hr.utils.generate_leave_encashment"
 	],
 	"monthly_long": [
 		"erpnext.accounts.deferred_revenue.convert_deferred_revenue_to_income",
@@ -265,9 +298,9 @@ email_brand_image = "assets/erpnext/images/erpnext-logo.jpg"
 
 default_mail_footer = """
 	<span>
-		Sent from
-		<a class="text-muted" href="https://www.libracore.com" target="_blank">
-			ERPNext / libracore business software
+		Sent via
+		<a class="text-muted" href="https://erpnext.com?source=via_email_footer" target="_blank">
+			ERPNext
 		</a>
 	</span>
 """
@@ -307,3 +340,15 @@ regional_overrides = {
 		'erpnext.controllers.accounts_controller.validate_regional': 'erpnext.regional.italy.utils.sales_invoice_validate',
 	}
 }
+user_privacy_documents = [
+	{
+		'doctype': 'Lead',
+		'match_field': 'email_id',
+		'personal_fields': ['phone', 'mobile_no', 'fax', 'website', 'lead_name'],
+	},
+	{
+		'doctype': 'Opportunity',
+		'match_field': 'contact_email',
+		'personal_fields': ['contact_mobile', 'contact_display', 'customer_name'],
+	}
+]

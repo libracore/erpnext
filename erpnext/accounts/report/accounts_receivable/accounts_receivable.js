@@ -8,6 +8,7 @@ frappe.query_reports["Accounts Receivable"] = {
 			"label": __("Company"),
 			"fieldtype": "Link",
 			"options": "Company",
+			"reqd": 1,
 			"default": frappe.defaults.get_user_default("Company")
 		},
 		{
@@ -56,6 +57,20 @@ frappe.query_reports["Accounts Receivable"] = {
 			"label": __("Finance Book"),
 			"fieldtype": "Link",
 			"options": "Finance Book"
+		},
+		{
+			"fieldname":"cost_center",
+			"label": __("Cost Center"),
+			"fieldtype": "Link",
+			"options": "Cost Center",
+			get_query: () => {
+				var company = frappe.query_report.get_filter_value('company');
+				return {
+					filters: {
+						'company': company
+					}
+				}
+			}
 		},
 		{
 			"fieldname":"customer",
@@ -157,3 +172,13 @@ frappe.query_reports["Accounts Receivable"] = {
 		});
 	}
 }
+
+erpnext.dimension_filters.forEach((dimension) => {
+	frappe.query_reports["Accounts Receivable"].filters.splice(9, 0 ,{
+		"fieldname": dimension["fieldname"],
+		"label": __(dimension["label"]),
+		"fieldtype": "Link",
+		"options": dimension["document_type"]
+	});
+});
+

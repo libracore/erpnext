@@ -90,13 +90,13 @@ frappe.treeview_settings["Account"] = {
 			frappe.set_route('List', 'Period Closing Voucher', {company: get_company()});
 		}, __('View'));
 
-		// make
+
 		treeview.page.add_inner_button(__("Journal Entry"), function() {
 			frappe.new_doc('Journal Entry', {company: get_company()});
-		}, __('Make'));
+		}, __('Create'));
 		treeview.page.add_inner_button(__("New Company"), function() {
 			frappe.new_doc('Company');
-		}, __('Make'));
+		}, __('Create'));
 
 		// financial statements
 		for (let report of ['Trial Balance', 'General Ledger', 'Balance Sheet',
@@ -121,7 +121,11 @@ frappe.treeview_settings["Account"] = {
 	},
 	onrender: function(node) {
 		if(frappe.boot.user.can_read.indexOf("GL Entry") !== -1){
-			var dr_or_cr = node.data.balance < 0 ? "Cr" : "Dr";
+
+			// show Dr if positive since balance is calculated as debit - credit else show Cr
+			let balance = node.data.balance_in_account_currency || node.data.balance;
+			let dr_or_cr = balance > 0 ? "Dr": "Cr";
+
 			if (node.data && node.data.balance!==undefined) {
 				$('<span class="balance-area pull-right text-muted small">'
 					+ (node.data.balance_in_account_currency ?

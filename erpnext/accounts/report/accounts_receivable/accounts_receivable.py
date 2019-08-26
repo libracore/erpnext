@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import frappe, erpnext
 from frappe import _, scrub
 from frappe.utils import getdate, nowdate, flt, cint, formatdate, cstr
+from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import get_accounting_dimensions
 
 class ReceivablePayableReport(object):
 	def __init__(self, filters=None):
@@ -32,6 +33,9 @@ class ReceivablePayableReport(object):
 
 		columns += [_(args.get("party_type")) + ":Link/" + args.get("party_type") + ":200"]
 
+		if party_naming_by == "Naming Series":
+			columns += [args.get("party_type") + " Name::110"]
+
 		if args.get("party_type") == 'Customer':
 			columns.append({
 				"label": _("Customer Contact"),
@@ -40,9 +44,6 @@ class ReceivablePayableReport(object):
 				"options":"Contact",
 				"width": 100
 			})
-
-		if party_naming_by == "Naming Series":
-			columns += [args.get("party_type") + " Name::110"]
 
 		columns.append({
 			"label": _("Voucher Type"),
@@ -196,8 +197,10 @@ class ReceivablePayableReport(object):
 		if self.filters.based_on_payment_terms and gl_entries_data:
 			self.payment_term_map = self.get_payment_term_detail(voucher_nos)
 
+		self.gle_inclusion_map = {}
 		for gle in gl_entries_data:
 			if self.is_receivable_or_payable(gle, self.dr_or_cr, future_vouchers, return_entries):
+				self.gle_inclusion_map[gle.name] = True
 				outstanding_amount, credit_note_amount, payment_amount = self.get_outstanding_amount(
 					gle,self.filters.report_date, self.dr_or_cr, return_entries)
 				temp_outstanding_amt = outstanding_amount
@@ -408,7 +411,9 @@ class ReceivablePayableReport(object):
 		for e in self.get_gl_entries_for(gle.party, gle.party_type, gle.voucher_type, gle.voucher_no):
 			if getdate(e.posting_date) <= report_date \
 				and (e.name!=gle.name or (e.voucher_no in return_entries and not return_entries.get(e.voucher_no))):
-
+				if e.name!=gle.name and self.gle_inclusion_map.get(e.name):
+					continue
+				self.gle_inclusion_map[e.name] = True
 				amount = flt(e.get(reverse_dr_or_cr), self.currency_precision) - flt(e.get(dr_or_cr), self.currency_precision)
 				if e.voucher_no not in return_entries:
 					payment_amount += amount
@@ -540,10 +545,30 @@ class ReceivablePayableReport(object):
 					where supplier_group=%s)""")
 				values.append(self.filters.get("supplier_group"))
 
-		accounts = [d.name for d in frappe.get_all("Account",
-			filters={"account_type": account_type, "company": self.filters.company})]
-		conditions.append("account in (%s)" % ','.join(['%s'] *len(accounts)))
-		values += accounts
+			if self.filters.get("payment_terms_template"):
+				conditions.append("party in (select name from tabSupplier where payment_terms=%s)")
+				values.append(self.filters.get("payment_terms_template"))
+
+		if self.filters.get("cost_center"):
+			lft, rgt = frappe.get_cached_value("Cost Center",
+				self.filters.get("cost_center"), ['lft', 'rgt'])
+
+			conditions.append("""cost_center in (select name from `tabCost Center` where
+				lft >= {0} and rgt <= {1})""".format(lft, rgt))
+
+		if self.filters.company:
+			accounts = [d.name for d in frappe.get_all("Account",
+				filters={"account_type": account_type, "company": self.filters.company})]
+			conditions.append("account in (%s)" % ','.join(['%s'] *len(accounts)))
+			values += accounts
+
+		accounting_dimensions = get_accounting_dimensions()
+
+		if accounting_dimensions:
+			for dimension in accounting_dimensions:
+				if self.filters.get(dimension):
+					conditions.append("{0} = %s".format(dimension))
+					values.append(self.filters.get(dimension))
 
 		return " and ".join(conditions), values
 
@@ -568,7 +593,7 @@ class ReceivablePayableReport(object):
 			ps.due_date, ps.payment_amount, ps.description
 			from `tabSales Invoice` si, `tabPayment Schedule` ps
 			where si.name = ps.parent and
-			si.docstatus = 1 and si.company = '%s' and
+			si.docstatus = 1 and si.company = %s and
 			si.name in (%s) order by ps.due_date
 		"""	% (frappe.db.escape(self.filters.company), ','.join(['%s'] *len(voucher_nos))),
 		(tuple(voucher_nos)), as_dict = 1)
@@ -591,9 +616,12 @@ class ReceivablePayableReport(object):
 
 		rows = []
 		for d in data:
+			values = d[self.ageing_col_idx_start : self.ageing_col_idx_start+5]
+			precision = cint(frappe.db.get_default("float_precision")) or 2
+			formatted_values = [frappe.utils.rounded(val, precision) for val in values]
 			rows.append(
 				{
-					'values': d[self.ageing_col_idx_start : self.ageing_col_idx_start+5]
+					'values': formatted_values
 				}
 			)
 

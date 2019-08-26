@@ -6,16 +6,9 @@ cur_frm.email_field = "email_id";
 
 erpnext.LeadController = frappe.ui.form.Controller.extend({
 	setup: function () {
-
 		this.frm.make_methods = {
-			'Quotation': () => erpnext.utils.create_new_doc('Quotation', {
-				'quotation_to': this.frm.doc.doctype,
-				'party_name': this.frm.doc.name
-			}),
-			'Opportunity': () => erpnext.utils.create_new_doc('Opportunity', {
-				'opportunity_from': this.frm.doc.doctype,
-				'party_name': this.frm.doc.name
-			})
+			'Quotation': this.make_quotation,
+			'Opportunity': this.create_opportunity
 		}
 
 		this.frm.fields_dict.customer.get_query = function (doc, cdt, cdn) {
@@ -44,10 +37,10 @@ erpnext.LeadController = frappe.ui.form.Controller.extend({
 		erpnext.toggle_naming_series();
 		frappe.dynamic_link = { doc: doc, fieldname: 'name', doctype: 'Lead' }
 
-		if (!doc.__islocal && doc.__onload && !doc.__onload.is_customer) {
-			this.frm.add_custom_button(__("Customer"), this.create_customer, __("Make"));
-			this.frm.add_custom_button(__("Opportunity"), this.create_opportunity, __("Make"));
-			this.frm.add_custom_button(__("Quotation"), this.make_quotation, __("Make"));
+		if(!doc.__islocal && doc.__onload && !doc.__onload.is_customer) {
+			this.frm.add_custom_button(__("Customer"), this.create_customer, __('Create'));
+			this.frm.add_custom_button(__("Opportunity"), this.create_opportunity, __('Create'));
+			this.frm.add_custom_button(__("Quotation"), this.make_quotation, __('Create'));
 		}
 
 		if (!this.frm.doc.__islocal) {

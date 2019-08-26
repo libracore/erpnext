@@ -4,14 +4,16 @@
 from __future__ import unicode_literals
 import frappe
 
-from frappe.utils import flt, cint, nowdate, getdate
+from frappe.utils import flt, cint, nowdate
 
 from frappe import throw, _
 import frappe.defaults
+from frappe.utils import getdate
 from erpnext.controllers.buying_controller import BuyingController
 from erpnext.accounts.utils import get_account_currency
 from frappe.desk.notifications import clear_doctype_notifications
-from erpnext.buying.utils import check_for_closed_status
+from frappe.model.mapper import get_mapped_doc
+from erpnext.buying.utils import check_on_hold_or_closed_status
 from erpnext.assets.doctype.asset.asset import get_asset_account, is_cwip_accounting_disabled
 from six import iteritems
 
@@ -38,6 +40,17 @@ class PurchaseReceipt(BuyingController):
 			'overflow_type': 'receipt',
 			'second_source_extra_cond': """ and exists(select name from `tabPurchase Invoice`
 				where name=`tabPurchase Invoice Item`.parent and update_stock = 1)"""
+		},
+		{
+			'source_dt': 'Purchase Receipt Item',
+			'target_dt': 'Material Request Item',
+			'join_field': 'material_request_item',
+			'target_field': 'received_qty',
+			'target_parent_dt': 'Material Request',
+			'target_parent_field': 'per_received',
+			'target_ref_field': 'qty',
+			'source_field': 'qty',
+			'percent_join_field': 'material_request'
 		}]
 		if cint(self.is_return):
 			self.status_updater.append({
@@ -69,7 +82,7 @@ class PurchaseReceipt(BuyingController):
 		self.validate_uom_is_integer("uom", ["qty", "received_qty"])
 		self.validate_uom_is_integer("stock_uom", "stock_qty")
 
-		self.check_for_closed_status()
+		self.check_on_hold_or_closed_status()
 
 		if getdate(self.posting_date) > getdate(nowdate()):
 			throw(_("Posting Date cannot be future date"))
@@ -110,13 +123,13 @@ class PurchaseReceipt(BuyingController):
 		return po_qty, po_warehouse
 
 	# Check for Closed status
-	def check_for_closed_status(self):
+	def check_on_hold_or_closed_status(self):
 		check_list =[]
 		for d in self.get('items'):
 			if (d.meta.get_field('purchase_order') and d.purchase_order
 				and d.purchase_order not in check_list):
 				check_list.append(d.purchase_order)
-				check_for_closed_status('Purchase Order', d.purchase_order)
+				check_on_hold_or_closed_status('Purchase Order', d.purchase_order)
 
 	# on submit
 	def on_submit(self):
@@ -127,7 +140,7 @@ class PurchaseReceipt(BuyingController):
 			self.company, self.base_grand_total)
 
 		self.update_prevdoc_status()
-		if cint(self.per_billed) < 100:
+		if flt(self.per_billed) < 100:
 			self.update_billing_status()
 		else:
 			self.status = "Completed"
@@ -154,7 +167,7 @@ class PurchaseReceipt(BuyingController):
 	def on_cancel(self):
 		super(PurchaseReceipt, self).on_cancel()
 
-		self.check_for_closed_status()
+		self.check_on_hold_or_closed_status()
 		# Check if Purchase Invoice has been submitted against current Purchase Order
 		submitted = frappe.db.sql("""select t1.name
 			from `tabPurchase Invoice` t1,`tabPurchase Invoice Item` t2
@@ -202,7 +215,7 @@ class PurchaseReceipt(BuyingController):
 						"cost_center": d.cost_center,
 						"remarks": self.get("remarks") or _("Accounting Entry for Stock"),
 						"debit": stock_value_diff
-					}, warehouse_account[d.warehouse]["account_currency"]))
+					}, warehouse_account[d.warehouse]["account_currency"], item=d))
 
 					# stock received but not billed
 					stock_rbnb_currency = get_account_currency(stock_rbnb)
@@ -214,7 +227,7 @@ class PurchaseReceipt(BuyingController):
 						"credit": flt(d.base_net_amount, d.precision("base_net_amount")),
 						"credit_in_account_currency": flt(d.base_net_amount, d.precision("base_net_amount")) \
 							if stock_rbnb_currency==self.company_currency else flt(d.net_amount, d.precision("net_amount"))
-					}, stock_rbnb_currency))
+					}, stock_rbnb_currency, item=d))
 
 					negative_expense_to_be_booked += flt(d.item_tax_amount)
 
@@ -227,7 +240,7 @@ class PurchaseReceipt(BuyingController):
 							"remarks": self.get("remarks") or _("Accounting Entry for Stock"),
 							"credit": flt(d.landed_cost_voucher_amount),
 							"project": d.project
-						}))
+						}, item=d))
 
 					# sub-contracting warehouse
 					if flt(d.rm_supp_cost) and warehouse_account.get(self.supplier_warehouse):
@@ -237,7 +250,7 @@ class PurchaseReceipt(BuyingController):
 							"cost_center": d.cost_center,
 							"remarks": self.get("remarks") or _("Accounting Entry for Stock"),
 							"credit": flt(d.rm_supp_cost)
-						}, warehouse_account[self.supplier_warehouse]["account_currency"]))
+						}, warehouse_account[self.supplier_warehouse]["account_currency"], item=d))
 
 					# divisional loss adjustment
 					valuation_amount_as_per_doc = flt(d.base_net_amount, d.precision("base_net_amount")) + \
@@ -259,7 +272,7 @@ class PurchaseReceipt(BuyingController):
 							"remarks": self.get("remarks") or _("Accounting Entry for Stock"),
 							"debit": divisional_loss,
 							"project": d.project
-						}, stock_rbnb_currency))
+						}, stock_rbnb_currency, item=d))
 
 				elif d.warehouse not in warehouse_with_no_account or \
 					d.rejected_warehouse not in warehouse_with_no_account:
@@ -341,7 +354,7 @@ class PurchaseReceipt(BuyingController):
 					"debit": base_asset_amount,
 					"debit_in_account_currency": (base_asset_amount
 						if cwip_account_currency == self.company_currency else asset_amount)
-				}))
+				}, item=d))
 
 				# Asset received but not billed
 				asset_rbnb_currency = get_account_currency(arbnb_account)
@@ -353,7 +366,7 @@ class PurchaseReceipt(BuyingController):
 					"credit": base_asset_amount,
 					"credit_in_account_currency": (base_asset_amount
 						if asset_rbnb_currency == self.company_currency else asset_amount)
-				}))
+				}, item=d))
 
 		return gl_entries
 
@@ -373,6 +386,16 @@ class PurchaseReceipt(BuyingController):
 			pr_doc.update_billing_percentage(update_modified=update_modified)
 
 		self.load_from_db()
+
+	def make_return_invoice(self):
+		return_invoice = make_purchase_invoice(self.name)
+		return_invoice.is_return = True
+		return_invoice.save()
+		return_invoice.submit()
+
+		debit_note_link = frappe.utils.get_link_to_form('Purchase Invoice', return_invoice.name)
+
+		frappe.msgprint(_("Debit Note {0} has been created automatically").format(debit_note_link))
 
 def update_billed_amount_based_on_po(po_detail, update_modified=True):
 	# Billed against Sales Order directly
@@ -510,3 +533,24 @@ def make_purchase_return(source_name, target_doc=None):
 def update_purchase_receipt_status(docname, status):
 	pr = frappe.get_doc("Purchase Receipt", docname)
 	pr.update_status(status)
+
+@frappe.whitelist()
+def make_stock_entry(source_name,target_doc=None):
+	def set_missing_values(source, target):
+		target.stock_entry_type = "Material Transfer"
+		target.purpose =  "Material Transfer"
+
+	doclist = get_mapped_doc("Purchase Receipt", source_name,{
+		"Purchase Receipt": {
+			"doctype": "Stock Entry",
+		},
+		"Purchase Receipt Item": {
+			"doctype": "Stock Entry Detail",
+			"field_map": {
+				"warehouse": "s_warehouse",
+				"parent": "reference_purchase_receipt"
+			},
+		},
+	}, target_doc, set_missing_values)
+
+	return doclist

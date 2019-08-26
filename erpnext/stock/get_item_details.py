@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe import _, throw
 from frappe.utils import flt, cint, add_days, cstr, add_months
-import json
+import json, copy
 from erpnext.accounts.doctype.pricing_rule.pricing_rule import get_pricing_rule_for_item, set_transaction_type
 from erpnext.setup.utils import get_exchange_rate
 from frappe.model.meta import get_field_precision
@@ -13,6 +13,8 @@ from erpnext.stock.doctype.batch.batch import get_batch_no
 from erpnext import get_company_currency
 from erpnext.stock.doctype.item.item import get_item_defaults, get_uom_conv_factor
 from erpnext.setup.doctype.item_group.item_group import get_item_group_defaults
+from erpnext.setup.doctype.brand.brand import get_brand_defaults
+from erpnext.stock.doctype.item_manufacturer.item_manufacturer import get_item_manufacturer_part_no
 
 from six import string_types, iteritems
 
@@ -20,7 +22,7 @@ sales_doctypes = ['Quotation', 'Sales Order', 'Delivery Note', 'Sales Invoice']
 purchase_doctypes = ['Material Request', 'Supplier Quotation', 'Purchase Order', 'Purchase Receipt', 'Purchase Invoice']
 
 @frappe.whitelist()
-def get_item_details(args):
+def get_item_details(args, doc=None):
 	"""
 		args = {
 			"item_code": "",
@@ -48,6 +50,10 @@ def get_item_details(args):
 
 	out = get_basic_details(args, item)
 
+	get_item_tax_template(args, item, out)
+	out["item_tax_rate"] = get_item_tax_map(args.company, args.get("item_tax_template") if out.get("item_tax_template") is None \
+		else out.get("item_tax_template"), as_json=True)
+
 	get_party_item_code(args, item, out)
 
 	set_valuation_rate(out, args)
@@ -67,7 +73,8 @@ def get_item_details(args):
 		if args.get(key) is None:
 			args[key] = value
 
-	out.update(get_pricing_rule_for_item(args))
+	data = get_pricing_rule_for_item(args, out.price_list_rate, doc)
+	out.update(data)
 
 	update_stock(args, out)
 
@@ -214,16 +221,18 @@ def get_basic_details(args, item):
 	if item.variant_of:
 		item.update_template_tables()
 
-	from frappe.defaults import get_user_default_as_list
-	user_default_warehouse_list = get_user_default_as_list('Warehouse')
-	user_default_warehouse = user_default_warehouse_list[0] \
-		if len(user_default_warehouse_list) == 1 else ""
-
 	item_defaults = get_item_defaults(item.name, args.company)
 	item_group_defaults = get_item_group_defaults(item.name, args.company)
+	brand_defaults = get_brand_defaults(item.name, args.company)
 
-	warehouse = args.get("set_warehouse") or user_default_warehouse or item_defaults.get("default_warehouse") or\
-		item_group_defaults.get("default_warehouse") or args.warehouse
+	warehouse = (args.get("set_warehouse") or item_defaults.get("default_warehouse") or
+		item_group_defaults.get("default_warehouse") or brand_defaults.get("default_warehouse") or args.warehouse)
+
+	if not warehouse:
+		defaults = frappe.defaults.get_defaults() or {}
+		if defaults.get("default_warehouse") and frappe.db.exists("Warehouse",
+			{'name': defaults.default_warehouse, 'company': args.company}):
+			warehouse = defaults.default_warehouse
 
 	if args.get('doctype') == "Material Request" and not args.get('material_request_type'):
 		args['material_request_type'] = frappe.db.get_value('Material Request',
@@ -245,18 +254,16 @@ def get_basic_details(args, item):
 		"description": cstr(item.description).strip(),
 		"image": cstr(item.image).strip(),
 		"warehouse": warehouse,
-		"income_account": get_default_income_account(args, item_defaults, item_group_defaults),
-		"expense_account": get_default_expense_account(args, item_defaults, item_group_defaults),
-		"cost_center": get_default_cost_center(args, item_defaults, item_group_defaults),
+		"income_account": get_default_income_account(args, item_defaults, item_group_defaults, brand_defaults),
+		"expense_account": get_default_expense_account(args, item_defaults, item_group_defaults, brand_defaults),
+		"cost_center": get_default_cost_center(args, item_defaults, item_group_defaults, brand_defaults),
 		'has_serial_no': item.has_serial_no,
 		'has_batch_no': item.has_batch_no,
 		"batch_no": None,
-		"item_tax_rate": json.dumps(dict(([d.tax_type, d.tax_rate] for d in
-			item.get("taxes")))),
 		"uom": args.uom,
 		"min_order_qty": flt(item.min_order_qty) if args.doctype == "Material Request" else "",
-		"qty": args.qty or 1.0,
-		"stock_qty": args.qty or 1.0,
+		"qty": flt(args.qty) or 1.0,
+		"stock_qty": flt(args.qty) or 1.0,
 		"price_list_rate": 0.0,
 		"base_price_list_rate": 0.0,
 		"rate": 0.0,
@@ -266,7 +273,7 @@ def get_basic_details(args, item):
 		"net_rate": 0.0,
 		"net_amount": 0.0,
 		"discount_percentage": 0.0,
-		"supplier": get_default_supplier(args, item_defaults, item_group_defaults),
+		"supplier": get_default_supplier(args, item_defaults, item_group_defaults, brand_defaults),
 		"update_stock": args.get("update_stock") if args.get('doctype') in ['Sales Invoice', 'Purchase Invoice'] else 0,
 		"delivered_by_supplier": item.delivered_by_supplier if args.get("doctype") in ["Sales Order", "Sales Invoice"] else 0,
 		"is_fixed_asset": item.is_fixed_asset,
@@ -306,6 +313,14 @@ def get_basic_details(args, item):
 	for fieldname in ("item_name", "item_group", "barcodes", "brand", "stock_uom"):
 		out[fieldname] = item.get(fieldname)
 
+	if args.get("manufacturer"):
+		part_no = get_item_manufacturer_part_no(args.get("item_code"), args.get("manufacturer"))
+		if part_no:
+			out["manufacturer_part_no"] = part_no
+		else:
+			out["manufacturer_part_no"] = None
+			out["manufacturer"] = None
+
 	child_doctype = args.doctype + ' Item'
 	meta = frappe.get_meta(child_doctype)
 	if meta.get_field("barcode"):
@@ -320,6 +335,59 @@ def update_barcode_value(out):
 	# If item has one barcode then update the value of the barcode field
 	if barcode_data and len(barcode_data.get(out.item_code)) == 1:
 		out['barcode'] = barcode_data.get(out.item_code)[0]
+
+@frappe.whitelist()
+def get_item_tax_info(company, tax_category, item_codes):
+	out = {}
+	if isinstance(item_codes, string_types):
+		item_codes = json.loads(item_codes)
+
+	for item_code in item_codes:
+		if not item_code or item_code in out:
+			continue
+		out[item_code] = {}
+		item = frappe.get_cached_doc("Item", item_code)
+		get_item_tax_template({"tax_category": tax_category}, item, out[item_code])
+		out[item_code]["item_tax_rate"] = get_item_tax_map(company, out[item_code].get("item_tax_template"), as_json=True)
+
+	return out
+
+def get_item_tax_template(args, item, out):
+	"""
+		args = {
+			"tax_category": None
+			"item_tax_template": None
+		}
+	"""
+	item_tax_template = args.get("item_tax_template")
+
+	if not item_tax_template:
+		item_tax_template = _get_item_tax_template(args, item.taxes, out)
+
+	if not item_tax_template:
+		item_group = item.item_group
+		while item_group and not item_tax_template:
+			item_group_doc = frappe.get_cached_doc("Item Group", item_group)
+			item_tax_template = _get_item_tax_template(args, item_group_doc.taxes, out)
+			item_group = item_group_doc.parent_item_group
+
+def _get_item_tax_template(args, taxes, out):
+	for tax in taxes:
+		if cstr(tax.tax_category) == cstr(args.get("tax_category")):
+			out["item_tax_template"] = tax.item_tax_template
+			return tax.item_tax_template
+	return None
+
+@frappe.whitelist()
+def get_item_tax_map(company, item_tax_template, as_json=True):
+	item_tax_map = {}
+	if item_tax_template:
+		template = frappe.get_cached_doc("Item Tax Template", item_tax_template)
+		for d in template.taxes:
+			if frappe.get_cached_value("Account", d.tax_type, "company") == company:
+				item_tax_map[d.tax_type] = d.tax_rate
+
+	return json.dumps(item_tax_map) if as_json else item_tax_map
 
 @frappe.whitelist()
 def calculate_service_end_date(args, item=None):
@@ -348,14 +416,16 @@ def calculate_service_end_date(args, item=None):
 
 	return deferred_detail
 
-def get_default_income_account(args, item, item_group):
+def get_default_income_account(args, item, item_group, brand):
 	return (item.get("income_account")
 		or item_group.get("income_account")
+		or brand.get("income_account")
 		or args.income_account)
 
-def get_default_expense_account(args, item, item_group):
+def get_default_expense_account(args, item, item_group, brand):
 	return (item.get("expense_account")
 		or item_group.get("expense_account")
+		or brand.get("expense_account")
 		or args.expense_account)
 
 def get_default_deferred_account(args, item, fieldname=None):
@@ -366,16 +436,16 @@ def get_default_deferred_account(args, item, fieldname=None):
 	else:
 		return None
 
-def get_default_cost_center(args, item, item_group, company=None):
+def get_default_cost_center(args, item, item_group, brand, company=None):
 	cost_center = None
 	if args.get('project'):
 		cost_center = frappe.db.get_value("Project", args.get("project"), "cost_center", cache=True)
 
 	if not cost_center:
 		if args.get('customer'):
-			cost_center = item.get('selling_cost_center') or item_group.get('selling_cost_center')
+			cost_center = item.get('selling_cost_center') or item_group.get('selling_cost_center') or brand.get('selling_cost_center')
 		else:
-			cost_center = item.get('buying_cost_center') or item_group.get('buying_cost_center')
+			cost_center = item.get('buying_cost_center') or item_group.get('buying_cost_center') or brand.get('buying_cost_center')
 
 	cost_center = cost_center or args.get("cost_center")
 
@@ -385,9 +455,10 @@ def get_default_cost_center(args, item, item_group, company=None):
 
 	return cost_center
 
-def get_default_supplier(args, item, item_group):
+def get_default_supplier(args, item, item_group, brand):
 	return (item.get("default_supplier")
-		or item_group.get("default_supplier"))
+		or item_group.get("default_supplier")
+		or brand.get("default_supplier"))
 
 def get_price_list_rate(args, item_doc, out):
 	meta = frappe.get_meta(args.parenttype or args.doctype)
@@ -817,7 +888,7 @@ def apply_price_list_on_item(args):
 	item_doc = frappe.get_doc("Item", args.item_code)
 	get_price_list_rate(args, item_doc, item_details)
 
-	item_details.update(get_pricing_rule_for_item(args))
+	item_details.update(get_pricing_rule_for_item(args, item_details.price_list_rate))
 
 	return item_details
 
@@ -878,10 +949,11 @@ def get_default_bom(item_code=None):
 def get_valuation_rate(item_code, company, warehouse=None):
 	item = get_item_defaults(item_code, company)
 	item_group = get_item_group_defaults(item_code, company)
+	brand = get_brand_defaults(item_code, company)
 	# item = frappe.get_doc("Item", item_code)
 	if item.get("is_stock_item"):
 		if not warehouse:
-			warehouse = item.get("default_warehouse") or item_group.get("default_warehouse")
+			warehouse = item.get("default_warehouse") or item_group.get("default_warehouse") or brand.get("default_warehouse")
 
 		return frappe.db.get_value("Bin", {"item_code": item_code, "warehouse": warehouse},
 			["valuation_rate"], as_dict=True) or {"valuation_rate": 0}

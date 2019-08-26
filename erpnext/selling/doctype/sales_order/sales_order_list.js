@@ -5,6 +5,9 @@ frappe.listview_settings['Sales Order'] = {
 		if (doc.status === "Closed") {
 			return [__("Closed"), "green", "status,=,Closed"];
 
+		} else if (doc.status === "On Hold") {
+			// on hold
+			return [__("On Hold"), "orange", "status,=,On Hold"];
 		} else if (doc.order_type !== "Maintenance"
 			&& flt(doc.per_delivered, 6) < 100 && frappe.datetime.get_diff(doc.delivery_date) < 0) {
 			// not delivered & overdue
@@ -31,7 +34,7 @@ frappe.listview_settings['Sales Order'] = {
 					"per_delivered,<,100|per_billed,=,100|status,!=,Closed"];
 			}
 
-		} else if ((flt(doc.per_delivered, 6) == 100)
+		} else if ((flt(doc.per_delivered, 6) === 100)
 			&& flt(doc.grand_total) !== 0 && flt(doc.per_billed, 6) < 100 && doc.status !== "Closed") {
 			// to bill
 
@@ -45,7 +48,7 @@ frappe.listview_settings['Sales Order'] = {
 
 			if(flt(doc.per_billed, 6) < 100 ){
 				return [__("To Deliver and Bill"), "orange", "per_delivered,=,100|per_billed,<,100|status,!=,Closed"];
-			}else if(flt(doc.per_billed, 6) == 100){
+			}else if(flt(doc.per_billed, 6) === 100){
 				return [__("To Deliver"), "orange", "per_delivered,=,100|per_billed,=,100|status,!=,Closed"];
 			}
 		}
