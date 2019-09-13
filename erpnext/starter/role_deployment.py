@@ -10,7 +10,7 @@ def create_roles():
         
 def check_create_role(role):
     # check if the role already exists
-    r = frappe.get_doc("Role", role)
+    r = frappe.get_all("Role", filters={'role_name': role}, fields=['role_name'])
     if not r: 
         # create role
         new_role = frappe.get_doc({
