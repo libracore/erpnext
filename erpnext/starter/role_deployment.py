@@ -11,7 +11,11 @@ def create_roles():
 def check_create_role(role):
     if not frappe.db.exists("Role", dict(role_name=role)): 
         # create role
-        frappe.db.sql("""INSERT INTO `tabRole` 
-            (`name`, `role_name`, `disabled`, `desk_access`, `two_factor_auth`)
-            VALUES ('{role}', '{role}', 0, 1, 0);""".format(role=role))
+        frappe.get_doc({
+            "doctype": "Role",
+            "role_name": role,
+            "disabled": 0,
+            "desk_access": 1,
+            "two_factor_auth": 0
+        }).insert(ignore_permissions=True)
     return

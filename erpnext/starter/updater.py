@@ -5,6 +5,7 @@
 import frappe
 from erpnext.starter.role_deployment import create_roles
 
-def before_migrate():
+def after_migrate():
+    print("Starter updates...")
     create_roles()
     return

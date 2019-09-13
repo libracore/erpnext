@@ -353,4 +353,5 @@ user_privacy_documents = [
 	}
 ]
 
-before_migrate = ['erpnext.starter.updater.before_migrate']
+# hook starter updater after migrate
+after_migrate = ['erpnext.starter.updater.after_migrate']
