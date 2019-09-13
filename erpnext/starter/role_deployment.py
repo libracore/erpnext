@@ -13,5 +13,5 @@ def check_create_role(role):
         # create role
         frappe.db.sql("""INSERT INTO `tabRole` 
             (`name`, `role_name`, `disabled`, `desk_access`, `two_factor_auth`)
-            VALUES ('{role}', '{role}', 0, 1, 0);""")
+            VALUES ('{role}', '{role}', 0, 1, 0);""".format(role=role))
     return
