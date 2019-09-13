@@ -3,7 +3,7 @@
 # Entry point for update processes
 
 import frappe
-from role_deployment import create_roles
+from erpnext.starter.role_deployment import create_roles
 
 def before_migrate():
     create_roles()
