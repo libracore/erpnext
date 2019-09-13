@@ -15,7 +15,7 @@ def check_create_role(role):
         # create role
         new_role = frappe.get_doc({
             "doctype": "Role",
-            "role_name": role
+            "role_name": role,
             "disabled": 0,
             "desk_access": 1,
             "two_factor_auth": 0
