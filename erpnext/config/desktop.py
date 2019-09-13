@@ -107,6 +107,15 @@ def get_data():
 			"type": "module",
 			"description": "Quality goals, procedures, reviews and action."
 		},
+		{
+			"module_name": "Starter",
+			"category": "Modules",
+			"label": _("Starter"),
+			"color": "#0074d9",
+			"icon": "octicon octicon-rocket",
+			"type": "module",
+			"description": "Easy Starter module for the essential ERPNext."
+		},
 
 
 		# Category: "Domains"
