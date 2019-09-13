@@ -63,9 +63,9 @@ def check_create_permission(role, doctype, permlevel=0, perm_read=1, perm_write=
         perm.amend = perm_amend
         perm.report = perm_report
         perm.export = perm_export
-        perm.import = perm_import
+        #perm.import = perm_import # reserved keyword, cannot be used
         perm.share = perm_share
-        perm.print = perm_print
+        #perm.print = perm_print # reserved keyword, cannot be used
         perm.email = perm_email
         perm.save()
     return
