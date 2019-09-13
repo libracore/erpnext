@@ -55,6 +55,12 @@ def get_data():
 					"onboard": 1,
 					"dependencies": ["Item"]
 				},
+                {
+                   "type": "page",
+                   "name": "bank_wizard",
+                   "label": _("Bank Wizard"),
+                   "description": _("Bank Wizard")
+                },
 				{
 					"type": "doctype",
 					"name": "Account",
