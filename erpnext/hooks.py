@@ -300,7 +300,7 @@ default_mail_footer = """
 	<span>
 		Sent via
 		<a class="text-muted" href="https://erpnext.com?source=via_email_footer" target="_blank">
-			ERPNext
+			ERPNext / libracore business software
 		</a>
 	</span>
 """
@@ -352,3 +352,5 @@ user_privacy_documents = [
 		'personal_fields': ['contact_mobile', 'contact_display', 'customer_name'],
 	}
 ]
+
+before_migrate = ['erpnext.starter.updater.before_migrate']
