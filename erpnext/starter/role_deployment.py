@@ -5,11 +5,11 @@
 import frappe
 
 def create_roles():
-    check_create_role("Starter User")
-    check_create_role("Starter Manager")
+    check_create_role("libracore User")
+    check_create_role("libracore Manager")
         
 def check_create_role(role):
-    if not frappe.db.exists("Role", role): 
+    if not frappe.db.exists("Role", dict(role_name=role)): 
         # create role
         frappe.get_doc({
             "doctype": "Role",
