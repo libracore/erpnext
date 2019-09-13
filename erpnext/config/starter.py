@@ -42,6 +42,12 @@ def get_data():
 					"type": "doctype",
 					"name": "Item",
 					"onboard": 1
+				},
+				{
+					"type": "doctype",
+					"name": "Item Price",
+					"onboard": 1,
+					"dependencies": ["Item", "Price List"]
 				}
 			]
 		},
@@ -61,6 +67,12 @@ def get_data():
                    "label": _("Bank Wizard"),
                    "description": _("Bank Wizard")
                 },
+                {
+					"type": "doctype",
+					"name": "Payment Entry",
+					"onboard": 1,
+					"dependencies": ["Item"]
+				},
 				{
 					"type": "doctype",
 					"name": "Account",
@@ -93,6 +105,43 @@ def get_data():
 					"name": "Accounts Receivable",
 					"doctype": "Sales Invoice",
 					"is_query_report": True
+				}
+			]
+		},
+		{
+			"label": _("Tools"),
+			"icon": "octicon octicon-tools",
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Note",
+					"onboard": 1
+				},
+				{
+					"type": "doctype",
+					"name": "ToDo",
+					"onboard": 1
+				}
+			]
+		},
+		{
+			"label": _("Definitions"),
+			"icon": "octicon octicon-briefcase",
+			"items": [
+				{
+					"type": "doctype",
+					"name": "Item Group",
+					"onboard": 1
+				},
+				{
+					"type": "doctype",
+					"name": "Territory",
+					"onboard": 1
+				},
+				{
+					"type": "doctype",
+					"name": "Customer Group",
+					"onboard": 1
 				}
 			]
 		}

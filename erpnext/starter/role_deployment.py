@@ -51,10 +51,49 @@ def check_create_permission(role, doctype, permlevel=0, perm_read=1, perm_write=
             "print": perm_print, 
             "email": perm_email
         }).insert(ignore_permissions=True)
+    else:
+        # update permission
+        perm = frappe.get_doc("DocPerm", perm_match[0]['name'])
+        perm.read = perm_read
+        perm.write = perm_write
+        perm.create = perm_create
+        perm.submit = perm_submit
+        perm.cancel = perm_cancel
+        perm.delete = perm_delete
+        perm.amend = perm_amend
+        perm.report = perm_report
+        perm.export = perm_export
+        perm.import = perm_import
+        perm.share = perm_share
+        perm.print = perm_print
+        perm.email = perm_email
+        perm.save()
     return
     
 # Initialise the permission scheme for Starter User and Manager
 def initialise_permissions():
-    check_create_permission("Starter User", "Customer", perm_read=1, perm_write=1, perm_create=1)
+    # general doctypes
+    check_create_permission("Starter User", "ToDo", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    check_create_permission("Starter User", "Note", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    # base crm    
+    check_create_permission("Starter User", "Customer", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    # sales and orders
+    check_create_permission("Starter Manager", "Item", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    check_create_permission("Starter Manager", "Item Group", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    check_create_permission("Starter Manager", "Territory", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    check_create_permission("Starter Manager", "Customer Group", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    check_create_permission("Starter User", "Country", perm_read=1)
+    check_create_permission("Starter User", "Account", perm_read=1)
+    check_create_permission("Starter User", "Currency", perm_read=1)
+    check_create_permission("Starter User", "Item Price", perm_read=1)
+    check_create_permission("Starter User", "Price List", perm_read=1)
+    check_create_permission("Starter User", "Item", perm_read=1)
+    check_create_permission("Starter Manager", "Quotation", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
+    check_create_permission("Starter Manager", "Sales Order", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
+    check_create_permission("Starter Manager", "Delivery Note", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
+    check_create_permission("Starter Manager", "Sales Invoice", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
+    check_create_permission("Starter Manager", "Payment Entry", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
+    check_create_permission("Starter Manager", "Item Price", perm_read=1, perm_write=1, perm_create=1)
+    check_create_permission("Starter Manager", "Account", perm_read=1, perm_write=1, perm_create=1)
     
     return
