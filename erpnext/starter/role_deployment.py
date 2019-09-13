@@ -4,6 +4,7 @@
 
 import frappe
 
+# Assure that the Starter roles are in the system
 def create_roles():
     check_create_role("Starter User")
     check_create_role("Starter Manager")
@@ -19,3 +20,7 @@ def check_create_role(role):
             "two_factor_auth": 0
         }).insert(ignore_permissions=True)
     return
+
+# Initialise the permission scheme for Starter User and Manager
+def initialise_permissions():
+    
