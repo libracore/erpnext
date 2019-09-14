@@ -558,7 +558,7 @@ def get_outstanding_reference_documents(args):
 
 	# Get negative outstanding sales /purchase invoices
 	negative_outstanding_invoices = []
-	if args.get("party_type") not in ["Student", "Employee"] and not args.get("voucher_no"):
+	if args.get("party_type") in ("Supplier", "Customer") and not args.get("voucher_no"):
 		negative_outstanding_invoices = get_negative_outstanding_invoices(args.get("party_type"),
 			args.get("party"), args.get("party_account"), party_account_currency, company_currency)
 
@@ -589,7 +589,7 @@ def get_outstanding_reference_documents(args):
 
 	# Get all SO / PO which are not fully billed or aginst which full advance not paid
 	orders_to_be_billed = []
-	if (args.get("party_type") != "Student"):
+	if (args.get("party_type") in ("Supplier", "Customer")):
 		orders_to_be_billed =  get_orders_to_be_billed(args.get("posting_date"),args.get("party_type"),
 			args.get("party"), party_account_currency, company_currency)
 
@@ -601,7 +601,7 @@ def get_orders_to_be_billed(posting_date, party_type, party, party_account_curre
 		voucher_type = 'Sales Order'
 	elif party_type == "Supplier":
 		voucher_type = 'Purchase Order'
-	elif party_type == "Employee":
+	else:
 		voucher_type = None
 
 	# Add cost center condition
@@ -613,13 +613,18 @@ def get_orders_to_be_billed(posting_date, party_type, party, party_account_curre
 
 	orders = []
 	if voucher_type:
-		ref_field = "base_grand_total" if party_account_currency == company_currency else "grand_total"
+		if party_account_currency == company_currency:
+			grand_total_field = "base_grand_total"
+			rounded_total_field = "base_rounded_total"
+		else:
+			grand_total_field = "grand_total"
+			rounded_total_field = "rounded_total"
 
 		orders = frappe.db.sql("""
 			select
 				name as voucher_no,
-				{ref_field} as invoice_amount,
-				({ref_field} - advance_paid) as outstanding_amount,
+				if({rounded_total_field}, {rounded_total_field}, {grand_total_field}) as invoice_amount,
+				(if({rounded_total_field}, {rounded_total_field}, {grand_total_field}) - advance_paid) as outstanding_amount,
 				transaction_date as posting_date
 			from
 				`tab{voucher_type}`
@@ -627,17 +632,18 @@ def get_orders_to_be_billed(posting_date, party_type, party, party_account_curre
 				{party_type} = %s
 				and docstatus = 1
 				and ifnull(status, "") != "Closed"
-				and {ref_field} > advance_paid
+				and if({rounded_total_field}, {rounded_total_field}, {grand_total_field}) > advance_paid
 				and abs(100 - per_billed) > 0.01
 				{condition}
 			order by
 				transaction_date, name
 		""".format(**{
-			"ref_field": ref_field,
+			"rounded_total_field": rounded_total_field,
+			"grand_total_field": grand_total_field,
 			"voucher_type": voucher_type,
 			"party_type": scrub(party_type),
 			"condition": condition
-		}), party, as_dict=True)
+		}), (party), as_dict=True)
 
 	order_list = []
 	for d in orders:
@@ -713,9 +719,23 @@ def get_party_details(company, party_type, party, date, cost_center=None):
 @frappe.whitelist()
 def get_account_details(account, date, cost_center=None):
 	frappe.has_permission('Payment Entry', throw=True)
+
+	# to check if the passed account is accessible if the reference doctype is Payment Entry
+	account_list = frappe.get_list('Account', {
+		'name': account
+	}, reference_doctype='Payment Entry', limit=1)
+
+	# There might be some user permissions which will allow account under certain doctypes
+	# except for Payment Entry, only in such case we should throw permission error
+	if not account_list:
+		frappe.throw(_('Account: {0} is not permitted under Payment Entry').format(account))
+
+	account_balance = get_balance_on(account, date, cost_center=cost_center,
+		ignore_account_permission=True)
+
 	return frappe._dict({
 		"account_currency": get_account_currency(account),
-		"account_balance": get_balance_on(account, date, cost_center=cost_center),
+		"account_balance": account_balance,
 		"account_type": frappe.db.get_value("Account", account, "account_type")
 	})
 

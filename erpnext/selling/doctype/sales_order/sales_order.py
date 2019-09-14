@@ -69,9 +69,7 @@ class SalesOrder(SellingController):
 				frappe.msgprint(_("Warning: Sales Order {0} already exists against Customer's Purchase Order {1}").format(so[0][0], self.po_no))
 
 	def validate_for_items(self):
-		check_list = []
 		for d in self.get('items'):
-			check_list.append(cstr(d.item_code))
 
 			# used for production plan
 			d.transaction_date = self.transaction_date
@@ -79,13 +77,6 @@ class SalesOrder(SellingController):
 			tot_avail_qty = frappe.db.sql("select projected_qty from `tabBin` \
 				where item_code = %s and warehouse = %s", (d.item_code, d.warehouse))
 			d.projected_qty = tot_avail_qty and flt(tot_avail_qty[0][0]) or 0
-
-		# check for same entry multiple times
-		unique_chk_list = set(check_list)
-		if len(unique_chk_list) != len(check_list) and \
-			not cint(frappe.db.get_single_value("Selling Settings", "allow_multiple_items")):
-			frappe.msgprint(_("Same item has been entered multiple times"),
-				title=_("Warning"), indicator='orange')
 
 	def product_bundle_has_stock_item(self, product_bundle):
 		"""Returns true if product bundle has stock item"""
@@ -503,10 +494,12 @@ def make_material_request(source_name, target_doc=None):
 		doc.material_request_type = "Purchase"
 
 	def update_item(source, target, source_parent):
+		# qty is for packed items, because packed items don't have stock_qty field
+		qty = source.get("stock_qty") or source.get("qty")
 		target.project = source_parent.project
-		target.qty = source.stock_qty - requested_item_qty.get(source.name, 0)
+		target.qty = qty - requested_item_qty.get(source.name, 0)
 		target.conversion_factor = 1
-		target.stock_qty = source.stock_qty - requested_item_qty.get(source.name, 0)
+		target.stock_qty = qty - requested_item_qty.get(source.name, 0)
 
 	doc = get_mapped_doc("Sales Order", source_name, {
 		"Sales Order": {

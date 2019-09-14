@@ -15,6 +15,9 @@ class calculate_taxes_and_totals(object):
 		self.calculate()
 
 	def calculate(self):
+		if not len(self.doc.get("items")):
+			return
+
 		self.discount_amount_applied = False
 		self._calculate()
 
@@ -73,7 +76,12 @@ class calculate_taxes_and_totals(object):
 						item.discount_amount = item.price_list_rate - item.rate
 
 				item.net_rate = item.rate
-				item.amount = flt(item.rate * item.qty,	item.precision("amount"))
+
+				if not item.qty and self.doc.get("is_return"):
+					item.amount = flt(-1 * item.rate, item.precision("amount"))
+				else:
+					item.amount = flt(item.rate * item.qty,	item.precision("amount"))
+
 				item.net_amount = item.amount
 
 				self._set_in_company_currency(item, ["price_list_rate", "rate", "net_rate", "amount", "net_amount"])
@@ -326,7 +334,7 @@ class calculate_taxes_and_totals(object):
 
 			self.doc.round_floats_in(self.doc, ["taxes_and_charges_added", "taxes_and_charges_deducted"])
 
-			self.doc.base_grand_total = flt(self.doc.grand_total * self.doc.conversion_rate) \
+			self.doc.base_grand_total = flt(self.doc.grand_total * self.doc.conversion_rate, self.doc.precision("base_grand_total")) \
 				if (self.doc.taxes_and_charges_added or self.doc.taxes_and_charges_deducted) \
 				else self.doc.base_net_total
 

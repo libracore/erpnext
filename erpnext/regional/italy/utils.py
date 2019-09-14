@@ -129,6 +129,8 @@ def download_zip(files, output_filename):
 
 def get_invoice_summary(items, taxes):
 	summary_data = frappe._dict()
+
+	applied_tax_row_ids = []
 	for tax in taxes:
 		#Include only VAT charges.
 		if tax.charge_type == "Actual":
@@ -151,9 +153,12 @@ def get_invoice_summary(items, taxes):
 						tax_rate=tax.rate,
 						tax_amount=(reference_row.tax_amount * tax.rate) / 100,
 						net_amount=reference_row.tax_amount,
-						taxable_amount=reference_row.tax_amount,
+						taxable_amount=(reference_row.tax_amount if tax.charge_type == 'On Previous Row Amount'
+							else reference_row.total),
 						item_tax_rate={tax.account_head: tax.rate},
-						charges=True
+						charges=True,
+						type="Actual",
+						tax_row_name=tax.name
 					)
 				)
 
@@ -165,13 +170,21 @@ def get_invoice_summary(items, taxes):
 					item_tax_rate = json.loads(item.item_tax_rate)
 
 				if item_tax_rate and tax.account_head in item_tax_rate:
+					if (item.get("tax_row_name")
+						and item.get("tax_row_name") in applied_tax_row_ids):
+						continue
+
 					key = cstr(item_tax_rate[tax.account_head])
 					if key not in summary_data:
 						summary_data.setdefault(key, {"tax_amount": 0.0, "taxable_amount": 0.0,
 							"tax_exemption_reason": "", "tax_exemption_law": ""})
 
+					if item.get("type") and item.get("type") == "Actual":
+						applied_tax_row_ids.append(item.get("tax_row_name"))
+
 					summary_data[key]["tax_amount"] += item.tax_amount
 					summary_data[key]["taxable_amount"] += item.net_amount
+
 					if key == "0.0":
 						summary_data[key]["tax_exemption_reason"] = tax.tax_exemption_reason
 						summary_data[key]["tax_exemption_law"] = tax.tax_exemption_law
@@ -278,7 +291,11 @@ def prepare_and_attach_invoice(doc, replace=False):
 	progressive_name, progressive_number = get_progressive_name_and_number(doc, replace)
 
 	invoice = prepare_invoice(doc, progressive_number)
-	invoice_xml = frappe.render_template('erpnext/regional/italy/e-invoice.xml', context={"doc": invoice}, is_path=True)
+	item_meta = frappe.get_meta("Sales Invoice Item")
+
+	invoice_xml = frappe.render_template('erpnext/regional/italy/e-invoice.xml',
+		context={"doc": invoice, "item_meta": item_meta}, is_path=True)
+
 	invoice_xml = invoice_xml.replace("&", "&amp;")
 
 	xml_filename = progressive_name + ".xml"

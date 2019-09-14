@@ -78,6 +78,7 @@ class SalesInvoice(SellingController):
 			self.so_dn_required()
 
 		self.validate_proj_cust()
+		self.validate_pos_return()
 		self.validate_with_previous_doc()
 		self.validate_uom_is_integer("stock_uom", "stock_qty")
 		self.validate_uom_is_integer("uom", "qty")
@@ -166,6 +167,7 @@ class SalesInvoice(SellingController):
 		self.make_gl_entries()
 
 		if not self.is_return:
+			self.update_billing_status_for_zero_amount_refdoc("Delivery Note")
 			self.update_billing_status_for_zero_amount_refdoc("Sales Order")
 			self.check_credit_limit()
 
@@ -198,6 +200,16 @@ class SalesInvoice(SellingController):
 		if "Healthcare" in active_domains:
 			manage_invoice_submit_cancel(self, "on_submit")
 
+	def validate_pos_return(self):
+
+		if self.is_pos and self.is_return:
+			total_amount_in_payments = 0
+			for payment in self.payments:
+				total_amount_in_payments += payment.amount
+			invoice_total = self.rounded_total or self.grand_total
+			if total_amount_in_payments < invoice_total:
+				frappe.throw(_("Total payments amount can't be greater than {}".format(-invoice_total)))
+
 	def validate_pos_paid_amount(self):
 		if len(self.payments) == 0 and self.is_pos:
 			frappe.throw(_("At least one mode of payment is required for POS invoice."))
@@ -222,6 +234,7 @@ class SalesInvoice(SellingController):
 		self.update_billing_status_in_dn()
 
 		if not self.is_return:
+			self.update_billing_status_for_zero_amount_refdoc("Delivery Note")
 			self.update_billing_status_for_zero_amount_refdoc("Sales Order")
 			self.update_serial_no(in_cancel=True)
 
@@ -397,13 +410,17 @@ class SalesInvoice(SellingController):
 			if pos.get('account_for_change_amount'):
 				self.account_for_change_amount = pos.get('account_for_change_amount')
 
-			for fieldname in ('territory', 'naming_series', 'currency', 'taxes_and_charges', 'letter_head', 'tc_name',
-				'company', 'select_print_heading', 'cash_bank_account', 'company_address',
-				'write_off_account', 'write_off_cost_center', 'apply_discount_on', 'cost_center'):
+			for fieldname in ('territory', 'naming_series', 'currency', 'letter_head', 'tc_name',
+				'company', 'select_print_heading', 'cash_bank_account', 'write_off_account',
+				'write_off_cost_center', 'apply_discount_on', 'cost_center'):
 					if (not for_validate) or (for_validate and not self.get(fieldname)):
 						self.set(fieldname, pos.get(fieldname))
 
 			customer_price_list = frappe.get_value("Customer", self.customer, 'default_price_list')
+
+			for field in ['taxes_and_charges', 'company_address']:
+				if pos.get(field):
+					self.set(field, pos.get(field))
 
 			if not customer_price_list:
 				self.set('selling_price_list', pos.get('selling_price_list'))
