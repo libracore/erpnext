@@ -69,7 +69,47 @@ def check_create_permission(role, doctype, permlevel=0, perm_read=1, perm_write=
         perm.email = perm_email
         perm.save()
     return
-    
+
+def check_create_permission_page(page, roles):
+    perm_match = frappe.get_all("Custom Role", 
+        filters={'page': page},
+        fields=['name'])
+    system_roles = {}
+    for r in roles:
+        system_roles.append({'role': r})
+    if not perm_match:
+        # create role
+        frappe.get_doc({
+            "doctype": "Custom Role",
+            "page": page,
+            "roles": roles
+        }).insert(ignore_permissions=True)
+    else:
+        perm = frappe.get_doc("Custom Role", perm_match[0]['name'])
+        perm.roles = roles
+        prem.save()
+    return
+
+def check_create_permission_report(report, roles):
+    perm_match = frappe.get_all("Custom Role", 
+        filters={'report': report},
+        fields=['name'])
+    system_roles = {}
+    for r in roles:
+        system_roles.append({'role': r})
+    if not perm_match:
+        # create role
+        frappe.get_doc({
+            "doctype": "Custom Role",
+            "report": report,
+            "roles": roles
+        }).insert(ignore_permissions=True)
+    else:
+        perm = frappe.get_doc("Custom Role", perm_match[0]['name'])
+        perm.roles = roles
+        prem.save()
+    return
+
 # Initialise the permission scheme for Starter User and Manager
 def initialise_permissions():
     # general doctypes
@@ -95,5 +135,8 @@ def initialise_permissions():
     check_create_permission("Starter Manager", "Payment Entry", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
     check_create_permission("Starter Manager", "Item Price", perm_read=1, perm_write=1, perm_create=1)
     check_create_permission("Starter Manager", "Account", perm_read=1, perm_write=1, perm_create=1)
+    # pages and reports
+    check_create_permission_report("Accounts Receivable", ['Account Manager', 'Starter Manager', 'System Manager'])
+    check_create_permission_report("Accounts Receivable Summary", ['Account Manager', 'Starter Manager', 'System Manager'])
     
     return
