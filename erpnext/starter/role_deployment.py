@@ -74,11 +74,11 @@ def check_create_permission_page(page, roles):
     perm_match = frappe.get_all("Custom Role", 
         filters={'page': page},
         fields=['name'])
-    system_roles = []
-    for r in roles:
-        system_roles.append({'role': r})
     if not perm_match:
         # create role
+        system_roles = []
+        for r in roles:
+            system_roles.append({'role': r})
         frappe.get_doc({
             "doctype": "Custom Role",
             "page": page,
@@ -86,19 +86,21 @@ def check_create_permission_page(page, roles):
         }).insert(ignore_permissions=True)
     else:
         perm = frappe.get_doc("Custom Role", perm_match[0]['name'])
-        perm.roles = roles
-        prem.save()
+        perm.roles = []
+        for r in roles:
+            n = perm.append('roles', {'role': r})
+        perm.save()
     return
 
 def check_create_permission_report(report, roles):
     perm_match = frappe.get_all("Custom Role", 
         filters={'report': report},
         fields=['name'])
-    system_roles = []
-    for r in roles:
-        system_roles.append({'role': r})
     if not perm_match:
         # create role
+        system_roles = []
+        for r in roles:
+            system_roles.append({'role': r})
         frappe.get_doc({
             "doctype": "Custom Role",
             "report": report,
@@ -106,8 +108,10 @@ def check_create_permission_report(report, roles):
         }).insert(ignore_permissions=True)
     else:
         perm = frappe.get_doc("Custom Role", perm_match[0]['name'])
-        perm.roles = roles
-        prem.save()
+        perm.roles = []
+        for r in roles:
+            n = perm.append('roles', {'role': r})
+        perm.save()
     return
 
 # Initialise the permission scheme for Starter User and Manager
