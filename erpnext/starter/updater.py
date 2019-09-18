@@ -6,6 +6,7 @@ import frappe
 from erpnext.starter.role_deployment import create_roles, initialise_permissions
 from erpnext.starter.doctype_simplifier import initialise_simple_doctypes
 from erpnext.starter.print_format import initialise_letter_head
+from erpnext.starter.settings import initialise_settings
 
 def after_migrate():
     print("Starter updates...")
@@ -18,6 +19,8 @@ def initialise():
     print("Simplifying doctypes...")
     initialise_simple_doctypes()
     print("Creating letter head template...")
-    initialise_letter_head
+    initialise_letter_head()
+    print("Creating settings...")
+    initialise_settings()
     print("Done")
     return
