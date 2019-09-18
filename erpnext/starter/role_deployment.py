@@ -140,10 +140,15 @@ def initialise_permissions():
     check_create_permission("Starter Manager", "Item Price", perm_read=1, perm_write=1, perm_create=1)
     check_create_permission("Starter Manager", "Account", perm_read=1, perm_write=1, perm_create=1)
     check_create_permission("Starter Manager", "Payment Reminder", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
-    
+    # depending doctypes
+    check_create_permission("Starter User", "Company", perm_read=1)
+        
     # pages and reports
     check_create_permission_report("Accounts Receivable", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
     check_create_permission_report("Accounts Receivable Summary", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
+    check_create_permission_report("General Ledger", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
+    check_create_permission_report("Profit and Loss Statement", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
+    check_create_permission_report("Balance Sheet", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
     check_create_permission_page("bank_wizard", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
     
     return
