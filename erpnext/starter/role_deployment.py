@@ -74,7 +74,7 @@ def check_create_permission_page(page, roles):
     perm_match = frappe.get_all("Custom Role", 
         filters={'page': page},
         fields=['name'])
-    system_roles = {}
+    system_roles = []
     for r in roles:
         system_roles.append({'role': r})
     if not perm_match:
@@ -82,7 +82,7 @@ def check_create_permission_page(page, roles):
         frappe.get_doc({
             "doctype": "Custom Role",
             "page": page,
-            "roles": roles
+            "roles": system_roles
         }).insert(ignore_permissions=True)
     else:
         perm = frappe.get_doc("Custom Role", perm_match[0]['name'])
@@ -94,7 +94,7 @@ def check_create_permission_report(report, roles):
     perm_match = frappe.get_all("Custom Role", 
         filters={'report': report},
         fields=['name'])
-    system_roles = {}
+    system_roles = []
     for r in roles:
         system_roles.append({'role': r})
     if not perm_match:
@@ -102,7 +102,7 @@ def check_create_permission_report(report, roles):
         frappe.get_doc({
             "doctype": "Custom Role",
             "report": report,
-            "roles": roles
+            "roles": system_roles
         }).insert(ignore_permissions=True)
     else:
         perm = frappe.get_doc("Custom Role", perm_match[0]['name'])
@@ -138,8 +138,8 @@ def initialise_permissions():
     check_create_permission("Starter Manager", "Payment Reminder", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
     
     # pages and reports
-    check_create_permission_report("Accounts Receivable", ['Account Manager', 'Starter Manager', 'System Manager'])
-    check_create_permission_report("Accounts Receivable Summary", ['Account Manager', 'Starter Manager', 'System Manager'])
-    check_create_permission_page("Bank Wizard", ['Account Manager', 'Starter Manager', 'System Manager'])
+    check_create_permission_report("Accounts Receivable", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
+    check_create_permission_report("Accounts Receivable Summary", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
+    check_create_permission_page("bank_wizard", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
     
     return
