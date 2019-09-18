@@ -9,7 +9,7 @@ def check_create_letter_head():
         letter_head = frappe.get_doc("Letter Head", "Commercial")
     else:
         letter_head = frappe.get_doc({
-            "doctype": "Print Format",
+            "doctype": "Letter Head",
             "letter_head_name": "Commercial"
         }).insert(ignore_permissions=True)
     letter_head.content = """
