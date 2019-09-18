@@ -65,7 +65,7 @@ def check_create_permission(role, doctype, permlevel=0, perm_read=1, perm_write=
         perm.export = perm_export
         #perm.import = perm_import # reserved keyword, cannot be used
         perm.share = perm_share
-        #perm.print = perm_print # reserved keyword, cannot be used
+        perm.print = perm_print # reserved keyword, cannot be used
         perm.email = perm_email
         perm.save()
     return
@@ -132,14 +132,14 @@ def initialise_permissions():
     check_create_permission("Starter User", "Item Price", perm_read=1)
     check_create_permission("Starter User", "Price List", perm_read=1)
     check_create_permission("Starter User", "Item", perm_read=1)
-    check_create_permission("Starter Manager", "Quotation", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
-    check_create_permission("Starter Manager", "Sales Order", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
-    check_create_permission("Starter Manager", "Delivery Note", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
-    check_create_permission("Starter Manager", "Sales Invoice", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
+    check_create_permission("Starter Manager", "Quotation", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
+    check_create_permission("Starter Manager", "Sales Order", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
+    check_create_permission("Starter Manager", "Delivery Note", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
+    check_create_permission("Starter Manager", "Sales Invoice", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
     check_create_permission("Starter Manager", "Payment Entry", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
     check_create_permission("Starter Manager", "Item Price", perm_read=1, perm_write=1, perm_create=1)
     check_create_permission("Starter Manager", "Account", perm_read=1, perm_write=1, perm_create=1)
-    check_create_permission("Starter Manager", "Payment Reminder", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
+    check_create_permission("Starter Manager", "Payment Reminder", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
     # depending doctypes
     check_create_permission("Starter User", "Company", perm_read=1)
         
