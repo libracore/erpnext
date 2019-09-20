@@ -15,6 +15,7 @@ def hide_fields(doctype, fieldname, hidden=1):
     return
     
 def initialise_simple_doctypes():
+    # customer
     hide_fields("Customer", "pan")
     hide_fields("Customer", "from_lead")
     hide_fields("Customer", "default_bank_account")
@@ -25,5 +26,7 @@ def initialise_simple_doctypes():
     hide_fields("Customer", "sales_team_section")
     hide_fields("Customer", "account_manager")
     hide_fields("Customer", "is_frozen")
-    
+    # item
+    hide_fields("Item", "hub_publishing_sb")
+
     return
