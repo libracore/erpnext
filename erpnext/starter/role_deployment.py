@@ -121,6 +121,8 @@ def initialise_permissions():
     check_create_permission("Starter User", "Note", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
     # base crm    
     check_create_permission("Starter User", "Customer", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    check_create_permission("Starter User", "Address", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    check_create_permission("Starter User", "Contact", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
     # sales and orders
     check_create_permission("Starter Manager", "Item", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
     check_create_permission("Starter Manager", "Item Group", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
