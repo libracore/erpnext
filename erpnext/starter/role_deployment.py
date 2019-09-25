@@ -143,7 +143,14 @@ def initialise_permissions():
     check_create_permission("Starter Manager", "Account", perm_read=1, perm_write=1, perm_create=1)
     check_create_permission("Starter Manager", "Payment Reminder", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
     check_create_permission("Starter User", "Warehouse", perm_read=1)
-
+    check_create_permission("Starter User", "Sales Taxes and Charges Template", perm_read=1)
+    check_create_permission("Starter Manager", "Sales Taxes and Charges Template", perm_read=1, perm_write=1, perm_create=1)    
+    check_create_permission("Starter User", "Payment Terms Template", perm_read=1)
+    check_create_permission("Starter Manager", "Payment Terms Template", perm_read=1, perm_write=1, perm_create=1)
+    check_create_permission("Starter User", "Payment Terms", perm_read=1)
+    check_create_permission("Starter Manager", "Payment Terms", perm_read=1, perm_write=1, perm_create=1)
+    check_create_permission("Starter Manager", "Payment Reminder", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
+            
     # depending doctypes
     check_create_permission("Starter User", "Company", perm_read=1)
         
@@ -154,5 +161,8 @@ def initialise_permissions():
     check_create_permission_report("Profit and Loss Statement", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
     check_create_permission_report("Balance Sheet", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
     check_create_permission_page("bank_wizard", ['Accounts Manager', 'Accounts User', 'Starter Manager', 'System Manager'])
+    
+    # stock
+    check_create_permission("Starter Manager", "Stock Entry", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
     
     return

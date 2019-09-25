@@ -9,6 +9,7 @@ def initialise_settings():
     # stock settings
     # item_naming_by: "Naming Series"
     # item disable quick entry
+    # item: name mandatory
     
     # erpnextswiss settings
     # intermediate bank account
@@ -22,5 +23,18 @@ def initialise_settings():
     # delivery note: LS-.#####
     # sales invoice: RE-.#####
     # payment reminder: MNG-.#####
+    # stock entry: LG-.#####
     
+    # override country names EN > DE
+    
+    # address template: configure a proper template
+    
+    # quotation
+    # apply_discount_on: default_ Net Total
+
+    # sales order
+    # apply_discount_on: default_ Net Total
+    
+    # sales invoice
+    # apply_discount_on: default_ Net Total    
     return
