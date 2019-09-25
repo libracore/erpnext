@@ -4815,7 +4815,7 @@ apps/erpnext/erpnext/public/js/setup_wizard.js,Your Organization,Ihre Organisati
 apps/erpnext/erpnext/hr/doctype/leave_period/leave_period.py,"Skipping Leave Allocation for the following employees, as Leave Allocation records already exists against them. {0}","Überspringen Lassen Sie die Zuweisung für die folgenden Mitarbeiter, da für sie bereits Zuweisungsdatensätze vorhanden sind. {0}"
 DocType: Fee Component,Fees Category,Gebühren Kategorie
 apps/erpnext/erpnext/hr/doctype/employee/employee.py,Please enter relieving date.,Bitte Freistellungsdatum eingeben.
-apps/erpnext/erpnext/controllers/trends.py,Amt,Menge
+apps/erpnext/erpnext/controllers/trends.py,Amt,Betrag
 DocType: Travel Request,"Details of Sponsor (Name, Location)","Angaben zum Sponsor (Name, Ort)"
 DocType: Supplier Scorecard,Notify Employee,Mitarbeiter benachrichtigen
 apps/erpnext/erpnext/templates/generators/item/item_configure.js,Enter value betweeen {0} and {1},Wert zwischen {0} und {1} eingeben
