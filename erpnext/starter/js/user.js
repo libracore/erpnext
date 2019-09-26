@@ -10,8 +10,8 @@ function set_starter_desktop(frm) {
 	frappe.call({
 	  method: 'erpnext.starter.utils.set_starter_desktop',
 	  args: {
-		'user': frm.doc.name,
-	  }
+		'user': frm.doc.name
+	  },
 	  callback: function(response) {
 		frappe.show_alert(__("Desktop set"));
 	  }
