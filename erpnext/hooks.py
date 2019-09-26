@@ -24,7 +24,8 @@ doctype_js = {
 	"Communication": "public/js/communication.js",
 	"Event": "public/js/event.js",
 	"Website Theme": "public/js/website_theme.js",
-	"Newsletter": "public/js/newsletter.js"
+	"Newsletter": "public/js/newsletter.js",
+	"User": "starter/js/user.js"
 }
 
 welcome_email = "erpnext.setup.utils.welcome_email"
