@@ -7,9 +7,16 @@
 import frappe
 
 def hide_fields(doctype, fieldname, hidden=1):
-    field_matches = frappe.get_all("DocField", filters={'parent': doctype, 'fieldname': fieldname}, fields=['name'])
+    # hide core fields
+	field_matches = frappe.get_all("DocField", filters={'parent': doctype, 'fieldname': fieldname}, fields=['name'])
     if field_matches:
         field = frappe.get_doc("DocField", field_matches[0]['name'])
+        field.hidden = hidden
+        field.save()
+	# hide custom fields
+	field_matches = frappe.get_all("Custom Field", filters={'dt': doctype, 'fieldname': fieldname}, fields=['name'])
+    if field_matches:
+        field = frappe.get_doc("Custom Field", field_matches[0]['name'])
         field.hidden = hidden
         field.save()
     return
