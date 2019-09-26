@@ -8066,3 +8066,40 @@ DocType: Sales Invoice,Unpaid and Discounted,Unbezahlt und Rabattiert
 DocType: Employee,Short biography for website and other publications.,Kurzbiographie für die Webseite und andere Publikationen.
 Module: Definitions,Definitions,Definitionen
 Module: Finance,Finance,Buchhaltung
+DocType: Quotation,Your contact,Ihr Ansprechpartner
+DocType: Quotation,Customer number,Kundennummer
+DocType: Quotation,Add.,Zzgl.
+DocType: Quotation,Total amount,Betrag inkl. MWST
+DocType: Quotation,Rate,Einzelpreis
+DocType: Quotation,Valid until,Gültig bis
+DocType: Quotation,Rounding adjustment,Rundungsdifferenz
+DocType: Quotation,Amount ordered,Menge bestellt
+DocType: Quotation,Amount pending,Menge offen
+DocType: Quotation,Amount delivered,Menge geliefert
+DocType: Quotation,Document number,Belegnummer
+DocType: Quotation,Due till,Fällig
+DocType: Quotation,Reminder,Mahnstufe
+DocType: Quotation,Outstanding,Ausstehend
+DocType: Quotation,Balance in our favor,Saldo zu unseren Gunsten
+DocType: Quotation,Sales Invoice,Rechnung
+DocType: Quotation,Payable until,Zahlbar bis
+DocType: Quotation,Statement of account,Kontoauszug
+DocType: Quotation,"Please note our payment conditions.","Bitte beachtet unsere Zahlungskonditionen."
+DocType: Quotation,"Deduction of unjustified cash discount will be charged.","Unberechtigter Skontoabzug wird nachbelastet."
+DocType: Quotation,"Thank you for your understanding.","Vielen Dank für euer Verständnis."
+DocType: Quotation,Kind regards,Freundliche Grüsse
+DocType: Quotation,of,von
+DocType: Quotation,"Dear Sir or Madam","Sehr geehrte Damen und Herren"
+DocType: Quotation,"Below you will find the overview of your account.","Nachfolgend die Übersicht über den aktuellen Saldo."
+DocType: Quotation,"In case of any questions, please do not hesitate to contact us.","Bei Fragen stehen wir jederzeit gerne zur Verfügung."
+DocType: Quotation,Dear customer,Lieber Kunde
+DocType: Quotation,Please find enclosed,Anbei erhalten Sie
+DocType: Quotation,Thank you for your enquiry.,Vielen Dank für Ihre Anfrage.
+DocType: Quotation,"We are pleased to provide you the following offer","Gerne unterbreiten wir Ihnen folgendes Angebot"
+DocType: Quotation,"We hope our offer corresponds to your ideas and are happy to answer any questions.","Wir hoffen unser Angebot entspricht Ihren Vorstellungen und stehen bei Fragen gerne zur Verfügung."
+DocType: Quotation,"Thank you for your order, which we hereby confirm.","Vielen Dank für Ihren Auftrag, welchen wir hiermit gerne bestätigen."
+DocType: Quotation,Product code,Produktcode
+DocType: Quotation,"For payment details, please see footer.","Für Zahlungsdetails bitte die Fusszeile beachten."
+DocType: Quotation,Customer VAT nr.,Kunden MwSt. Nr.
+DocType: Quotation,Please prepare the following items for shipping:,Bitte folgende Artikel zum Versand vorbereiten:
+DocType: Quotation,Customs Import,Zolleinfuhr
