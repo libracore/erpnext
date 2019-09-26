@@ -8064,3 +8064,5 @@ DocType: Training Event,Training Program,Trainingsprogramm
 DocType: Account,Cash,Bargeld
 DocType: Sales Invoice,Unpaid and Discounted,Unbezahlt und Rabattiert
 DocType: Employee,Short biography for website and other publications.,Kurzbiographie für die Webseite und andere Publikationen.
+Module: Definitions,Definitions,Definitionen
+Module: Finance,Finance,Buchhaltung
