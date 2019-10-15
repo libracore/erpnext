@@ -117,14 +117,14 @@ def check_create_permission_report(report, roles):
 # Initialise the permission scheme for Starter User and Manager
 def initialise_permissions():
     # general doctypes
-    check_create_permission("Starter User", "ToDo", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
-    check_create_permission("Starter User", "Note", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    check_create_permission("Starter User", "ToDo", perm_read=1, perm_write=1, perm_create=1, perm_report=1, perm_delete=1)
+    check_create_permission("Starter User", "Note", perm_read=1, perm_write=1, perm_create=1, perm_report=1, perm_delete=1)
     # base crm    
     check_create_permission("Starter User", "Customer", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
-    check_create_permission("Starter User", "Address", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
-    check_create_permission("Starter User", "Contact", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    check_create_permission("Starter User", "Address", perm_read=1, perm_write=1, perm_create=1, perm_report=1, perm_delete=1)
+    check_create_permission("Starter User", "Contact", perm_read=1, perm_write=1, perm_create=1, perm_report=1, perm_delete=1)
     # sales and orders
-    check_create_permission("Starter Manager", "Item", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
+    check_create_permission("Starter Manager", "Item", perm_read=1, perm_write=1, perm_create=1, perm_report=1, perm_delete=1)
     check_create_permission("Starter Manager", "Item Group", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
     check_create_permission("Starter Manager", "Territory", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
     check_create_permission("Starter Manager", "Customer Group", perm_read=1, perm_write=1, perm_create=1, perm_report=1)
@@ -139,8 +139,8 @@ def initialise_permissions():
     check_create_permission("Starter Manager", "Delivery Note", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
     check_create_permission("Starter Manager", "Sales Invoice", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
     check_create_permission("Starter Manager", "Payment Entry", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1)
-    check_create_permission("Starter Manager", "Item Price", perm_read=1, perm_write=1, perm_create=1)
-    check_create_permission("Starter Manager", "Account", perm_read=1, perm_write=1, perm_create=1)
+    check_create_permission("Starter Manager", "Item Price", perm_read=1, perm_write=1, perm_create=1, perm_delete=1)
+    check_create_permission("Starter Manager", "Account", perm_read=1, perm_write=1, perm_create=1, perm_delete=1)
     check_create_permission("Starter Manager", "Payment Reminder", perm_read=1, perm_write=1, perm_create=1, perm_submit=1, perm_cancel=1, perm_amend=1, perm_report=1, perm_print=1)
     check_create_permission("Starter User", "Warehouse", perm_read=1)
     check_create_permission("Starter User", "Sales Taxes and Charges Template", perm_read=1)
