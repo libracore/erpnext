@@ -58,7 +58,7 @@ class SalesReport(Document):
             {'filter': "`item_name` LIKE 'Mineralit F%' OR `item_name` LIKE 'Mineralit G%'", 'description': 'Allg. Fassadenfarben'},
             {'filter': "`item_name` LIKE 'Anti%' OR `item_name` LIKE '%Universal-Nitroverdünnung' OR `item_name` LIKE '%Lackverdünnung%'", 'description': 'Zusatzprodukte'},
             {'filter': "`item_group` LIKE 'Dienstleistungen Abtönung'", 'description': 'Abtönpasten'},
-            {'filter': "`item_name` LIKE 'Kunststoff Eimer%' OR `item_name` LIKE '%Washi-Tec%' OR `item_name` LIKE 'Abdeckvlies Strongline%'", 'description': 'Non-Farben'},
+            {'filter': "`item_name` LIKE 'Kunststoff Eimer%' OR `item_name` LIKE '%Washi-Tec%' OR `item_name` LIKE 'Abdeckvlies Strongline%' OR `item_name` LIKE 'Microfaser-Walze-%' OR `item_name` LIKE 'Montagekleber'", 'description': 'Non-Farben'},
             {'filter': "`item_group` LIKE 'Dienstleistungen'", 'description': 'Dienstleistungen'}]
 
         for line_item in line_items:
