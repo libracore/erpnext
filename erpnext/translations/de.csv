@@ -1943,7 +1943,7 @@ DocType: GL Entry,Against,Zu
 DocType: Item Default,Sales Defaults,Verkaufsvorgaben
 DocType: Sales Order Item,Work Order Qty,Arbeitsauftragsmenge
 DocType: Item Default,Default Selling Cost Center,Standard-Vertriebskostenstelle
-apps/erpnext/erpnext/selling/page/point_of_sale/point_of_sale.js,Disc,Scheibe
+apps/erpnext/erpnext/selling/page/point_of_sale/point_of_sale.js,Disc,Rabatt
 DocType: Buying Settings,Material Transferred for Subcontract,Material für den Untervertrag übertragen
 apps/erpnext/erpnext/buying/report/procurement_tracker/procurement_tracker.py,Purchase Order Date,Bestelldatum
 DocType: Email Digest,Purchase Orders Items Overdue,Bestellungen überfällig
