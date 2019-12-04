@@ -72,7 +72,9 @@ def validate_party(filters):
 
 	if party:
 		if not party_type:
-			frappe.throw(_("To filter based on Party, select Party Type first"))
+			# race condition, on route this will always wrongly appear
+			#frappe.throw(_("To filter based on Party, select Party Type first"))
+			pass
 		else:
 			for d in party:
 				if not frappe.db.exists(party_type, d):
