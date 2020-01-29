@@ -1,4 +1,4 @@
-// Copyright (c) 2018, Frappe Technologies Pvt. Ltd. and Contributors
+// Copyright (c) 2018-2019, Frappe Technologies Pvt., libracore Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
 
 frappe.query_reports["General Ledger"] = {
@@ -21,7 +21,7 @@ frappe.query_reports["General Ledger"] = {
 			"fieldname":"from_date",
 			"label": __("From Date"),
 			"fieldtype": "Date",
-			"default": frappe.datetime.add_months(frappe.datetime.get_today(), -1),
+			"default": (new Date(new Date().getFullYear(), 0, 1)), /* use first day of current year */
 			"reqd": 1,
 			"width": "60px"
 		},

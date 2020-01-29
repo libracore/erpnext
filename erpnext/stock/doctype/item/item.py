@@ -102,7 +102,7 @@ class Item(WebsiteGenerator):
 		self.validate_conversion_factor()
 		self.validate_item_type()
 		self.check_for_active_boms()
-		self.fill_customer_code()
+		# self.fill_customer_code()	# this will fail with many customer refs (limit 140 chars!!)
 		self.check_item_tax()
 		self.validate_barcode()
 		self.validate_warehouse_for_reorder()
