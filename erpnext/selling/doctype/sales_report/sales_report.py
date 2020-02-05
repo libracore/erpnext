@@ -25,12 +25,12 @@ class SalesReport(Document):
         # prepare global variables
         today = datetime.now()
         self.date = today.strftime("%Y-%m-%d")
-        self.week = today.strftime("%W")
+        self.week = (int(today.strftime("%W")) + 1)			# compensate Swiss KW 
         self.title = "Sales Report " + str(self.date)
         self.sales_person = sales_person
         if sales_person != "%":
             self.title += " " + sales_person
-        _week = int(today.strftime("%W"))
+        _week = (int(today.strftime("%W")) + 1)			# compensate Swiss KW 
         _this_year = int(today.strftime("%Y"))
         _last_year = _this_year - 1
         self.this_year = _this_year
