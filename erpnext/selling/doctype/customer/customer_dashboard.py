@@ -43,7 +43,7 @@ def get_data():
 			},
 			{
 				'label': _('Subscriptions'),
-				'items': ['Subscription', 'Auto Repeat']
+				'items': ['Subscription']
 			}
 		]
 	}
