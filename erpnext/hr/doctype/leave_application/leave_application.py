@@ -549,8 +549,11 @@ def get_leaves_for_period(employee, leave_type, from_date, to_date):
 			if leave_entry.to_date > getdate(to_date):
 				leave_entry.to_date = to_date
 
-			leave_days += get_number_of_leave_days(employee, leave_type,
-				leave_entry.from_date, leave_entry.to_date) * -1
+			# Hotfix ISS-00191:
+			leave_days += leave_entry.leaves
+			# leave_days += get_number_of_leave_days(employee, leave_type,
+				# leave_entry.from_date, leave_entry.to_date) * -1
+			# /Hotfix ISS-00191
 
 	return leave_days
 
