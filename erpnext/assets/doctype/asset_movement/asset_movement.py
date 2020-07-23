@@ -92,6 +92,7 @@ class AssetMovement(Document):
 
 		if not self.serial_no:
 			frappe.db.set_value("Asset", self.asset, "location", location)
+            frappe.db.set_value("Asset", self.asset, "custodian", employee)
 
 		if not employee and self.purpose in ['Receipt', 'Transfer']:
 			employee = self.to_employee
