@@ -7221,7 +7221,7 @@ DocType: Education Settings,Enable LMS,LMS aktivieren
 DocType: Purchase Invoice,DUPLICATE FOR SUPPLIER,DUPLIKAT FÜR LIEFERANTEN
 apps/erpnext/erpnext/regional/doctype/gstr_3b_report/gstr_3b_report.js,Please save the report again to rebuild or update,"Speichern Sie den Bericht erneut, um ihn neu zu erstellen oder zu aktualisieren"
 DocType: Service Level Agreement,Response and Resolution Time,Reaktions- und Lösungszeit
-DocType: Asset,Custodian,Depotbank
+DocType: Asset,Custodian,Verantwortlich
 apps/erpnext/erpnext/config/retail.py,Point-of-Sale Profile,Verkaufsstellen-Profil
 apps/erpnext/erpnext/agriculture/doctype/soil_texture/soil_texture.py,{0} should be a value between 0 and 100,{0} sollte ein Wert zwischen 0 und 100 sein
 apps/erpnext/erpnext/hr/doctype/payroll_entry/payroll_entry.py,Payment of {0} from {1} to {2},Zahlung von {0} von {1} an {2}
