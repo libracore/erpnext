@@ -122,7 +122,10 @@ class Asset(AccountsController):
 			number_of_pending_depreciations = cint(d.total_number_of_depreciations) - \
 				cint(self.number_of_depreciations_booked)
 
-			has_pro_rata = self.check_is_pro_rata(d)
+			if self.ignore_pro_rata:
+				has_pro_rata = False
+			else:
+				has_pro_rata = self.check_is_pro_rata(d)
 
 			if has_pro_rata:
 				number_of_pending_depreciations += 1
@@ -165,6 +168,7 @@ class Asset(AccountsController):
 					skip_row = True
 
 				if depreciation_amount > 0:
+
 					self.append("schedules", {
 						"schedule_date": schedule_date,
 						"depreciation_amount": depreciation_amount,
