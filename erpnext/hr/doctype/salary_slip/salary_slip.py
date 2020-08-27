@@ -148,19 +148,20 @@ class SalarySlip(TransactionBase):
 				sa.from_date <= %(end_date)s or sa.from_date <= %(joining_date)s)"""
 		if self.payroll_frequency:
 			cond += """and ss.payroll_frequency = '%(payroll_frequency)s'""" % {"payroll_frequency": self.payroll_frequency}
-
+		
 		st_name = frappe.db.sql("""
-			select sa.salary_structure
+			select sa.salary_structure, sa.name
 			from `tabSalary Structure Assignment` sa join `tabSalary Structure` ss
 			where sa.salary_structure=ss.name
 				and sa.docstatus = 1 and ss.docstatus = 1 and ss.is_active ='Yes' %s
 			order by sa.from_date desc
 			limit 1
 		""" %cond, {'employee': self.employee, 'start_date': self.start_date,
-			'end_date': self.end_date, 'joining_date': joining_date})
-
+			'end_date': self.end_date, 'joining_date': joining_date}, as_dict=True)
+		
 		if st_name:
-			self.salary_structure = st_name[0][0]
+			self.salary_structure = st_name[0]["salary_structure"]
+			self.salary_structure_assignment = st_name[0]["name"]
 			return self.salary_structure
 
 		else:
@@ -323,8 +324,7 @@ class SalarySlip(TransactionBase):
 		'''Returns data for evaluating formula'''
 		data = frappe._dict()
 
-		data.update(frappe.get_doc("Salary Structure Assignment",
-			{"employee": self.employee, "salary_structure": self.salary_structure}).as_dict())
+		data.update(frappe.get_doc("Salary Structure Assignment", self.salary_structure_assignment).as_dict())
 
 		data.update(frappe.get_doc("Employee", self.employee).as_dict())
 		data.update(self.as_dict())
