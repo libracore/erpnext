@@ -791,10 +791,11 @@ class Item(WebsiteGenerator):
     def validate_uom(self):
         if not self.get("__islocal"):
             check_stock_uom_with_bin(self.name, self.stock_uom)
-        if self.has_variants:
+        allow_different_uom = cint(frappe.get_value('Stock Settings', 'Stock Settings', 'allow_different_stock_uom_for_variants')
+        if self.has_variants and allow_different_uom == 0:
             for d in frappe.db.get_all("Item", filters={"variant_of": self.name}):
                 check_stock_uom_with_bin(d.name, self.stock_uom)
-        if self.variant_of and cint(frappe.get_value('Stock Settings', 'Stock Settings', 'allow_different_stock_uom_for_variants')) == 0:
+        if self.variant_of and allow_different_uom == 0:
             template_uom = frappe.db.get_value("Item", self.variant_of, "stock_uom")
             if template_uom != self.stock_uom:
                 frappe.throw(_("Default Unit of Measure for Variant '{0}' must be same as in Template '{1}'")
