@@ -791,7 +791,7 @@ class Item(WebsiteGenerator):
     def validate_uom(self):
         if not self.get("__islocal"):
             check_stock_uom_with_bin(self.name, self.stock_uom)
-        allow_different_uom = cint(frappe.get_value('Stock Settings', 'Stock Settings', 'allow_different_stock_uom_for_variants')
+        allow_different_uom = cint(frappe.get_value('Stock Settings', 'Stock Settings', 'allow_different_stock_uom_for_variants'))
         if self.has_variants and allow_different_uom == 0:
             for d in frappe.db.get_all("Item", filters={"variant_of": self.name}):
                 check_stock_uom_with_bin(d.name, self.stock_uom)
