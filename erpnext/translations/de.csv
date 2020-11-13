@@ -889,7 +889,7 @@ DocType: Vital Signs,Blood Pressure (systolic),Blutdruck (systolisch)
 apps/erpnext/erpnext/controllers/buying_controller.py,{0} {1} is {2},{0} {1} ist {2}
 DocType: Item Price,Valid Upto,Gültig bis
 DocType: Leave Type,Expire Carry Forwarded Leaves (Days),Verfallsdatum für weitergeleitete Blätter (Tage)
-DocType: Training Event,Workshop,Werkstatt
+DocType: Training Event,Workshop,Workshop
 DocType: Supplier Scorecard Scoring Standing,Warn Purchase Orders,Warnung Bestellungen
 apps/erpnext/erpnext/utilities/user_progress.py,List a few of your customers. They could be organizations or individuals.,Bitte ein paar Kunden angeben. Dies können Firmen oder Einzelpersonen sein.
 DocType: Employee Tax Exemption Proof Submission,Rented From Date,Vermietet von Datum
