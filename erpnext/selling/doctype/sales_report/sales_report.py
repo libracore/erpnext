@@ -183,3 +183,24 @@ def bulk_update_last_purchase_rates():
         update_last_purchase_rates(se['name'])
     print("done")
     return
+
+""" Find anual DB1 for a customer """
+@frappe.whitelist()
+def get_customer_db1(customer):
+    today = datetime.now()
+    sql_query = """SELECT (IFNULL(SUM(`db1`), 0)) AS `db`
+                FROM `viewDelivery`
+                WHERE `docstatus` = 1
+                  AND `posting_date` >= '{year}-01-01'
+                  AND `customer` = '{customer}'
+                """.format(year=today.strftime("%Y"), customer=customer)
+    db1_ytd = frappe.db.sql(sql_query, as_dict=True)[0]['db']
+    sql_query = """SELECT (IFNULL(SUM(`db1`), 0)) AS `db`
+                FROM `viewDelivery`
+                WHERE `docstatus` = 1
+                  AND `posting_date` >= '{year}-01-01'
+                  AND `posting_date` <= '{year}-12-31'
+                  AND `customer` = '{customer}'
+                """.format(year=int(today.strftime("%Y")) - 1, customer=customer)
+    db1_py = frappe.db.sql(sql_query, as_dict=True)[0]['db']
+    return {'db1_ytd': db1_ytd, 'db1_py': db1_py}
