@@ -35,7 +35,7 @@ def get_data(filters):
   `raw`.`pricing_rule`,
   `tPR`.`discount_percentage` AS `discount_percentage`,
   ((100 - `tPR`.`discount_percentage`)/100) * `raw`.`price_list_rate` AS `discounted_rate`,
-  (`raw`.`price_list_rate` - (((100 - `tPR`.`discount_percentage`)/100) * `raw`.`price_list_rate`)) AS `db1`
+  ((((100 - `tPR`.`discount_percentage`)/100) * `raw`.`price_list_rate`) - `raw`.`last_purchase_rate`) AS `db1`
 FROM (
 SELECT 
   `tabItem`.`item_code` AS `item_code`,
