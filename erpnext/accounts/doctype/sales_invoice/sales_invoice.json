@@ -1276,7 +1276,7 @@
      "fieldtype": "Data",
      "label": "Print Language",
      "print_hide": 1,
-     "read_only": 1
+     "allow_on_submit": 1
     },
     {
      "fieldname": "column_break_84",
@@ -1566,7 +1566,7 @@
    "icon": "fa fa-file-text",
    "idx": 181,
    "is_submittable": 1,
-   "modified": "2019-07-04 22:05:03.474745",
+   "modified": "2020-11-22 19:28:03.474745",
    "modified_by": "Administrator",
    "module": "Accounts",
    "name": "Sales Invoice",

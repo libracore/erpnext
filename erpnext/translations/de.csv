@@ -626,7 +626,7 @@ DocType: Driver,Fleet Manager,Flottenverwalter
 apps/erpnext/erpnext/accounts/doctype/purchase_invoice/purchase_invoice.js,Row #{0}: {1} can not be negative for item {2},Row # {0}: {1} kann für Artikel nicht negativ sein {2}
 apps/erpnext/erpnext/setup/doctype/company/company.js,Wrong Password,Falsches Passwort
 DocType: POS Profile,Offline POS Settings,Offline-POS-Einstellungen
-DocType: Stock Entry Detail,Reference Purchase Receipt,Referenz Kaufbeleg
+DocType: Stock Entry Detail,Reference Purchase Receipt,Referenz Wareneingang
 DocType: Stock Reconciliation,MAT-RECO-.YYYY.-,MAT-RECO-.YYYY.-
 apps/erpnext/erpnext/templates/includes/cart/cart_items.html,Variant Of,Variante von
 apps/erpnext/erpnext/manufacturing/doctype/work_order/work_order.py,Completed Qty can not be greater than 'Qty to Manufacture',"Gefertigte Menge kann nicht größer sein als ""Menge für Herstellung"""
@@ -889,7 +889,7 @@ DocType: Vital Signs,Blood Pressure (systolic),Blutdruck (systolisch)
 apps/erpnext/erpnext/controllers/buying_controller.py,{0} {1} is {2},{0} {1} ist {2}
 DocType: Item Price,Valid Upto,Gültig bis
 DocType: Leave Type,Expire Carry Forwarded Leaves (Days),Verfallsdatum für weitergeleitete Blätter (Tage)
-DocType: Training Event,Workshop,Werkstatt
+DocType: Training Event,Workshop,Workshop
 DocType: Supplier Scorecard Scoring Standing,Warn Purchase Orders,Warnung Bestellungen
 apps/erpnext/erpnext/utilities/user_progress.py,List a few of your customers. They could be organizations or individuals.,Bitte ein paar Kunden angeben. Dies können Firmen oder Einzelpersonen sein.
 DocType: Employee Tax Exemption Proof Submission,Rented From Date,Vermietet von Datum
@@ -1004,14 +1004,14 @@ apps/erpnext/erpnext/config/accounting.py,Setup cheque dimensions for printing,S
 apps/erpnext/erpnext/hr/doctype/payroll_entry/payroll_entry.js,Create Salary Slips,Gehaltszettel erstellen
 DocType: Vital Signs,Bloated,Aufgebläht
 DocType: Salary Slip,Salary Slip Timesheet,Gehaltszettel Timesheet
-apps/erpnext/erpnext/controllers/buying_controller.py,Supplier Warehouse mandatory for sub-contracted Purchase Receipt,Lieferantenlager notwendig für Kaufbeleg aus Unteraufträgen
+apps/erpnext/erpnext/controllers/buying_controller.py,Supplier Warehouse mandatory for sub-contracted Purchase Receipt,Lieferantenlager notwendig für Wareneingang aus Unteraufträgen
 DocType: Item Price,Valid From,Gültig ab
 apps/erpnext/erpnext/public/js/hub/components/ReviewArea.vue,Your rating: ,Ihre Bewertung:
 DocType: Sales Invoice,Total Commission,Gesamtprovision
 DocType: Tax Withholding Account,Tax Withholding Account,Steuerrückbehaltkonto
 DocType: Pricing Rule,Sales Partner,Vertriebspartner
 apps/erpnext/erpnext/config/buying.py,All Supplier scorecards.,Alle Lieferanten-Scorecards.
-DocType: Buying Settings,Purchase Receipt Required,Kaufbeleg notwendig
+DocType: Buying Settings,Purchase Receipt Required,Wareneingang notwendig
 DocType: Sales Invoice,Rail,Schiene
 apps/erpnext/erpnext/buying/report/procurement_tracker/procurement_tracker.py,Actual Cost,Tatsächliche Kosten
 DocType: Item,Website Image,Website-Image
@@ -1146,7 +1146,7 @@ apps/erpnext/erpnext/accounts/page/bank_reconciliation/bank_reconciliation.js,{0
 apps/erpnext/erpnext/accounts/utils.py,{0} '{1}' not in Fiscal Year {2},{0} '{1}' nicht im Geschäftsjahr {2}
 DocType: Buying Settings,Settings for Buying Module,Einstellungen Einkauf
 apps/erpnext/erpnext/assets/doctype/asset_movement/asset_movement.py,Asset {0} does not belong to company {1},Vermögenswert {0} gehört nicht zu Unternehmen {1}.
-apps/erpnext/erpnext/stock/doctype/landed_cost_voucher/landed_cost_voucher.js,Please enter Purchase Receipt first,Bitte zuerst Kaufbeleg eingeben
+apps/erpnext/erpnext/stock/doctype/landed_cost_voucher/landed_cost_voucher.js,Please enter Purchase Receipt first,Bitte zuerst Wareneingang eingeben
 DocType: Buying Settings,Supplier Naming By,Bezeichnung des Lieferanten nach
 DocType: Activity Type,Default Costing Rate,Standardkosten
 apps/erpnext/erpnext/accounts/doctype/sales_invoice/sales_invoice.js,Maintenance Schedule,Wartungsplan
@@ -1585,7 +1585,7 @@ DocType: Expense Claim,Expenses,Ausgaben
 DocType: Service Level,Support Hours,Unterstützungsstunden
 apps/erpnext/erpnext/accounts/report/accounts_receivable/accounts_receivable.py,Delivery Notes,Lieferscheine
 DocType: Item Variant Attribute,Item Variant Attribute,Artikelvariantenattribut
-,Purchase Receipt Trends,Trendanalyse Kaufbelege
+,Purchase Receipt Trends,Trendanalyse Wareneingänge
 DocType: Payroll Entry,Bimonthly,Zweimonatlich
 DocType: Vehicle Service,Brake Pad,Bremsklotz
 DocType: Fertilizer,Fertilizer Contents,Dünger Inhalt
@@ -1854,7 +1854,7 @@ DocType: Employee Tax Exemption Proof Submission,Total Eligible HRA Exemption,Ge
 apps/erpnext/erpnext/regional/india/utils.py,Invalid GSTIN! A GSTIN must have 15 characters.,Ungültige GSTIN! Eine GSTIN muss aus 15 Zeichen bestehen.
 DocType: Assessment Plan,Evaluate,Bewerten
 DocType: Workstation,Net Hour Rate,Nettostundensatz
-DocType: Landed Cost Purchase Receipt,Landed Cost Purchase Receipt,Einstandspreis-Kaufbeleg
+DocType: Landed Cost Purchase Receipt,Landed Cost Purchase Receipt,Wareneingangspreis
 DocType: Supplier Scorecard Period,Criteria,Kriterien
 DocType: Packing Slip Item,Packing Slip Item,Position auf dem Packzettel
 DocType: Purchase Invoice,Cash/Bank Account,Bar-/Bankkonto
@@ -1903,7 +1903,7 @@ apps/erpnext/erpnext/healthcare/doctype/inpatient_record/inpatient_record.js,Adm
 apps/erpnext/erpnext/setup/page/welcome_to_erpnext/welcome_to_erpnext.html,Go to the Desktop and start using ERPNext,Gehen Sie zum Desktop und starten Sie ERPNext
 apps/erpnext/erpnext/templates/pages/order.js,Pay Remaining,Verbleibende Bezahlung
 DocType: Purchase Invoice Item,Manufacturer,Hersteller
-DocType: Landed Cost Item,Purchase Receipt Item,Kaufbeleg-Artikel
+DocType: Landed Cost Item,Purchase Receipt Item,Wareneingang-Artikel
 DocType: Leave Allocation,Total Leaves Encashed,Insgesamt Blätter umkränzt
 DocType: POS Profile,Sales Invoice Payment,Ausgangsrechnung-Zahlungen
 DocType: Quality Inspection Template,Quality Inspection Template Name,Name der Qualitätsinspektionsvorlage
@@ -1930,7 +1930,7 @@ DocType: Lead,Organization Name,Firmenname
 DocType: Support Settings,Show Latest Forum Posts,Zeige aktuelle Forum Beiträge
 DocType: Tax Rule,Shipping State,Versandstatus
 ,Projected Quantity as Source,Projizierte Menge als Quelle
-apps/erpnext/erpnext/stock/doctype/landed_cost_voucher/landed_cost_voucher.py,Item must be added using 'Get Items from Purchase Receipts' button,"Artikel müssen über die Schaltfläche ""Artikel von Kaufbeleg übernehmen"" hinzugefügt werden"
+apps/erpnext/erpnext/stock/doctype/landed_cost_voucher/landed_cost_voucher.py,Item must be added using 'Get Items from Purchase Receipts' button,"Artikel müssen über die Schaltfläche ""Artikel von Wareneingang übernehmen"" hinzugefügt werden"
 apps/erpnext/erpnext/stock/doctype/delivery_note/delivery_note.js,Delivery Trip,Liefertrip
 DocType: Student,A-,A-
 DocType: Share Transfer,Transfer Type,Übertragungsart
@@ -1943,7 +1943,7 @@ DocType: GL Entry,Against,Zu
 DocType: Item Default,Sales Defaults,Verkaufsvorgaben
 DocType: Sales Order Item,Work Order Qty,Arbeitsauftragsmenge
 DocType: Item Default,Default Selling Cost Center,Standard-Vertriebskostenstelle
-apps/erpnext/erpnext/selling/page/point_of_sale/point_of_sale.js,Disc,Scheibe
+apps/erpnext/erpnext/selling/page/point_of_sale/point_of_sale.js,Disc,Rabatt
 DocType: Buying Settings,Material Transferred for Subcontract,Material für den Untervertrag übertragen
 apps/erpnext/erpnext/buying/report/procurement_tracker/procurement_tracker.py,Purchase Order Date,Bestelldatum
 DocType: Email Digest,Purchase Orders Items Overdue,Bestellungen überfällig
@@ -2116,7 +2116,7 @@ apps/erpnext/erpnext/selling/page/point_of_sale/point_of_sale.js,Please select a
 DocType: Leave Policy,Leave Allocations,Zuteilungen verlassen
 DocType: Job Card,Started Time,Startzeit
 DocType: Purchase Invoice Item,Purchase Invoice Item,Eingangsrechnungs-Artikel
-apps/erpnext/erpnext/stock/doctype/landed_cost_voucher/landed_cost_voucher.js,Stock Ledger Entries and GL Entries are reposted for the selected Purchase Receipts,Buchungen auf das Lagerbuch und Hauptbuch-Buchungen werden für die gewählten Kaufbelege umgebucht
+apps/erpnext/erpnext/stock/doctype/landed_cost_voucher/landed_cost_voucher.js,Stock Ledger Entries and GL Entries are reposted for the selected Purchase Receipts,Buchungen auf das Lagerbuch und Hauptbuch-Buchungen werden für die gewählten Wareneingänge umgebucht
 DocType: Student Report Generation Tool,Assessment Terms,Bewertungsbedingungen
 apps/erpnext/erpnext/stock/report/bom_search/bom_search.js,Item 1,Position 1
 DocType: Holiday,Holiday,Urlaub
@@ -2421,7 +2421,7 @@ DocType: Pricing Rule,UOM,Maßeinheit
 DocType: Employee Tax Exemption Declaration,Annual HRA Exemption,Jährliche Befreiung von der Steuerbehörde
 DocType: Rename Tool,Utilities,Dienstprogramme
 DocType: POS Profile,Accounting,Buchhaltung
-DocType: Asset,Purchase Receipt Amount,Kaufbelegbetrag
+DocType: Asset,Purchase Receipt Amount,Wareneingangsbetrag
 DocType: Employee Separation,Exit Interview Summary,Interview-Zusammenfassung beenden
 apps/erpnext/erpnext/public/js/utils/serial_no_batch_selector.js,Please select batches for batched item ,Bitte wählen Sie Chargen für Chargen
 DocType: Asset,Depreciation Schedules,Abschreibungen Termine
@@ -2824,7 +2824,7 @@ DocType: Healthcare Settings,Default Medical Code Standard,Default Medical Code 
 DocType: Purchase Invoice Item,HSN/SAC,HSN / SAC
 DocType: Project Template Task,Project Template Task,Projektvorlagenaufgabe
 DocType: Accounts Settings,Over Billing Allowance (%),Mehr als Abrechnungsbetrag (%)
-apps/erpnext/erpnext/accounts/doctype/purchase_invoice/purchase_invoice.py,Purchase Receipt {0} is not submitted,Kaufbeleg {0} wurde nicht übertragen
+apps/erpnext/erpnext/accounts/doctype/purchase_invoice/purchase_invoice.py,Purchase Receipt {0} is not submitted,Wareneingang {0} wurde nicht übertragen
 DocType: Company,Default Payable Account,Standard-Verbindlichkeitenkonto
 apps/erpnext/erpnext/config/website.py,"Settings for online shopping cart such as shipping rules, price list etc.","Einstellungen zum Warenkorb, z.B. Versandregeln, Preislisten usw."
 DocType: Purchase Receipt,MAT-PRE-.YYYY.-,MAT-PRE-.JJJJ.-
@@ -3164,7 +3164,7 @@ DocType: Sales Order Item,Ensure Delivery Based on Produced Serial No,"Stellen S
 DocType: Vital Signs,Furry,Pelzig
 apps/erpnext/erpnext/assets/doctype/asset/depreciation.py,Please set 'Gain/Loss Account on Asset Disposal' in Company {0},"Bitte setzen Sie ""Gewinn-/Verlustrechnung auf die Veräußerung von Vermögenswerten"" für Unternehmen {0}"
 apps/erpnext/erpnext/public/js/hub/pages/Item.vue,Add to Featured Item,Zum empfohlenen Artikel hinzufügen
-DocType: Landed Cost Voucher,Get Items From Purchase Receipts,Artikel vom Kaufbeleg übernehmen
+DocType: Landed Cost Voucher,Get Items From Purchase Receipts,Artikel vom Wareneingang übernehmen
 DocType: Serial No,Creation Date,Erstelldatum
 apps/erpnext/erpnext/assets/doctype/asset_movement/asset_movement.py,Target Location is required for the asset {0},Ziel-Lagerort für Vermögenswert {0} erforderlich.
 DocType: GSTR 3B Report,November,November
@@ -3882,7 +3882,7 @@ DocType: Cash Flow Mapping,Is Income Tax Liability,Ist Einkommensteuerpflicht
 DocType: Grading Scale Interval,Grade Description,Grade Beschreibung
 DocType: Clinical Procedure,Is Invoiced,Wird in Rechnung gestellt
 apps/erpnext/erpnext/setup/doctype/company/company.js,Create Tax Template,Steuervorlage erstellen
-DocType: Stock Entry,Purchase Receipt No,Kaufbeleg Nr.
+DocType: Stock Entry,Purchase Receipt No,Wareneingang Nr.
 apps/erpnext/erpnext/accounts/doctype/account/chart_of_accounts/verified/standard_chart_of_accounts_with_account_number.py,Earnest Money,Anzahlung
 DocType: Sales Invoice, Shipping Bill Number,Versandscheinnummer
 apps/erpnext/erpnext/projects/doctype/timesheet/timesheet.js,Create Salary Slip,Gehaltsabrechnung erstellen
@@ -4309,7 +4309,7 @@ DocType: Bank Reconciliation,Include POS Transactions,POS-Transaktionen einschli
 DocType: Quality Action,Corrective/Preventive,Korrektur / Vorbeugung
 DocType: Purchase Invoice,Inter Company Invoice Reference,Unternehmensübergreifende Rechnungsreferenz
 apps/erpnext/erpnext/selling/page/point_of_sale/point_of_sale.js,Please select an item in the cart,Bitte wählen Sie einen Artikel im Warenkorb
-DocType: Landed Cost Voucher,Purchase Receipt Items,Kaufbeleg-Artikel
+DocType: Landed Cost Voucher,Purchase Receipt Items,Wareneingang-Artikel
 apps/erpnext/erpnext/regional/italy/utils.py,Please set Tax ID for the customer '%s',Bitte legen Sie die Steuernummer für den Kunden &#39;% s&#39; fest
 apps/erpnext/erpnext/config/help.py,Customizing Forms,Formulare anpassen
 apps/erpnext/erpnext/setup/setup_wizard/operations/install_fixtures.py,Arrear,Zahlungsrückstand
@@ -4362,7 +4362,7 @@ DocType: Employee,Relieving Date,Freistellungsdatum
 DocType: Purchase Invoice,Total Quantity,Gesamtmenge
 apps/erpnext/erpnext/accounts/doctype/pricing_rule/pricing_rule.js,"Pricing Rule is made to overwrite Price List / define discount percentage, based on some criteria.",Die Preisregel überschreibt die Preisliste. Bitte einen Rabattsatz aufgrund bestimmter Kriterien definieren.
 apps/erpnext/erpnext/support/doctype/issue/issue.py,Service Level Agreement has been changed to {0}.,Service Level Agreement wurde in {0} geändert.
-DocType: Serial No,Warehouse can only be changed via Stock Entry / Delivery Note / Purchase Receipt,Lager kann nur über Lagerbuchung / Lieferschein / Kaufbeleg geändert werden
+DocType: Serial No,Warehouse can only be changed via Stock Entry / Delivery Note / Purchase Receipt,Lager kann nur über Lagerbuchung / Lieferschein / Wareneingang geändert werden
 DocType: Employee Education,Class / Percentage,Klasse / Anteil
 DocType: Shopify Settings,Shopify Settings,Einstellungen bearbeiten
 DocType: Amazon MWS Settings,Market Place ID,Marktplatz-ID
@@ -4793,7 +4793,7 @@ apps/erpnext/erpnext/accounts/doctype/account/account.js,Non-Group to Group,Non-
 DocType: Employee,ERPNext User,ERPNext Benutzer
 apps/erpnext/erpnext/education/doctype/student_group_creation_tool/student_group_creation_tool.py,Batch is mandatory in row {0},Batch ist obligatorisch in Zeile {0}
 DocType: Company,Default Buying Terms,Standard-Einkaufsbedingungen
-DocType: Purchase Receipt Item Supplied,Purchase Receipt Item Supplied,Kaufbeleg-Artikel geliefert
+DocType: Purchase Receipt Item Supplied,Purchase Receipt Item Supplied,Wareneingangsartikel geliefert
 DocType: Amazon MWS Settings,Enable Scheduled Synch,Aktivieren Sie Geplante Synchronisierung
 apps/erpnext/erpnext/projects/report/daily_timesheet_summary/daily_timesheet_summary.py,To Datetime,Bis Datum und Uhrzeit
 apps/erpnext/erpnext/config/crm.py,Logs for maintaining sms delivery status,Protokolle über den SMS-Versand
@@ -4927,7 +4927,7 @@ apps/erpnext/erpnext/config/buying.py,Template of terms or contract.,Vorlage fü
 DocType: Bank Account,Address and Contact,Adresse und Kontakt
 DocType: Vital Signs,Hyper,Hyper
 DocType: Cheque Print Template,Is Account Payable,Ist Konto zahlbar
-apps/erpnext/erpnext/accounts/doctype/purchase_invoice/purchase_invoice.py,Stock cannot be updated against Purchase Receipt {0},Auf nicht gegen Kaufbeleg aktualisiert werden {0}
+apps/erpnext/erpnext/accounts/doctype/purchase_invoice/purchase_invoice.py,Stock cannot be updated against Purchase Receipt {0},Auf nicht gegen Wareneingang aktualisiert werden {0}
 apps/erpnext/erpnext/stock/doctype/delivery_note/delivery_note_list.js,Create Delivery Trip,Erstelle Auslieferungsfahrt
 DocType: Support Settings,Auto close Issue after 7 days,Auto schließen Ausgabe nach 7 Tagen
 apps/erpnext/erpnext/hr/doctype/leave_allocation/leave_allocation.py,"Leave cannot be allocated before {0}, as leave balance has already been carry-forwarded in the future leave allocation record {1}","Da der Resturlaub bereits in den zukünftigen Datensatz für Urlaube {1} übertragen wurde, kann der Urlaub nicht vor {0} zugeteilt werden."
@@ -5853,7 +5853,7 @@ DocType: Drug Prescription,Hour,Stunde
 DocType: Restaurant Order Entry,Last Sales Invoice,Letzte Verkaufsrechnung
 apps/erpnext/erpnext/selling/doctype/sales_order/sales_order.py,Please select Qty against item {0},Bitte wählen Sie Menge für Artikel {0}
 apps/erpnext/erpnext/hr/report/loan_repayment/loan_repayment.py,EMI,EMI
-apps/erpnext/erpnext/stock/doctype/serial_no/serial_no.py,New Serial No cannot have Warehouse. Warehouse must be set by Stock Entry or Purchase Receipt,"""Neue Seriennummer"" kann keine Lagerangabe enthalten. Lagerangaben müssen durch eine Lagerbuchung oder einen Kaufbeleg erstellt werden"
+apps/erpnext/erpnext/stock/doctype/serial_no/serial_no.py,New Serial No cannot have Warehouse. Warehouse must be set by Stock Entry or Purchase Receipt,"""Neue Seriennummer"" kann keine Lagerangabe enthalten. Lagerangaben müssen durch eine Lagerbuchung oder einen Wareneingang erstellt werden"
 DocType: Lead,Lead Type,Lead-Typ
 apps/erpnext/erpnext/utilities/activation.py,Create Quotation,Angebot erstellen
 apps/erpnext/erpnext/hr/doctype/leave_application/leave_application.py,You are not authorized to approve leaves on Block Dates,"Sie sind nicht berechtigt, Urlaube für geblockte Termine zu genehmigen"
@@ -6079,7 +6079,7 @@ apps/erpnext/erpnext/controllers/buying_controller.py,Reserved Warehouse is mand
 ,Inactive Customers,Inaktive Kunden
 DocType: Student Admission Program,Maximum Age,Maximales Alter
 apps/erpnext/erpnext/regional/doctype/gst_settings/gst_settings.py,Please wait 3 days before resending the reminder.,"Bitte warten Sie 3 Tage, bevor Sie die Erinnerung erneut senden."
-DocType: Landed Cost Voucher,Purchase Receipts,Kaufbelege
+DocType: Landed Cost Voucher,Purchase Receipts,Wareneingänge
 apps/erpnext/erpnext/accounts/page/bank_reconciliation/bank_reconciliation.js,"Upload a bank statement, link or reconcile a bank account","Laden Sie einen Kontoauszug hoch, verknüpfen oder synchronisieren Sie ein Bankkonto"
 apps/erpnext/erpnext/accounts/doctype/pricing_rule/pricing_rule.js,How Pricing Rule is applied?,Wie wird die Preisregel angewandt?
 DocType: Stock Entry,Delivery Note No,Lieferschein-Nummer
@@ -6592,7 +6592,7 @@ DocType: Opportunity,Opportunity Date,Datum der Chance
 DocType: Employee,Health Insurance Provider,Krankenversicherer
 DocType: Service Level,Holiday List (ignored during SLA calculation),Feiertagsliste (wird bei der SLA-Berechnung ignoriert)
 DocType: Products Settings,Show Availability Status,Verfügbarkeitsstatus anzeigen
-DocType: Purchase Receipt,Return Against Purchase Receipt,Zurück zum Kaufbeleg
+DocType: Purchase Receipt,Return Against Purchase Receipt,Zurück zum Wareneingang
 DocType: Water Analysis,Person Responsible,Verantwortliche Person
 DocType: Request for Quotation Item,Request for Quotation Item,Angebotsanfrage Artikel
 DocType: Purchase Order,To Bill,Abrechnen
@@ -7111,7 +7111,7 @@ DocType: Program,Program Abbreviation,Programm Abkürzung
 apps/erpnext/erpnext/accounts/report/general_ledger/general_ledger.py,Group by Voucher (Consolidated),Gruppieren nach Beleg (konsolidiert)
 DocType: HR Settings,Encrypt Salary Slips in Emails,Gehaltsabrechnungen in E-Mails verschlüsseln
 DocType: Question,Multiple Correct Answer,Mehrfach richtige Antwort
-apps/erpnext/erpnext/stock/doctype/landed_cost_voucher/landed_cost_voucher.js,Charges are updated in Purchase Receipt against each item,Kosten werden im Kaufbeleg für jede Position aktualisiert
+apps/erpnext/erpnext/stock/doctype/landed_cost_voucher/landed_cost_voucher.js,Charges are updated in Purchase Receipt against each item,Kosten werden im Wareneingang für jede Position aktualisiert
 DocType: Warranty Claim,Resolved By,Entschieden von
 apps/erpnext/erpnext/healthcare/doctype/patient_encounter/patient_encounter.js,Schedule Discharge,Zeitplan Entlassung
 apps/erpnext/erpnext/accounts/report/bank_reconciliation_statement/bank_reconciliation_statement.py,Cheques and Deposits incorrectly cleared,Schecks und Kautionen fälschlicherweise gelöscht
@@ -7221,7 +7221,7 @@ DocType: Education Settings,Enable LMS,LMS aktivieren
 DocType: Purchase Invoice,DUPLICATE FOR SUPPLIER,DUPLIKAT FÜR LIEFERANTEN
 apps/erpnext/erpnext/regional/doctype/gstr_3b_report/gstr_3b_report.js,Please save the report again to rebuild or update,"Speichern Sie den Bericht erneut, um ihn neu zu erstellen oder zu aktualisieren"
 DocType: Service Level Agreement,Response and Resolution Time,Reaktions- und Lösungszeit
-DocType: Asset,Custodian,Depotbank
+DocType: Asset,Custodian,Verantwortlich
 apps/erpnext/erpnext/config/retail.py,Point-of-Sale Profile,Verkaufsstellen-Profil
 apps/erpnext/erpnext/agriculture/doctype/soil_texture/soil_texture.py,{0} should be a value between 0 and 100,{0} sollte ein Wert zwischen 0 und 100 sein
 apps/erpnext/erpnext/hr/doctype/payroll_entry/payroll_entry.py,Payment of {0} from {1} to {2},Zahlung von {0} von {1} an {2}
@@ -7259,7 +7259,7 @@ DocType: Lead,Converted,umgewandelt
 DocType: Item,Has Serial No,Hat Seriennummer
 DocType: Stock Entry Detail,PO Supplied Item,PO geliefertes Einzelteil
 DocType: Employee,Date of Issue,Ausstellungsdatum
-apps/erpnext/erpnext/accounts/doctype/purchase_invoice/purchase_invoice.py,"As per the Buying Settings if Purchase Reciept Required == 'YES', then for creating Purchase Invoice, user need to create Purchase Receipt first for item {0}","Gemäß den Einkaufseinstellungen, wenn ""Kaufbeleg erforderlich"" auf ""ja"" gesetzt ist, muss der Benutzer für die Erstellung einer Einkaufsrechnung zunächst einen Einkaufsbeleg für Artikel {0} erstellen."
+apps/erpnext/erpnext/accounts/doctype/purchase_invoice/purchase_invoice.py,"As per the Buying Settings if Purchase Reciept Required == 'YES', then for creating Purchase Invoice, user need to create Purchase Receipt first for item {0}","Gemäß den Einkaufseinstellungen, wenn ""Wareneingang erforderlich"" auf ""ja"" gesetzt ist, muss der Benutzer für die Erstellung einer Einkaufsrechnung zunächst einen Einkaufsbeleg für Artikel {0} erstellen."
 apps/erpnext/erpnext/selling/doctype/sales_order/sales_order.py,Row #{0}: Set Supplier for item {1},Zeile #{0}: Lieferanten für Artikel {1} einstellen
 DocType: Global Defaults,Default Distance Unit,Standardabstandseinheit
 apps/erpnext/erpnext/projects/doctype/timesheet/timesheet.py,Row {0}: Hours value must be greater than zero.,Row {0}: Stunden-Wert muss größer als Null sein.
@@ -7564,7 +7564,7 @@ apps/erpnext/erpnext/crm/doctype/email_campaign/email_campaign.py,Please set up 
 apps/erpnext/erpnext/config/buying.py,Price List master.,Preislisten-Vorlagen
 DocType: Task,Review Date,Überprüfungsdatum
 DocType: BOM,Allow Alternative Item,Alternative Artikel zulassen
-apps/erpnext/erpnext/stock/doctype/purchase_receipt/purchase_receipt.js,Purchase Receipt doesn't have any Item for which Retain Sample is enabled.,"Der Kaufbeleg enthält keinen Artikel, für den die Option &quot;Probe aufbewahren&quot; aktiviert ist."
+apps/erpnext/erpnext/stock/doctype/purchase_receipt/purchase_receipt.js,Purchase Receipt doesn't have any Item for which Retain Sample is enabled.,"Der Wareneingang enthält keinen Artikel, für den die Option &quot;Probe aufbewahren&quot; aktiviert ist."
 apps/erpnext/erpnext/accounts/report/accounts_receivable/accounts_receivable.py,Invoice Grand Total,Rechnungssumme
 DocType: Company,Series for Asset Depreciation Entry (Journal Entry),Serie für Abschreibungs-Eintrag (Journaleintrag)
 DocType: Membership,Member Since,Mitglied seit
@@ -7946,7 +7946,7 @@ DocType: Employee,"Here you can maintain family details like name and occupation
 DocType: Academic Term,Term End Date,Semesterende
 DocType: Purchase Invoice,Taxes and Charges Deducted (Company Currency),Steuern und Gebühren abgezogen (Unternehmenswährung)
 DocType: Item Group,General Settings,Grundeinstellungen
-DocType: Article,Article,Artikel
+DocType: Article,Article,Publikation
 apps/erpnext/erpnext/setup/doctype/currency_exchange/currency_exchange.py,From Currency and To Currency cannot be same,Von-Währung und Bis-Währung können nicht gleich sein
 DocType: Taxable Salary Slab,Percent Deduction,Prozentabzug
 DocType: GL Entry,To Rename,Umbenennen
@@ -8064,3 +8064,5 @@ DocType: Training Event,Training Program,Trainingsprogramm
 DocType: Account,Cash,Bargeld
 DocType: Sales Invoice,Unpaid and Discounted,Unbezahlt und Rabattiert
 DocType: Employee,Short biography for website and other publications.,Kurzbiographie für die Webseite und andere Publikationen.
+DocType: Employee,Left,Verlassen
+DocType: Contact,Numbers,Nummern

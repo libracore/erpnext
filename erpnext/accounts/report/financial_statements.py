@@ -467,4 +467,11 @@ def get_columns(periodicity, period_list, accumulated_values=1, company=None):
 				"width": 150
 			})
 
+	# add blank column to make space for scrollbar
+	columns.append({
+				"fieldname": "scrollbar",
+				"label": _(""),
+				"fieldtype": "Data",
+				"width": 20
+			})
 	return columns

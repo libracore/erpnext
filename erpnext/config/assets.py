@@ -11,7 +11,7 @@ def get_data():
 					"name": "Asset",
 					"onboard": 1,
 				},
-				{
+                {
 					"type": "doctype",
 					"name": "Location",
 					"onboard": 1,
@@ -73,7 +73,14 @@ def get_data():
 			"label": _("Reports"),
 			"icon": "fa fa-table",
 			"items": [
-				{
+                {
+					"type": "report",
+					"name": "Asset Summary",
+					"doctype": "Asset",
+					"is_query_report": True,
+					"dependencies": ["Asset"]
+				},
+                {
 					"type": "report",
 					"name": "Asset Depreciation Ledger",
 					"doctype": "Asset",

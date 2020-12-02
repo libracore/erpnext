@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2015-2019, Frappe Technologies Pvt. Ltd., libracore and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
@@ -72,7 +72,9 @@ def validate_party(filters):
 
 	if party:
 		if not party_type:
-			frappe.throw(_("To filter based on Party, select Party Type first"))
+			# race condition, on route this will always wrongly appear
+			#frappe.throw(_("To filter based on Party, select Party Type first"))
+			pass
 		else:
 			for d in party:
 				if not frappe.db.exists(party_type, d):
@@ -376,19 +378,22 @@ def get_columns(filters):
 			"label": _("Debit ({0})".format(currency)),
 			"fieldname": "debit",
 			"fieldtype": "Float",
-			"width": 100
+			"width": 100,
+            "precision": 2
 		},
 		{
 			"label": _("Credit ({0})".format(currency)),
 			"fieldname": "credit",
 			"fieldtype": "Float",
-			"width": 100
+			"width": 100,
+            "precision": 2
 		},
 		{
 			"label": _("Balance ({0})".format(currency)),
 			"fieldname": "balance",
 			"fieldtype": "Float",
-			"width": 130
+			"width": 130,
+            "precision": 2
 		}
 	]
 
