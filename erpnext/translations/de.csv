@@ -1644,7 +1644,7 @@ DocType: Supplier Quotation,Is Subcontracted,Ist Untervergabe
 DocType: Restaurant Table,Minimum Seating,Mindestbestuhlung
 DocType: Item Attribute,Item Attribute Values,Artikel-Attributwerte
 DocType: Examination Result,Examination Result,Prüfungsergebnis
-apps/erpnext/erpnext/accounts/doctype/purchase_invoice/purchase_invoice.js,Purchase Receipt,Kaufbeleg
+apps/erpnext/erpnext/accounts/doctype/purchase_invoice/purchase_invoice.js,Purchase Receipt,Wareneingang
 ,Received Items To Be Billed,"Von Lieferanten gelieferte Artikel, die noch abgerechnet werden müssen"
 DocType: Purchase Invoice,Accounting Dimensions,Buchhaltung Dimensionen
 ,Subcontracted Raw Materials To Be Transferred,An Subunternehmer vergebene Rohstoffe
@@ -5934,7 +5934,7 @@ apps/erpnext/erpnext/accounts/report/cash_flow/cash_flow.py,Net Change in Equity
 apps/erpnext/erpnext/healthcare/doctype/healthcare_service_unit_type/healthcare_service_unit_type.py,Not permitted. Please disable the Service Unit Type,Nicht gestattet. Bitte deaktivieren Sie den Typ der Serviceeinheit
 apps/erpnext/erpnext/crm/doctype/lead/lead.py,"Email Address must be unique, already exists for {0}","E-Mail-Adresse muss eindeutig sein, diese wird bereits für {0} verwendet"
 DocType: Serial No,AMC Expiry Date,Verfalldatum des jährlichen Wartungsvertrags
-DocType: Asset,Receipt,Kaufbeleg
+DocType: Asset,Receipt,Wareneingang
 ,Sales Register,Übersicht über den Umsatz
 DocType: Daily Work Summary Group,Send Emails At,Die E-Mails senden um
 DocType: Quotation Lost Reason,Quotation Lost Reason,Grund für verlorenes Angebotes
