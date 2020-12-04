@@ -20,13 +20,25 @@ def get_columns():
         {"label": _("Pricing Rule"), "fieldname": "pricing_rule", "fieldtype": "Link", "options": "Pricing Rule", "width": 120},
         {"label": _("Discount"), "fieldname": "discount_percentage", "fieldtype": "Percent", "width": 100},
         {"label": _("Rate"), "fieldname": "discounted_rate", "fieldtype": "Currency", "width": 100},
-        {"label": _("DB1"), "fieldname": "db1", "fieldtype": "Currency", "width": 100}
+        {"label": _("DB1"), "fieldname": "db1", "fieldtype": "Currency", "width": 100},
+        {"label": _("DB1 [%]"), "fieldname": "db1_percent", "fieldtype": "Percent", "width": 100}
     ]
 
 def get_data(filters):
     if not filters.item_group:
         filters.item_group = "%"
     sql_query = """SELECT 
+  `aggr`.`item_code`,
+  `aggr`.`item_name`,
+  `aggr`.`item_group`,
+  `aggr`.`stock_uom`,
+  `aggr`.`price_list_rate`,
+  `aggr`.`pricing_rule`,
+  `aggr`.`discount_percentage`,
+  `aggr`.`discounted_rate`,
+  `aggr`.`db1`,
+  ((`aggr`.`db1` / `aggr`.`discounted_rate`) * 100) AS `db1_percent` 
+  FROM (SELECT 
   `raw`.`item_code`,
   `raw`.`item_name`,
   `raw`.`item_group`,
@@ -60,7 +72,8 @@ SELECT
 FROM `tabItem`
 WHERE `tabItem`.`is_sales_item` = 1
   AND `tabItem`.`item_group` LIKE "{item_group}") AS `raw`
-LEFT JOIN `tabPricing Rule` AS `tPR` ON `tPR`.`name` = `raw`.`pricing_rule`;""".format(customer=filters.customer, item_group=filters.item_group)
+LEFT JOIN `tabPricing Rule` AS `tPR` ON `tPR`.`name` = `raw`.`pricing_rule`
+) AS `aggr`;""".format(customer=filters.customer, item_group=filters.item_group)
     data = frappe.db.sql(sql_query, as_list=True)
     return data
 
