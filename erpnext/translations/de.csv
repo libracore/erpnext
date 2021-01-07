@@ -8070,3 +8070,5 @@ Report: Asset Summary,Asset Summary,Vermögensübersicht
 Report: Asset Summary,Closing Value,Abschlusswert
 Report: Asset Summary,Duration (Years),Dauer (Jahre)
 Report: Asset Summary,Show Sums,Summen anzeigen
+DocType: Asset,Sell Asset,Vermögenswert verkaufen
+DocType: Asset,Scrap Asset,Vermögenswert verschrotten
