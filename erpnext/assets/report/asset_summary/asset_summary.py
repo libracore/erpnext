@@ -22,7 +22,7 @@ def get_columns(filters):
             "width": 120
         },
         {
-            "label": _("Asset name"),
+            "label": _("Asset Name"),
             "fieldname": "asset_name",
             "fieldtype": "Data",
             "width": 120
@@ -35,70 +35,54 @@ def get_columns(filters):
             "width": 120
         },
         {
-            "label": _("Net Asset value as on") + " " + formatdate(filters.day_before_from_date),
-            "fieldname": "net_asset_value_as_on_from_date",
-            "fieldtype": "Currency",
-            "width": 200
+            "label": _("Account"),
+            "fieldname": "account",
+            "fieldtype": "Link",
+            "options": "Account",
+            "width": 120
         },
         {
-            "label": _("Net Asset value as on") + " " + formatdate(filters.to_date),
-            "fieldname": "net_asset_value_as_on_to_date",
-            "fieldtype": "Currency",
-            "width": 200
+            "label": _("Purchase Date"),
+            "fieldname": "purchase_date",
+            "fieldtype": "Date",
+            "width": 80
         },
         {
-            "label": _("Cost as on") + " " + formatdate(filters.day_before_from_date),
-            "fieldname": "cost_as_on_from_date",
+            "label": _("Purchase Amount"),
+            "fieldname": "gross_purchase_amount",
             "fieldtype": "Currency",
-            "width": 140
+            "width": 100
         },
         {
-            "label": _("Cost of New Purchase"),
-            "fieldname": "cost_of_new_purchase",
-            "fieldtype": "Currency",
-            "width": 140
-        },
-        {
-            "label": _("Cost of Sold Asset"),
-            "fieldname": "cost_of_sold_asset",
-            "fieldtype": "Currency",
-            "width": 140
-        },
-        {
-            "label": _("Cost of Scrapped Asset"),
-            "fieldname": "cost_of_scrapped_asset",
-            "fieldtype": "Currency",
-            "width": 140
-        },
-        {
-            "label": _("Cost as on") + " " + formatdate(filters.to_date),
-            "fieldname": "cost_as_on_to_date",
-            "fieldtype": "Currency",
-            "width": 140
-        },
-        {
-            "label": _("Accumulated Depreciation as on") + " " + formatdate(filters.day_before_from_date),
+            "label": _("Accumulated Depreciation"),
             "fieldname": "accumulated_depreciation_as_on_from_date",
             "fieldtype": "Currency",
-            "width": 270
+            "width": 100
         },
         {
-            "label": _("Depreciation Amount during the period"),
+            "label": _("Opening Value"),
+            "fieldname": "net_asset_value_as_on_from_date",
+            "fieldtype": "Currency",
+            "width": 100
+        },
+        {
+            "label": _("Depreciation"),
             "fieldname": "depreciation_amount_during_the_period",
             "fieldtype": "Currency",
-            "width": 240
+            "width": 100
         },
         {
-            "label": _("Depreciation Eliminated due to disposal of assets"),
-            "fieldname": "depreciation_eliminated_during_the_period",
+            "label": _("Closing Value"),
+            "fieldname": "net_asset_value_as_on_to_date",
             "fieldtype": "Currency",
-            "width": 300
+            "width": 100
         },
         {
-            "label": _("Accumulated Depreciation as on") + " " + formatdate(filters.to_date),
-            "fieldname": "accumulated_depreciation_as_on_to_date",
-            "fieldtype": "Currency",
-            "width": 270
+            "label": _("Duration (Years)"),
+            "fieldname": "duration_years",
+            "fieldtype": "Float",
+            "precision": 2,
+            "width": 100
         }
     ]
 
@@ -109,12 +93,42 @@ def get_data(filters):
     asset_costs = get_asset_costs(assets, filters)
     asset_depreciations = get_accumulated_depreciations(assets, filters)
     
+    intermediate_sum = None
+    
     for asset in assets:
+        if not intermediate_sum or intermediate_sum['asset_category'] != asset.asset_category:
+            if intermediate_sum and intermediate_sum['asset_category'] != asset.asset_category:
+                # insert summation row
+                row = {
+                    'asset_name': _("Sum"),
+                    'asset_category': intermediate_sum['asset_category'],
+                    'gross_purchase_amount': intermediate_sum['gross_purchase_amount'], 
+                    'accumulated_depreciation_as_on_from_date': intermediate_sum['accumulated_depreciation_as_on_from_date'],
+                    'net_asset_value_as_on_from_date': intermediate_sum['net_asset_value_as_on_from_date'],
+                    'depreciation_amount_during_the_period': intermediate_sum['depreciation_amount_during_the_period'],
+                    'net_asset_value_as_on_to_date': intermediate_sum['net_asset_value_as_on_to_date']
+                }
+                if filters.show_sums:
+                    data.append(row)
+                
+            # reset counter
+            intermediate_sum = {'asset_category': asset.asset_category, 
+                'gross_purchase_amount': 0, 
+                'accumulated_depreciation_as_on_from_date': 0,
+                'net_asset_value_as_on_from_date': 0,
+                'depreciation_amount_during_the_period': 0,
+                'net_asset_value_as_on_to_date': 0
+            }
+        
         # create new row for this asset
         row = {
             'asset': asset.name,
             'asset_name': asset.asset_name, 
-            'asset_category': asset.asset_category
+            'asset_category': asset.asset_category,
+            'account': asset.account,
+            'purchase_date': asset.purchase_date,
+            'gross_purchase_amount': asset.gross_purchase_amount,
+            'duration_years': asset.duration_years
         }
         # insert costs from this asset
         row.update(asset_costs.get(asset.name))
@@ -135,24 +149,50 @@ def get_data(filters):
     
         data.append(row)        
         
+        # increase conter
+        intermediate_sum['gross_purchase_amount'] += row['gross_purchase_amount']
+        intermediate_sum['accumulated_depreciation_as_on_from_date'] += row['accumulated_depreciation_as_on_from_date']
+        intermediate_sum['net_asset_value_as_on_from_date'] += row['net_asset_value_as_on_from_date']
+        intermediate_sum['depreciation_amount_during_the_period'] += row['depreciation_amount_during_the_period']
+        intermediate_sum['net_asset_value_as_on_to_date'] += row['net_asset_value_as_on_to_date']
+
+    # insert last sum
+    row = {
+        'asset_name': _("Sum"),
+        'asset_category': intermediate_sum['asset_category'],
+        'gross_purchase_amount': intermediate_sum['gross_purchase_amount'], 
+        'accumulated_depreciation_as_on_from_date': intermediate_sum['accumulated_depreciation_as_on_from_date'],
+        'net_asset_value_as_on_from_date': intermediate_sum['net_asset_value_as_on_from_date'],
+        'depreciation_amount_during_the_period': intermediate_sum['depreciation_amount_during_the_period'],
+        'net_asset_value_as_on_to_date': intermediate_sum['net_asset_value_as_on_to_date']
+    }
+    if filters.show_sums:
+        data.append(row)
+    
     return data
         
 def get_assets(filters):
     if not filters.asset_category:
         filters.asset_category = "%"
     return frappe.db.sql("""
-        SELECT `name`, 
-               `asset_name`,
-               `asset_category`, 
-               `purchase_date`, 
-               `gross_purchase_amount`, 
-               `disposal_date`, 
-               `status`
+        SELECT `tabAsset`.`name`, 
+               `tabAsset`.`asset_name`,
+               `tabAsset`.`asset_category`, 
+               `tabAsset`.`purchase_date`, 
+               `tabAsset`.`gross_purchase_amount`, 
+               `tabAsset`.`disposal_date`, 
+               `tabAsset`.`status`,
+               (SELECT `tC`.`fixed_asset_account` FROM `tabAsset Category Account` AS `tC`
+                WHERE `tC`.`parent` = `tabAsset Category`.`name` ORDER BY `tC`.`idx` ASC LIMIT 1) AS `account`,
+               (SELECT (`tF`.`total_number_of_depreciations` * `tF`.`frequency_of_depreciation` / 12) FROM `tabAsset Finance Book` AS `tF`
+                WHERE `tF`.`parent` = `tabAsset`.`name` ORDER BY `tF`.`idx` ASC LIMIT 1) AS `duration_years`
         FROM `tabAsset` 
-        WHERE `docstatus` = 1 
-          AND `company`=%s 
-          AND `purchase_date` <= %s
-          AND `asset_category` LIKE %s;""", 
+        LEFT JOIN `tabAsset Category` ON `tabAsset`.`asset_category` = `tabAsset Category`.`name`
+        WHERE `tabAsset`.`docstatus` = 1 
+          AND `tabAsset`.`company`=%s 
+          AND `tabAsset`.`purchase_date` <= %s
+          AND `tabAsset`.`asset_category` LIKE %s
+        ORDER BY `tabAsset`.`asset_category` ASC, `tabAsset`.`name` ASC;""", 
         (filters.company, filters.to_date, filters.asset_category), as_dict=1)
 
 """ This function computes the cost per asset """

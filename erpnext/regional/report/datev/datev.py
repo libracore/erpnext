@@ -8,93 +8,133 @@ Provide a report and downloadable CSV according to the German DATEV format.
   all required columns. Used to import the data into the DATEV Software.
 """
 from __future__ import unicode_literals
+
 import json
-from six import string_types
 import frappe
+from six import string_types
+
 from frappe import _
-import pandas as pd
+from erpnext.accounts.utils import get_fiscal_year
+from erpnext.regional.germany.utils.datev.datev_csv import zip_and_download, get_datev_csv
+from erpnext.regional.germany.utils.datev.datev_constants import Transactions, DebtorsCreditors, AccountNames
+
+COLUMNS = [
+	{
+		"label": "Umsatz (ohne Soll/Haben-Kz)",
+		"fieldname": "Umsatz (ohne Soll/Haben-Kz)",
+		"fieldtype": "Currency",
+		"width": 100
+	},
+	{
+		"label": "Soll/Haben-Kennzeichen",
+		"fieldname": "Soll/Haben-Kennzeichen",
+		"fieldtype": "Data",
+		"width": 100
+	},
+	{
+		"label": "Konto",
+		"fieldname": "Konto",
+		"fieldtype": "Data",
+		"width": 100
+	},
+	{
+		"label": "Gegenkonto (ohne BU-Schlüssel)",
+		"fieldname": "Gegenkonto (ohne BU-Schlüssel)",
+		"fieldtype": "Data",
+		"width": 100
+	},
+	{
+		"label": "Belegdatum",
+		"fieldname": "Belegdatum",
+		"fieldtype": "Date",
+		"width": 100
+	},
+	{
+		"label": "Belegfeld 1",
+		"fieldname": "Belegfeld 1",
+		"fieldtype": "Data",
+		"width": 150
+	},
+	{
+		"label": "Buchungstext",
+		"fieldname": "Buchungstext",
+		"fieldtype": "Text",
+		"width": 300
+	},
+	{
+		"label": "Beleginfo - Art 1",
+		"fieldname": "Beleginfo - Art 1",
+		"fieldtype": "Link",
+		"options": "DocType",
+		"width": 100
+	},
+	{
+		"label": "Beleginfo - Inhalt 1",
+		"fieldname": "Beleginfo - Inhalt 1",
+		"fieldtype": "Dynamic Link",
+		"options": "Beleginfo - Art 1",
+		"width": 150
+	},
+	{
+		"label": "Beleginfo - Art 2",
+		"fieldname": "Beleginfo - Art 2",
+		"fieldtype": "Link",
+		"options": "DocType",
+		"width": 100
+	},
+	{
+		"label": "Beleginfo - Inhalt 2",
+		"fieldname": "Beleginfo - Inhalt 2",
+		"fieldtype": "Dynamic Link",
+		"options": "Beleginfo - Art 2",
+		"width": 150
+	}
+]
 
 
 def execute(filters=None):
 	"""Entry point for frappe."""
-	validate_filters(filters)
-	result = get_gl_entries(filters, as_dict=0)
-	columns = get_columns()
+	data = []
+	if filters and validate(filters):
+		data = get_transactions(filters, as_dict=0)
 
-	return columns, result
-
-
-def validate_filters(filters):
-	"""Make sure all mandatory filters are present."""
-	if not filters.get('company'):
-		frappe.throw(_('{0} is mandatory').format(_('Company')))
-
-	if not filters.get('from_date'):
-		frappe.throw(_('{0} is mandatory').format(_('From Date')))
-
-	if not filters.get('to_date'):
-		frappe.throw(_('{0} is mandatory').format(_('To Date')))
+	return COLUMNS, data
 
 
-def get_columns():
-	"""Return the list of columns that will be shown in query report."""
-	columns = [
-		{
-			"label": "Umsatz (ohne Soll/Haben-Kz)",
-			"fieldname": "Umsatz (ohne Soll/Haben-Kz)",
-			"fieldtype": "Currency",
-		},
-		{
-			"label": "Soll/Haben-Kennzeichen",
-			"fieldname": "Soll/Haben-Kennzeichen",
-			"fieldtype": "Data",
-		},
-		{
-			"label": "Kontonummer",
-			"fieldname": "Kontonummer",
-			"fieldtype": "Data",
-		},
-		{
-			"label": "Gegenkonto (ohne BU-Schlüssel)",
-			"fieldname": "Gegenkonto (ohne BU-Schlüssel)",
-			"fieldtype": "Data",
-		},
-		{
-			"label": "Belegdatum",
-			"fieldname": "Belegdatum",
-			"fieldtype": "Date",
-		},
-		{
-			"label": "Buchungstext",
-			"fieldname": "Buchungstext",
-			"fieldtype": "Text",
-		},
-		{
-			"label": "Beleginfo - Art 1",
-			"fieldname": "Beleginfo - Art 1",
-			"fieldtype": "Data",
-		},
-		{
-			"label": "Beleginfo - Inhalt 1",
-			"fieldname": "Beleginfo - Inhalt 1",
-			"fieldtype": "Data",
-		},
-		{
-			"label": "Beleginfo - Art 2",
-			"fieldname": "Beleginfo - Art 2",
-			"fieldtype": "Data",
-		},
-		{
-			"label": "Beleginfo - Inhalt 2",
-			"fieldname": "Beleginfo - Inhalt 2",
-			"fieldtype": "Data",
-		}
-	]
+def validate(filters):
+	"""Make sure all mandatory filters and settings are present."""
+	company = filters.get('company')
+	if not company:
+		frappe.throw(_('<b>Company</b> is a mandatory filter.'))
 
-	return columns
+	from_date = filters.get('from_date')
+	if not from_date:
+		frappe.throw(_('<b>From Date</b> is a mandatory filter.'))
+
+	to_date = filters.get('to_date')
+	if not to_date:
+		frappe.throw(_('<b>To Date</b> is a mandatory filter.'))
+
+	validate_fiscal_year(from_date, to_date, company)
+
+	if not frappe.db.exists('DATEV Settings', filters.get('company')):
+		frappe.log_error(_('Please create {} for Company {}.').format(
+			'<a href="desk#List/DATEV%20Settings/List">{}</a>'.format(_('DATEV Settings')),
+			frappe.bold(filters.get('company'))
+		))
+		return False
+
+	return True
 
 
-def get_gl_entries(filters, as_dict):
+def validate_fiscal_year(from_date, to_date, company):
+	from_fiscal_year = get_fiscal_year(date=from_date, company=company)
+	to_fiscal_year = get_fiscal_year(date=to_date, company=company)
+	if from_fiscal_year != to_fiscal_year:
+		frappe.throw(_('Dates {} and {} are not in the same fiscal year.').format(from_date, to_date))
+
+
+def get_transactions(filters, as_dict=1):
 	"""
 	Get a list of accounting entries.
 
@@ -105,8 +145,9 @@ def get_gl_entries(filters, as_dict):
 	filters -- dict of filters to be passed to the sql query
 	as_dict -- return as list of dicts [0,1]
 	"""
+	filter_by_voucher = 'AND gl.voucher_type = %(voucher_type)s' if filters.get('voucher_type') else ''
 	gl_entries = frappe.db.sql("""
-		select
+		SELECT
 
 			/* either debit or credit amount; always positive */
 			case gl.debit when 0 then gl.credit else gl.debit end as 'Umsatz (ohne Soll/Haben-Kz)',
@@ -115,19 +156,20 @@ def get_gl_entries(filters, as_dict):
 			case gl.debit when 0 then 'H' else 'S' end as 'Soll/Haben-Kennzeichen',
 
 			/* account number or, if empty, party account number */
-			coalesce(acc.account_number, acc_pa.account_number) as 'Kontonummer',
+			coalesce(acc.account_number, acc_pa.account_number) as 'Konto',
 
 			/* against number or, if empty, party against number */
 			coalesce(acc_against.account_number, acc_against_pa.account_number) as 'Gegenkonto (ohne BU-Schlüssel)',
 			
 			gl.posting_date as 'Belegdatum',
-			gl.remarks as 'Buchungstext',
+			gl.voucher_no as 'Belegfeld 1',
+			LEFT(gl.remarks, 60) as 'Buchungstext',
 			gl.voucher_type as 'Beleginfo - Art 1',
 			gl.voucher_no as 'Beleginfo - Inhalt 1',
 			gl.against_voucher_type as 'Beleginfo - Art 2',
 			gl.against_voucher as 'Beleginfo - Inhalt 2'
 
-		from `tabGL Entry` gl
+		FROM `tabGL Entry` gl
 
 			/* Statistisches Konto (Debitoren/Kreditoren) */
 			left join `tabParty Account` pa
@@ -150,201 +192,137 @@ def get_gl_entries(filters, as_dict):
 			left join `tabAccount` acc_against_pa 
 			on pa.account = acc_against_pa.name
 
-		where gl.company = %(company)s 
-		and DATE(gl.posting_date) >= %(from_date)s
-		and DATE(gl.posting_date) <= %(to_date)s
-		order by 'Belegdatum', gl.voucher_no""", filters, as_dict=as_dict)
+		WHERE gl.company = %(company)s 
+		AND DATE(gl.posting_date) >= %(from_date)s
+		AND DATE(gl.posting_date) <= %(to_date)s
+		{}
+		ORDER BY 'Belegdatum', gl.voucher_no""".format(filter_by_voucher), filters, as_dict=as_dict)
 
 	return gl_entries
 
 
-def get_datev_csv(data):
+def get_customers(filters):
 	"""
-	Fill in missing columns and return a CSV in DATEV Format.
+	Get a list of Customers.
 
 	Arguments:
-	data -- array of dictionaries
+	filters -- dict of filters to be passed to the sql query
 	"""
-	columns = [
-		# All possible columns must tbe listed here, because DATEV requires them to
-		# be present in the CSV.
-		# ---
-		# Umsatz
-		"Umsatz (ohne Soll/Haben-Kz)",
-		"Soll/Haben-Kennzeichen",
-		"WKZ Umsatz",
-		"Kurs",
-		"Basis-Umsatz",
-		"WKZ Basis-Umsatz",
-		# Konto/Gegenkonto
-		"Kontonummer",
-		"Gegenkonto (ohne BU-Schlüssel)",
-		"BU-Schlüssel",
-		# Datum
-		"Belegdatum",
-		# Belegfelder
-		"Belegfeld 1",
-		"Belegfeld 2",
-		# Weitere Felder
-		"Skonto",
-		"Buchungstext",
-		# OPOS-Informationen
-		"Postensperre",
-		"Diverse Adressnummer",
-		"Geschäftspartnerbank",
-		"Sachverhalt",
-		"Zinssperre",
-		# Digitaler Beleg
-		"Beleglink",
-		# Beleginfo
-		"Beleginfo - Art 1",
-		"Beleginfo - Inhalt 1",
-		"Beleginfo - Art 2",
-		"Beleginfo - Inhalt 2",
-		"Beleginfo - Art 3",
-		"Beleginfo - Inhalt 3",
-		"Beleginfo - Art 4",
-		"Beleginfo - Inhalt 4",
-		"Beleginfo - Art 5",
-		"Beleginfo - Inhalt 5",
-		"Beleginfo - Art 6",
-		"Beleginfo - Inhalt 6",
-		"Beleginfo - Art 7",
-		"Beleginfo - Inhalt 7",
-		"Beleginfo - Art 8",
-		"Beleginfo - Inhalt 8",
-		# Kostenrechnung
-		"Kost 1 - Kostenstelle",
-		"Kost 2 - Kostenstelle",
-		"Kost-Menge",
-		# Steuerrechnung
-		"EU-Land u. UStID",
-		"EU-Steuersatz",
-		"Abw. Versteuerungsart",
-		# L+L Sachverhalt
-		"Sachverhalt L+L",
-		"Funktionsergänzung L+L",
-		# Funktion Steuerschlüssel 49
-		"BU 49 Hauptfunktionstyp",
-		"BU 49 Hauptfunktionsnummer",
-		"BU 49 Funktionsergänzung",
-		# Zusatzinformationen
-		"Zusatzinformation - Art 1",
-		"Zusatzinformation - Inhalt 1",
-		"Zusatzinformation - Art 2",
-		"Zusatzinformation - Inhalt 2",
-		"Zusatzinformation - Art 3",
-		"Zusatzinformation - Inhalt 3",
-		"Zusatzinformation - Art 4",
-		"Zusatzinformation - Inhalt 4",
-		"Zusatzinformation - Art 5",
-		"Zusatzinformation - Inhalt 5",
-		"Zusatzinformation - Art 6",
-		"Zusatzinformation - Inhalt 6",
-		"Zusatzinformation - Art 7",
-		"Zusatzinformation - Inhalt 7",
-		"Zusatzinformation - Art 8",
-		"Zusatzinformation - Inhalt 8",
-		"Zusatzinformation - Art 9",
-		"Zusatzinformation - Inhalt 9",
-		"Zusatzinformation - Art 10",
-		"Zusatzinformation - Inhalt 10",
-		"Zusatzinformation - Art 11",
-		"Zusatzinformation - Inhalt 11",
-		"Zusatzinformation - Art 12",
-		"Zusatzinformation - Inhalt 12",
-		"Zusatzinformation - Art 13",
-		"Zusatzinformation - Inhalt 13",
-		"Zusatzinformation - Art 14",
-		"Zusatzinformation - Inhalt 14",
-		"Zusatzinformation - Art 15",
-		"Zusatzinformation - Inhalt 15",
-		"Zusatzinformation - Art 16",
-		"Zusatzinformation - Inhalt 16",
-		"Zusatzinformation - Art 17",
-		"Zusatzinformation - Inhalt 17",
-		"Zusatzinformation - Art 18",
-		"Zusatzinformation - Inhalt 18",
-		"Zusatzinformation - Art 19",
-		"Zusatzinformation - Inhalt 19",
-		"Zusatzinformation - Art 20",
-		"Zusatzinformation - Inhalt 20",
-		# Mengenfelder LuF
-		"Stück",
-		"Gewicht",
-		# Forderungsart
-		"Zahlweise",
-		"Forderungsart",
-		"Veranlagungsjahr",
-		"Zugeordnete Fälligkeit",
-		# Weitere Felder
-		"Skontotyp",
-		# Anzahlungen
-		"Auftragsnummer",
-		"Buchungstyp",
-		"USt-Schlüssel (Anzahlungen)",
-		"EU-Land (Anzahlungen)",
-		"Sachverhalt L+L (Anzahlungen)",
-		"EU-Steuersatz (Anzahlungen)",
-		"Erlöskonto (Anzahlungen)",
-		# Stapelinformationen
-		"Herkunft-Kz",
-		# Technische Identifikation
-		"Buchungs GUID",
-		# Kostenrechnung
-		"Kost-Datum",
-		# OPOS-Informationen
-		"SEPA-Mandatsreferenz",
-		"Skontosperre",
-		# Gesellschafter und Sonderbilanzsachverhalt
-		"Gesellschaftername",
-		"Beteiligtennummer",
-		"Identifikationsnummer",
-		"Zeichnernummer",
-		# OPOS-Informationen
-		"Postensperre bis",
-		# Gesellschafter und Sonderbilanzsachverhalt
-		"Bezeichnung SoBil-Sachverhalt",
-		"Kennzeichen SoBil-Buchung",
-		# Stapelinformationen
-		"Festschreibung",
-		# Datum
-		"Leistungsdatum",
-		"Datum Zuord. Steuerperiode",
-		# OPOS-Informationen
-		"Fälligkeit",
-		# Konto/Gegenkonto
-		"Generalumkehr (GU)",
-		# Steuersatz für Steuerschlüssel
-		"Steuersatz",
-		"Land"
-	]
+	return frappe.db.sql("""
+		SELECT
 
-	empty_df = pd.DataFrame(columns=columns)
-	data_df = pd.DataFrame.from_records(data)
+			acc.account_number as 'Konto',
+			CASE cus.customer_type WHEN 'Company' THEN cus.customer_name ELSE null END as 'Name (Adressatentyp Unternehmen)',
+			CASE cus.customer_type WHEN 'Individual' THEN con.last_name ELSE null END as 'Name (Adressatentyp natürl. Person)',
+			CASE cus.customer_type WHEN 'Individual' THEN con.first_name ELSE null END as 'Vorname (Adressatentyp natürl. Person)',
+			CASE cus.customer_type WHEN 'Individual' THEN '1' WHEN 'Company' THEN '2' ELSE '0' end as 'Adressatentyp',
+			adr.address_line1 as 'Straße',
+			adr.pincode as 'Postleitzahl',
+			adr.city as 'Ort',
+			UPPER(country.code) as 'Land',
+			adr.address_line2 as 'Adresszusatz',
+			con.email_id as 'E-Mail',
+			coalesce(con.mobile_no, con.phone) as 'Telefon',
+			cus.website as 'Internet',
+			cus.tax_id as 'Steuernummer'
 
-	result = empty_df.append(data_df)
-	result["Belegdatum"] = pd.to_datetime(result["Belegdatum"])
+		FROM `tabParty Account` par
 
-	return result.to_csv(
-		sep=b';',
-		# European decimal seperator
-		decimal=',',
-		# Windows "ANSI" encoding
-		encoding='latin_1',
-		# format date as DDMM
-		date_format='%d%m',
-		# Windows line terminator
-		line_terminator=b'\r\n',
-		# Do not number rows
-		index=False,
-		# Use all columns defined above
-		columns=columns
-	)
+			left join `tabAccount` acc
+			on acc.name = par.account
+
+			left join `tabCustomer` cus
+			on cus.name = par.parent
+
+			left join `tabAddress` adr
+			on adr.name = cus.customer_primary_address
+
+			left join `tabCountry` country
+			on country.name = adr.country
+
+			left join `tabContact` con
+			on con.name = cus.customer_primary_contact
+
+		WHERE par.company = %(company)s
+		AND par.parenttype = 'Customer'""", filters, as_dict=1)
+
+
+def get_suppliers(filters):
+	"""
+	Get a list of Suppliers.
+
+	Arguments:
+	filters -- dict of filters to be passed to the sql query
+	"""
+	return frappe.db.sql("""
+		SELECT
+
+			acc.account_number as 'Konto',
+			CASE sup.supplier_type WHEN 'Company' THEN sup.supplier_name ELSE null END as 'Name (Adressatentyp Unternehmen)',
+			CASE sup.supplier_type WHEN 'Individual' THEN con.last_name ELSE null END as 'Name (Adressatentyp natürl. Person)',
+			CASE sup.supplier_type WHEN 'Individual' THEN con.first_name ELSE null END as 'Vorname (Adressatentyp natürl. Person)',
+			CASE sup.supplier_type WHEN 'Individual' THEN '1' WHEN 'Company' THEN '2' ELSE '0' end as 'Adressatentyp',
+			adr.address_line1 as 'Straße',
+			adr.pincode as 'Postleitzahl',
+			adr.city as 'Ort',
+			UPPER(country.code) as 'Land',
+			adr.address_line2 as 'Adresszusatz',
+			con.email_id as 'E-Mail',
+			coalesce(con.mobile_no, con.phone) as 'Telefon',
+			sup.website as 'Internet',
+			sup.tax_id as 'Steuernummer',
+			case sup.on_hold when 1 then sup.release_date else null end as 'Zahlungssperre bis'
+
+		FROM `tabParty Account` par
+
+			left join `tabAccount` acc
+			on acc.name = par.account
+
+			left join `tabSupplier` sup
+			on sup.name = par.parent
+
+			left join `tabDynamic Link` dyn_adr
+			on dyn_adr.link_name = sup.name
+			and dyn_adr.link_doctype = 'Supplier'
+			and dyn_adr.parenttype = 'Address'
+			
+			left join `tabAddress` adr
+			on adr.name = dyn_adr.parent
+			and adr.is_primary_address = '1'
+
+			left join `tabCountry` country
+			on country.name = adr.country
+
+			left join `tabDynamic Link` dyn_con
+			on dyn_con.link_name = sup.name
+			and dyn_con.link_doctype = 'Supplier'
+			and dyn_con.parenttype = 'Contact'
+
+			left join `tabContact` con
+			on con.name = dyn_con.parent
+			and con.is_primary_contact = '1'
+
+		WHERE par.company = %(company)s
+		AND par.parenttype = 'Supplier'""", filters, as_dict=1)
+
+
+def get_account_names(filters):
+	return frappe.db.sql("""
+		SELECT
+
+			account_number as 'Konto',
+			LEFT(account_name, 40) as 'Kontenbeschriftung',
+			'de-DE' as 'Sprach-ID'
+
+		FROM `tabAccount`
+		WHERE company = %(company)s
+		AND is_group = 0
+		AND account_number != ''
+	""", filters, as_dict=1)
 
 
 @frappe.whitelist()
-def download_datev_csv(filters=None):
+def download_datev_csv(filters):
 	"""
 	Provide accounting entries for download in DATEV format.
 
@@ -359,15 +337,39 @@ def download_datev_csv(filters=None):
 	if isinstance(filters, string_types):
 		filters = json.loads(filters)
 
-	validate_filters(filters)
-	data = get_gl_entries(filters, as_dict=1)
+	validate(filters)
+	company = filters.get('company')
 
-	filename = 'DATEV_Buchungsstapel_{}-{}_bis_{}'.format(
-		filters.get('company'),
-		filters.get('from_date'),
-		filters.get('to_date')
-	)
+	fiscal_year = get_fiscal_year(date=filters.get('from_date'), company=company)
+	filters['fiscal_year_start'] = fiscal_year[1]
 
-	frappe.response['result'] = get_datev_csv(data)
-	frappe.response['doctype'] = filename
-	frappe.response['type'] = 'csv'
+	# set chart of accounts used
+	coa = frappe.get_value('Company', company, 'chart_of_accounts')
+	filters['skr'] = '04' if 'SKR04' in coa else ('03' if 'SKR03' in coa else '')
+
+	filters['account_number_length'] = frappe.get_value('DATEV Settings', company, 'account_number_length')
+
+	transactions = get_transactions(filters)
+	account_names = get_account_names(filters)
+	customers = get_customers(filters)
+	suppliers = get_suppliers(filters)
+
+	zip_name = '{} DATEV.zip'.format(frappe.utils.datetime.date.today())
+	zip_and_download(zip_name, [
+		{
+			'file_name': 'EXTF_Buchungsstapel.csv',
+			'csv_data': get_datev_csv(transactions, filters, csv_class=Transactions)
+		},
+		{
+			'file_name': 'EXTF_Kontenbeschriftungen.csv',
+			'csv_data': get_datev_csv(account_names, filters, csv_class=AccountNames)
+		},
+		{
+			'file_name': 'EXTF_Kunden.csv',
+			'csv_data': get_datev_csv(customers, filters, csv_class=DebtorsCreditors)
+		},
+		{
+			'file_name': 'EXTF_Lieferanten.csv',
+			'csv_data': get_datev_csv(suppliers, filters, csv_class=DebtorsCreditors)
+		},
+	])
