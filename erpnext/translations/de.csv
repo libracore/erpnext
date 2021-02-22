@@ -8072,3 +8072,5 @@ Report: Asset Summary,Duration (Years),Dauer (Jahre)
 Report: Asset Summary,Show Sums,Summen anzeigen
 DocType: Asset,Sell Asset,Vermögenswert verkaufen
 DocType: Asset,Scrap Asset,Vermögenswert verschrotten
+DocType: HR Settings,Disabled smart user name aggregation when employee record is saved,Deaktiviert intelligente Benutzernamenszusammenfassung beim Speichern von Mitarbeitern
+DocType: HR Settings,Disable smart user name update,Intelligentes Namens-Update deaktivieren

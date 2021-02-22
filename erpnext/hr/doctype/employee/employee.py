@@ -102,6 +102,7 @@ class Employee(NestedSet):
 		set_user_permission_if_allowed("Company", self.company, self.user_id)
 
 	def update_user(self):
+		settings = frappe.get_doc("HR Settings", "HR Settings")
 		# add employee role if missing
 		user = frappe.get_doc("User", self.user_id)
 		user.flags.ignore_permissions = True
@@ -110,7 +111,7 @@ class Employee(NestedSet):
 			user.append_roles("Employee")
 
 		# copy details like Fullname, DOB and Image to User
-		if self.employee_name and not (user.first_name and user.last_name):
+		if self.employee_name and not settings.disable_smart_user_name_update and not (user.first_name and user.last_name):
 			employee_name = self.employee_name.split(" ")
 			if len(employee_name) >= 3:
 				user.last_name = " ".join(employee_name[2:])
