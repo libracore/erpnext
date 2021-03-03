@@ -399,7 +399,7 @@ def get_customer_primary_contact(doctype, txt, searchfield, start, page_len, fil
 		})
 
 def get_customer_primary_address(doctype, txt, searchfield, start, page_len, filters):
-	customer = frappe.db.escape(filters.get('customer'))
+	customer = filters.get('customer')
 	return frappe.db.sql("""
 		select `tabAddress`.name from `tabAddress`, `tabDynamic Link`
 			where `tabAddress`.name = `tabDynamic Link`.parent and `tabDynamic Link`.link_name = %(customer)s
