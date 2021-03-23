@@ -323,7 +323,8 @@ class SalarySlip(TransactionBase):
 		'''Returns data for evaluating formula'''
 		data = frappe._dict()
 
-		data.update(frappe.get_doc("Salary Structure Assignment", self.salary_structure_assignment).as_dict())
+		data.update(frappe.get_doc("Salary Structure Assignment",
+			{"employee": self.employee, "salary_structure": self.salary_structure}).as_dict())
 
 		data.update(frappe.get_doc("Employee", self.employee).as_dict())
 		data.update(self.as_dict())
