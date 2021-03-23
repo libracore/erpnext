@@ -161,7 +161,6 @@ class SalarySlip(TransactionBase):
 		
 		if st_name:
 			self.salary_structure = st_name[0]["salary_structure"]
-			self.salary_structure_assignment = st_name[0]["name"]
 			return self.salary_structure
 
 		else:
