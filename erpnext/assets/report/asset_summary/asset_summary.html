@@ -1,0 +1,107 @@
+<meta name="pdfkit-orientation" content="Landscape"/>
+
+<table style="width: 100%; ">
+    <tr>
+        <td><h2>{%= __("Asset Summary") %} {%= filters.company %}</h2></td>
+        <td style="text-align: right; ">
+            <h4>
+                {%= frappe.datetime.str_to_user(filters.from_date) %}
+                {%= __("to") %}
+                {%= frappe.datetime.str_to_user(filters.to_date) %}
+            </h4>
+        </td>
+    </tr>
+</table>
+
+<!-- compile category groups -->
+{% var categories = []; %}
+{% for (var i=0; i<(data.length - 1); i++) { %}
+    {% if (!categories.includes(data[i].asset_category)) { categories.push(data[i].asset_category); } %}
+{% } %}
+{% var category_initial_value = 0; var category_start_value = 0; var category_end_value = 0; var category_depreciation = 0; var category_total_depreciation = 0; %}
+<!-- show assets per category -->
+{% for (var j=0; j<categories.length; j++) { %}
+<h3>{%= categories[j] %}</h3>
+
+<table class="table table-bordered" style="font-size: 9px; margin: 0px; ">
+    <thead>
+        <tr>
+            <th style="width: 10%; padding: 0px !important; ">{%= __("Asset") %}</th>
+            <th style="width: 25%; padding: 0px !important; ">{%= __("Asset Name") %}</th>
+            <th style="width: 9%; text-align: right; padding: 0px !important; ">{%= __("Date") %}</th>
+            <th style="width: 10%; text-align: right; padding: 0px !important; ">{%= __("Initial Value") %}</th>
+            <th style="width: 10%; text-align: right; padding: 0px !important; ">
+                {%= __("Depreciation") %}<br>
+                {%= __("Years") %}
+            </th>
+            <th style="width: 14%; text-align: right; padding: 0px !important; ">
+                {%= __("Acc. Depreciation") %}<br>
+                {%= __("Cur. Depreciation") %}
+            </th>
+            <th style="width: 10%; text-align: right; padding: 0px !important; ">
+                {%= __("Value") %}<br>
+                {%= frappe.datetime.str_to_user(filters.from_date) %}
+            </th>
+            <th style="width: 10%; text-align: right; padding: 0px !important; ">
+                {%= __("Value") %}<br>
+                {%= frappe.datetime.str_to_user(filters.to_date) %}
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% category_initial_value = 0; category_start_value = 0; category_end_value = 0; category_depreciation = 0; category_total_depreciation = 0; %}
+        {% for (var i=0; i<(data.length - 1); i++) { %}
+            {% if (data[i].asset_category == categories[j]) { %}
+                {% category_initial_value += data[i].gross_purchase_amount; %}
+                {% category_start_value += data[i].net_asset_value_as_on_from_date; %}
+                {% category_end_value += data[i].net_asset_value_as_on_to_date; %}
+                {% category_depreciation += data[i].depreciation_amount_during_the_period; %}
+                {% category_total_depreciation += data[i].accumulated_depreciation_as_on_from_date; %}
+                <tr>
+                    <td style="padding: 0px !important; ">{%= data[i].asset %}</td>
+                    <td style="padding: 0px !important; ">{%= data[i].asset_name %}</td>
+                    <td style="text-align: right; padding: 0px !important; ">{%= frappe.datetime.str_to_user(data[i].purchase_date) %}</td>
+                    <td style="text-align: right; padding: 0px !important; ">{%= format_currency(data[i].gross_purchase_amount) %}</td>
+                    <td style="text-align: right; padding: 0px !important; ">{%= (data[i].duration_years || 0).toFixed(2) %}</td>
+                    <td style="text-align: right; padding: 0px !important; ">
+                        {%= format_currency(data[i].accumulated_depreciation_as_on_from_date) %}<br>
+                        {%= format_currency(data[i].depreciation_amount_during_the_period) %}
+                    </td>
+                    <td style="text-align: right; padding: 0px !important; "><br>
+                        {%= format_currency(data[i].net_asset_value_as_on_from_date) %}
+                    </td>
+                    <td style="text-align: right; padding: 0px !important; "><br>
+                        {%= format_currency(data[i].net_asset_value_as_on_to_date) %}
+                    </td>
+                </tr>
+            {% } %}
+        {% } %}
+        
+        <tr>
+            <td style="padding: 0px !important; "></td>
+            <td style="padding: 0px !important; ">{%= __("Total") %}</td>
+            <td style="text-align: right; padding: 0px !important; "></td>
+            <td style="text-align: right; padding: 0px !important; ">{%= format_currency(category_initial_value) %}</td>
+            <td style="text-align: right; padding: 0px !important; "></td>
+            <td style="text-align: right; padding: 0px !important; ">
+                {%= format_currency(category_total_depreciation) %}<br>
+                {%= format_currency(category_depreciation) %}
+            </td>
+            <td style="text-align: right; padding: 0px !important; "><br>
+                {%= format_currency(category_start_value) %}
+            </td>
+            <td style="text-align: right; padding: 0px !important; "><br>
+                {%= format_currency(category_end_value) %}
+            </td>
+        </tr>
+        
+    </tbody>
+</table>
+
+{% } %}
+
+
+
+
+<p class="text-right text-muted">Printed On {%= frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string()) %}</p>
+
