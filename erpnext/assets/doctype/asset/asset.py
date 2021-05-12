@@ -14,6 +14,7 @@ from erpnext.assets.doctype.asset.depreciation \
 from erpnext.accounts.general_ledger import make_gl_entries, delete_gl_entries
 from erpnext.accounts.utils import get_account_currency
 from erpnext.controllers.accounts_controller import AccountsController
+from datetime import datetime
 
 class Asset(AccountsController):
 	def validate(self):
@@ -410,6 +411,20 @@ class Asset(AccountsController):
 			depreciation_rate = math.pow(value, 1.0/flt(no_of_years, 2))
 
 			return 100 * (1 - flt(depreciation_rate, float_precision))
+
+	def change_custodian(self, custodian):
+		old_custodian = self.custodian
+		frappe.db.sql("""UPDATE `tabAsset` SET `custodian` = "{custodian}" WHERE `name` = "{dn}";""".format(
+			custodian=custodian, dn=self.name))
+		communication = frappe.get_doc({
+			"doctype": "Comment",
+			"reference_doctype": self.doctype,
+			"reference_name": self.name,
+			"content": ( _("Changed ownership from {0} to {1}") ).format(old_custodian, custodian),
+			"comment_type": "Comment"
+		})
+		communication.save(ignore_permissions=True)
+		return
 
 def update_maintenance_status():
 	assets = frappe.get_all('Asset', filters = {'docstatus': 1, 'maintenance_required': 1})

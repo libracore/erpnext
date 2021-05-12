@@ -77,7 +77,9 @@ frappe.ui.form.on('Asset', {
 					frappe.set_route("query-report", "General Ledger");
 				});
 			}
-
+			frm.add_custom_button("Custodian", function() {
+					erpnext.asset.change_custodian(frm);
+				});
 			if (frm.doc.status=='Submitted' && !frm.doc.is_existing_asset && !frm.doc.purchase_invoice) {
 				frm.add_custom_button(__("Purchase Invoice"), function() {
 					frm.trigger("make_purchase_invoice");
@@ -99,7 +101,6 @@ frappe.ui.form.on('Asset', {
 					frm.trigger("make_journal_entry");
 				}, __('Create'));
 			}
-
 			frm.page.set_inner_btn_group_as_primary(__('Create'));
 			frm.trigger("setup_chart");
 		}
@@ -504,3 +505,26 @@ erpnext.asset.transfer_asset = function(frm) {
 	});
 	dialog.show();
 };
+
+erpnext.asset.change_custodian = function(frm) {
+    frappe.prompt([
+        {'fieldname': 'custodian', 'fieldtype': 'Link', 'label': __('Custodian'), 
+            'options': 'Employee', 'default': frm.doc.custodian, 'reqd': 1}  
+    ],
+    function(values){
+        frappe.call({
+            method: 'change_custodian',
+            doc: frm.doc,
+            args: {
+                'custodian': values.custodian
+            },
+            callback: function(response) {
+               cur_frm.reload_doc();
+            }
+        });
+    },
+    __('Custodian'),
+    __('OK')
+    )
+
+}
