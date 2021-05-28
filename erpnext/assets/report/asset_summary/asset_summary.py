@@ -48,6 +48,12 @@ def get_columns(filters):
             "width": 80
         },
         {
+            "label": _("Disposal Date"),
+            "fieldname": "disposal_date",
+            "fieldtype": "Date",
+            "width": 80
+        },
+        {
             "label": _("Purchase Amount"),
             "fieldname": "gross_purchase_amount",
             "fieldtype": "Currency",
@@ -120,41 +126,43 @@ def get_data(filters):
                 'net_asset_value_as_on_to_date': 0
             }
         
-        # create new row for this asset
-        row = {
-            'asset': asset.name,
-            'asset_name': asset.asset_name, 
-            'asset_category': asset.asset_category,
-            'account': asset.account,
-            'purchase_date': asset.purchase_date,
-            'gross_purchase_amount': asset.gross_purchase_amount,
-            'duration_years': asset.duration_years
-        }
-        # insert costs from this asset
-        row.update(asset_costs.get(asset.name))
-        # compute end cost
-        row['cost_as_on_to_date'] = (flt(row.get('cost_as_on_from_date')) + flt(row.get('cost_of_new_purchase'))
-            - flt(row.get('cost_of_sold_asset')) - flt(row.get('cost_of_scrapped_asset')))
-        # insert depreciation  
-        row.update(asset_depreciations.get(asset.name))
-        # compute accumulated depreciation
-        row['accumulated_depreciation_as_on_to_date'] = (flt(row.get('accumulated_depreciation_as_on_from_date')) + 
-            flt(row.get('depreciation_amount_during_the_period')) - flt(row.get('depreciation_eliminated')))
+        # create new row for this asset (in case it has not been disposed off before this period)
+        if not asset.disposal_date or getdate(asset.disposal_date) >= getdate(filters.from_date):
+            row = {
+                'asset': asset.name,
+                'asset_name': asset.asset_name, 
+                'asset_category': asset.asset_category,
+                'account': asset.account,
+                'purchase_date': asset.purchase_date,
+                'gross_purchase_amount': asset.gross_purchase_amount,
+                'duration_years': asset.duration_years,
+                'disposal_date': asset.disposal_date
+            }
+            # insert costs from this asset
+            row.update(asset_costs.get(asset.name))
+            # compute end cost
+            row['cost_as_on_to_date'] = (flt(row.get('cost_as_on_from_date')) + flt(row.get('cost_of_new_purchase'))
+                - flt(row.get('cost_of_sold_asset')) - flt(row.get('cost_of_scrapped_asset')))
+            # insert depreciation  
+            row.update(asset_depreciations.get(asset.name))
+            # compute accumulated depreciation
+            row['accumulated_depreciation_as_on_to_date'] = (flt(row.get('accumulated_depreciation_as_on_from_date')) + 
+                flt(row.get('depreciation_amount_during_the_period')) - flt(row.get('depreciation_eliminated')))
+            
+            row['net_asset_value_as_on_from_date'] = (flt(row.get('cost_as_on_from_date')) - 
+                flt(row.get('accumulated_depreciation_as_on_from_date')))
+            
+            row['net_asset_value_as_on_to_date'] = (flt(row.get('cost_as_on_to_date')) - 
+                flt(row.get('accumulated_depreciation_as_on_to_date')))
         
-        row['net_asset_value_as_on_from_date'] = (flt(row.get('cost_as_on_from_date')) - 
-            flt(row.get('accumulated_depreciation_as_on_from_date')))
+            data.append(row)        
         
-        row['net_asset_value_as_on_to_date'] = (flt(row.get('cost_as_on_to_date')) - 
-            flt(row.get('accumulated_depreciation_as_on_to_date')))
-    
-        data.append(row)        
-        
-        # increase conter
-        intermediate_sum['gross_purchase_amount'] += row['gross_purchase_amount']
-        intermediate_sum['accumulated_depreciation_as_on_from_date'] += row['accumulated_depreciation_as_on_from_date']
-        intermediate_sum['net_asset_value_as_on_from_date'] += row['net_asset_value_as_on_from_date']
-        intermediate_sum['depreciation_amount_during_the_period'] += row['depreciation_amount_during_the_period']
-        intermediate_sum['net_asset_value_as_on_to_date'] += row['net_asset_value_as_on_to_date']
+            # increase conter
+            intermediate_sum['gross_purchase_amount'] += row['gross_purchase_amount']
+            intermediate_sum['accumulated_depreciation_as_on_from_date'] += row['accumulated_depreciation_as_on_from_date']
+            intermediate_sum['net_asset_value_as_on_from_date'] += row['net_asset_value_as_on_from_date']
+            intermediate_sum['depreciation_amount_during_the_period'] += row['depreciation_amount_during_the_period']
+            intermediate_sum['net_asset_value_as_on_to_date'] += row['net_asset_value_as_on_to_date']
 
     # insert last sum
     row = {
@@ -236,8 +244,8 @@ def get_accumulated_depreciations(assets, filters):
         if not asset.schedules: # if no schedule,
             if asset.disposal_date:
                 # and disposal is NOT within the period, then opening accumulated depreciation not included
-                if getdate(asset.disposal_date) < getdate(filters.from_date) or getdate(asset.disposal_date) > getdate(filters.to_date):
-                    depr['accumulated_depreciation_as_on_from_date'] = 0
+                #if getdate(asset.disposal_date) < getdate(filters.from_date) or getdate(asset.disposal_date) > getdate(filters.to_date):
+                #    depr['accumulated_depreciation_as_on_from_date'] = 0
 
                 # if no schedule, and disposal is within period, accumulated dep is the amount eliminated
                 if getdate(asset.disposal_date) >= getdate(filters.from_date) and getdate(asset.disposal_date) <= getdate(filters.to_date):
