@@ -68,7 +68,10 @@ frappe.ui.form.on("Sales Order", {
 			return {
 				filters: {
 					"company": frm.doc.company,
-					"docstatus": 1
+					"docstatus": 1,
+                    "to_date": [">=", frm.doc.transaction_date],
+                    "from_date": ["<=", frm.doc.transaction_date],
+                    "customer": frm.doc.customer
 				}
 			}
 		});
