@@ -3778,7 +3778,7 @@ DocType: Leave Block List Date,Block Date,Datum sperren
 DocType: Item,You can use any valid Bootstrap 4 markup in this field. It will be shown on your Item Page.,Sie können in diesem Feld ein beliebiges gültiges Bootstrap 4-Markup verwenden. Es wird auf Ihrer Artikelseite angezeigt.
 apps/erpnext/erpnext/regional/doctype/gstr_3b_report/gstr_3b_report.html,"Outward taxable supplies(other than zero rated, nil rated and exempted","Steuerpflichtige Lieferungen im Ausland (andere als null, null und befreit)"
 DocType: Crop,Crop,Ernte
-DocType: Purchase Receipt,Supplier Delivery Note,Lieferumfang
+DocType: Purchase Receipt,Supplier Delivery Note,Lieferantenlieferschein
 apps/erpnext/erpnext/education/doctype/student_admission/templates/student_admission.html,Apply Now,Jetzt bewerben
 DocType: Employee Tax Exemption Proof Submission Detail,Type of Proof,Art des Nachweises
 apps/erpnext/erpnext/stock/dashboard/item_dashboard_list.html,Actual Qty {0} / Waiting Qty {1},Tatsächliche Menge {0} / Wartezeit {1}
