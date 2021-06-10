@@ -281,6 +281,7 @@ class SalesOrder(SellingController):
 		self.set_status(update=True, status=status)
 		self.update_reserved_qty()
 		self.notify_update()
+		self.update_blanket_order()
 		clear_doctype_notifications(self)
 
 	def update_reserved_qty(self, so_item_rows=None):

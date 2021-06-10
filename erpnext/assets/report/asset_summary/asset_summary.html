@@ -60,7 +60,8 @@
                 <tr>
                     <td style="padding: 0px !important; ">{%= data[i].asset %}</td>
                     <td style="padding: 0px !important; ">{%= data[i].asset_name %}</td>
-                    <td style="text-align: right; padding: 0px !important; ">{%= frappe.datetime.str_to_user(data[i].purchase_date) %}</td>
+                    <td style="text-align: right; padding: 0px !important; ">{%= frappe.datetime.str_to_user(data[i].purchase_date) %}
+                        <br>{%= frappe.datetime.str_to_user(data[i].disposal_date) %}</td>
                     <td style="text-align: right; padding: 0px !important; ">{%= format_currency(data[i].gross_purchase_amount) %}</td>
                     <td style="text-align: right; padding: 0px !important; ">{%= (data[i].duration_years || 0).toFixed(2) %}</td>
                     <td style="text-align: right; padding: 0px !important; ">

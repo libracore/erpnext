@@ -1034,12 +1034,14 @@ def get_blanket_order_details(args):
 			condition += ' and bo.name =%(blanket_order)s'
 		if args.transaction_date:
 			condition += ' and bo.to_date>=%(transaction_date)s'
+			condition += ' and bo.from_date<=%(transaction_date)s'
 
 		blanket_order_details = frappe.db.sql('''
 				select boi.rate as blanket_order_rate, bo.name as blanket_order
 				from `tabBlanket Order` bo, `tabBlanket Order Item` boi
 				where bo.company=%(company)s and boi.item_code=%(item_code)s
-					and bo.docstatus=1 and bo.name = boi.parent {0}
+					and bo.docstatus=1 and bo.name = boi.parent
+                    and boi.qty>boi.ordered_qty {0}
 			'''.format(condition), args, as_dict=True)
 
 		blanket_order_details = blanket_order_details[0] if blanket_order_details else ''
