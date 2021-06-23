@@ -401,9 +401,9 @@ class EmailDigest(Document):
 	def get_sales_orders_to_bill(self):
 		"""Get value not billed"""
 
-		value, count = frappe.db.sql("""select ifnull((sum(grand_total)) - (sum(grand_total*per_billed/100)),0),
+		value, count = frappe.db.sql("""select ifnull((sum(`base_net_total`)) - (sum(`base_net_total`*`per_billed`/100)),0),
                     count(*) from `tabSales Order`
-					where (transaction_date <= %(to_date)s) and billing_status != "Fully Billed"
+					where (`transaction_date` <= %(to_date)s) and `billing_status` != "Fully Billed"
 					and status not in ('Closed','Cancelled', 'Completed') """, {"to_date": self.future_to_date})[0]
 
 		label = get_link_to_report('Sales Order', label=self.meta.get_label("sales_orders_to_bill"),
