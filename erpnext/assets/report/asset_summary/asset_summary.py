@@ -154,10 +154,13 @@ def get_data(filters):
             
             row['net_asset_value_as_on_to_date'] = (flt(row.get('cost_as_on_to_date')) - 
                 flt(row.get('accumulated_depreciation_as_on_to_date')))
-        
+            # adjust depreciation years
+            if asset.country_code.lower() == "at" and asset.purchase_date.month > 6 and (row['duration_years'] or 0) > 1:
+                row['duration_years'] = row['duration_years'] - 1
+                        
             data.append(row)        
         
-            # increase conter
+            # increase counter
             intermediate_sum['gross_purchase_amount'] += row['gross_purchase_amount']
             intermediate_sum['accumulated_depreciation_as_on_from_date'] += row['accumulated_depreciation_as_on_from_date']
             intermediate_sum['net_asset_value_as_on_from_date'] += row['net_asset_value_as_on_from_date']
@@ -193,9 +196,12 @@ def get_assets(filters):
                (SELECT `tC`.`fixed_asset_account` FROM `tabAsset Category Account` AS `tC`
                 WHERE `tC`.`parent` = `tabAsset Category`.`name` ORDER BY `tC`.`idx` ASC LIMIT 1) AS `account`,
                (SELECT (`tF`.`total_number_of_depreciations` * `tF`.`frequency_of_depreciation` / 12) FROM `tabAsset Finance Book` AS `tF`
-                WHERE `tF`.`parent` = `tabAsset`.`name` ORDER BY `tF`.`idx` ASC LIMIT 1) AS `duration_years`
+                WHERE `tF`.`parent` = `tabAsset`.`name` ORDER BY `tF`.`idx` ASC LIMIT 1) AS `duration_years`,
+               `tabCountry`.`code` AS `country_code` 
         FROM `tabAsset` 
         LEFT JOIN `tabAsset Category` ON `tabAsset`.`asset_category` = `tabAsset Category`.`name`
+        LEFT JOIN `tabCompany` ON `tabCompany`.`name` = `tabAsset`.`company`
+        LEFT JOIN `tabCountry` ON `tabCompany`.`country` = `tabCountry`.`name`
         WHERE `tabAsset`.`docstatus` = 1 
           AND `tabAsset`.`company`=%s 
           AND `tabAsset`.`purchase_date` <= %s
