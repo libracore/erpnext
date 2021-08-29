@@ -504,17 +504,39 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 								() => me.frm.script_manager.trigger("price_list_rate", cdt, cdn),
 								() => me.toggle_conversion_factor(item),
 								() => {
+									if (show_batch_dialog && !item.has_serial_no
+										&& !item.has_batch_no) {
+										show_batch_dialog = false;
+									}
+								},
+								() => {
+									if (show_batch_dialog)
+										return frappe.db.get_value("Item", item.item_code, ["has_batch_no", "has_serial_no"])
+											.then((r) => {
+												if(r.message && !frappe.flags.hide_serial_batch_dialog &&
+													(r.message.has_batch_no || r.message.has_serial_no)) {
+													frappe.flags.hide_serial_batch_dialog = false;
+												}
+											});
+								},
+								() => {
 									if(show_batch_dialog && !frappe.flags.hide_serial_batch_dialog) {
 										var d = locals[cdt][cdn];
 										$.each(r.message, function(k, v) {
 											if(!d[k]) d[k] = v;
 										});
 
+										if (d.has_batch_no && d.has_serial_no) {
+											d.batch_no = undefined;
+										}
+
 										erpnext.show_serial_batch_selector(me.frm, d, (item) => {
 											me.frm.script_manager.trigger('qty', item.doctype, item.name);
-										});
+											if (!me.frm.doc.set_warehouse)
+												me.frm.script_manager.trigger('warehouse', item.doctype, item.name);
+										}, undefined, !frappe.flags.hide_serial_batch_dialog);
 									}
-								},
+},
 								() => me.conversion_factor(doc, cdt, cdn, true),
 								() => me.validate_pricing_rule(item)
 							]);
@@ -554,31 +576,32 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 				this.frm.trigger("item_code", cdt, cdn);
 			}
 			else {
-				var valid_serial_nos = [];
-
 				// Replacing all occurences of comma with carriage return
-				var serial_nos = item.serial_no.trim().replace(/,/g, '\n');
-
-				serial_nos = serial_nos.trim().split('\n');
-
-				// Trim each string and push unique string to new list
-				for (var x=0; x<=serial_nos.length - 1; x++) {
-					if (serial_nos[x].trim() != "" && valid_serial_nos.indexOf(serial_nos[x].trim()) == -1) {
-						valid_serial_nos.push(serial_nos[x].trim());
-					}
-				}
-
-				// Add the new list to the serial no. field in grid with each in new line
-				item.serial_no = valid_serial_nos.join('\n');
-
+				item.serial_no = item.serial_no.replace(/,/g, '\n');
+				item.conversion_factor = item.conversion_factor || 1;
 				refresh_field("serial_no", item.name, item.parentfield);
-				if(!doc.is_return && cint(user_defaults.set_qty_in_transactions_based_on_serial_no_input)) {
-					frappe.model.set_value(item.doctype, item.name,
-						"qty", valid_serial_nos.length / item.conversion_factor);
-					frappe.model.set_value(item.doctype, item.name, "stock_qty", valid_serial_nos.length);
+				if (!doc.is_return && cint(frappe.user_defaults.set_qty_in_transactions_based_on_serial_no_input)) {
+					setTimeout(() => {
+						me.update_qty(cdt, cdn);
+					}, 10000);
 				}
 			}
 		}
+	},
+
+	update_qty: function(cdt, cdn) {
+		var valid_serial_nos = [];
+		var serialnos = [];
+		var item = frappe.get_doc(cdt, cdn);
+		serialnos = item.serial_no.split("\n");
+		for (var i = 0; i < serialnos.length; i++) {
+			if (serialnos[i] != "") {
+				valid_serial_nos.push(serialnos[i]);
+			}
+		}
+		frappe.model.set_value(item.doctype, item.name,
+			"qty", valid_serial_nos.length / item.conversion_factor);
+		frappe.model.set_value(item.doctype, item.name, "stock_qty", valid_serial_nos.length);
 	},
 
 	validate: function() {
