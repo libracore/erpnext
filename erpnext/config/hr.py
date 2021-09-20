@@ -356,6 +356,10 @@ def get_data():
 					"name": "Employee Advance",
 					"dependencies": ["Employee"]
 				},
+				{
+					"type": "doctype",
+					"name": "Expense Claim Type"
+				}
 			]
 		},
 		{
