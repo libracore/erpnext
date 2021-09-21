@@ -22,7 +22,7 @@ class PayrollEntry(Document):
     			self.set_onload("submitted_ss", True)
 
 	def on_submit(self):
-		self.create_salary_slips()
+		pass #self.create_salary_slips()   # will be done by the function call
 
 	def before_submit(self):
 		if self.validate_attendance:
@@ -111,6 +111,7 @@ class PayrollEntry(Document):
 		"""
 		self.check_permission('write')
 		self.created = 1
+		self.submit()
 		emp_list = [d.employee for d in self.get_emp_list()]
 		if emp_list:
 			args = frappe._dict({
@@ -129,7 +130,8 @@ class PayrollEntry(Document):
 			else:
 				create_salary_slips_for_employees(emp_list, args, publish_progress=False)
 				# since this method is called via frm.call this doc needs to be updated manually
-				self.reload()
+				#self.reload() # reload from client side
+		return
 
 	def get_sal_slip_list(self, ss_status, as_dict=False):
 		"""
