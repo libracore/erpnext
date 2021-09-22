@@ -31,7 +31,8 @@ frappe.ui.form.on('Payroll Entry', {
 			}
 			if ((frm.doc.employees || []).length) {
 				frm.page.set_primary_action(__('Create Salary Slips'), () => {
-					frm.save('Submit');
+					//frm.save('Submit');
+                    frm.events.create_salary_slips(frm);
 				});
 			}
 		}
@@ -62,10 +63,9 @@ frappe.ui.form.on('Payroll Entry', {
 			doc: frm.doc,
 			method: "create_salary_slips",
 			callback: function(r) {
-				frm.refresh();
-				frm.toolbar.refresh();
+				cur_frm.reload_doc();
 			}
-		})
+		});
 	},
 
 	add_context_buttons: function(frm) {
