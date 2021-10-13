@@ -108,7 +108,7 @@ apps/erpnext/erpnext/stock/doctype/item/item.js,Show Variants,Varianten anzeigen
 DocType: Academic Term,Academic Term,Semester
 DocType: Employee Tax Exemption Sub Category,Employee Tax Exemption Sub Category,Mitarbeitersteuerbefreiung Unterkategorie
 apps/erpnext/erpnext/regional/italy/utils.py,Please set an Address on the Company '%s',Bitte geben Sie eine Adresse für die Firma &#39;% s&#39; ein
-apps/erpnext/erpnext/projects/doctype/project/project_dashboard.py,Material,Stoff
+apps/erpnext/erpnext/projects/doctype/project/project_dashboard.py,Material,Material
 apps/erpnext/erpnext/hr/doctype/employee_benefit_claim/employee_benefit_claim.py,"Maximum benefit of employee {0} exceeds {1} by the sum {2} of benefit application pro-rata component\
 			amount and previous claimed amount","Der maximale Vorteil des Mitarbeiters {0} übersteigt {1} um die Summe {2} der anteiligen Komponente des Leistungsantrags, des Betrags und des zuvor beanspruchten Betrags"
 DocType: Opening Invoice Creation Tool Item,Quantity,Menge
