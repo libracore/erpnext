@@ -274,6 +274,7 @@
    "reqd": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "actual_start_date",
    "fieldtype": "Datetime",
    "label": "Actual Start Date",
@@ -284,6 +285,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "planned_end_date",
    "fieldtype": "Datetime",
    "label": "Planned End Date",
@@ -291,6 +293,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "actual_end_date",
    "fieldtype": "Datetime",
    "label": "Actual End Date",
