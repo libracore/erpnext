@@ -274,6 +274,7 @@
    "reqd": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "actual_start_date",
    "fieldtype": "Datetime",
    "label": "Actual Start Date",
@@ -284,6 +285,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "planned_end_date",
    "fieldtype": "Datetime",
    "label": "Planned End Date",
@@ -291,6 +293,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "actual_end_date",
    "fieldtype": "Datetime",
    "label": "Actual End Date",
@@ -468,7 +471,7 @@
  "idx": 1,
  "image_field": "image",
  "is_submittable": 1,
- "modified": "2019-08-28 12:29:35.315239",
+ "modified": "2021-10-18 12:29:35.315239",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Work Order",
