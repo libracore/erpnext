@@ -107,6 +107,17 @@ erpnext.buying.BuyingController = erpnext.TransactionController.extend({
 				filters:{ 'item_code': row.item_code }
 			}
 		});
+        
+		if (this.frm.fields_dict.taxes_and_charges) {
+			this.frm.set_query("taxes_and_charges", function() {
+				return {
+					filters: [
+						['Purchase Taxes and Charges Template', 'company', '=', me.frm.doc.company],
+						['Purchase Taxes and Charges Template', 'docstatus', '!=', 2]
+					]
+				}
+			});
+		}
 	},
 
 	refresh: function(doc) {
