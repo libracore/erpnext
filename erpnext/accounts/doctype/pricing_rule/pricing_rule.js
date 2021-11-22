@@ -153,5 +153,13 @@ frappe.ui.form.on('Pricing Rule', {
 
 		if(!in_list(options, applicable_for)) applicable_for = null;
 		frm.set_value("applicable_for", applicable_for);
-	}
+	},
+    before_save: function(frm) {
+        if (frm.doc.title.includes(",")) {
+            cur_frm.set_value("title", frm.doc.title.replaceAll(",", ""));
+        }
+        if (frm.doc.name.includes(",")) {
+            frappe.msgprint(__("You should not use commas in pricing rule names"), __("Warning"));
+        }
+    }
 });
