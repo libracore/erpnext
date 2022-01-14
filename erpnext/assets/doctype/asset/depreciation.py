@@ -153,8 +153,9 @@ def scrap_asset(asset_name):
 		})
 		je.append("accounts", entry)
 
-	je.flags.ignore_permissions = True
-	je.submit()
+	if cint(frappe.get_value("Accounts Settings", "Accounts Settings", "disable_scrap_asset_journal_entry")) == 0:
+		je.flags.ignore_permissions = True
+		je.submit()
 
 	frappe.db.set_value("Asset", asset_name, "disposal_date", today())
 	frappe.db.set_value("Asset", asset_name, "journal_entry_for_scrap", je.name)
