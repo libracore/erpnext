@@ -70,7 +70,7 @@ class calculate_taxes_and_totals(object):
 					elif item.discount_amount and item.pricing_rules:
 						item.rate =  item.price_list_rate - item.discount_amount
 
-				if item.doctype in ['Quotation Item', 'Sales Order Item', 'Delivery Note Item', 'Sales Invoice Item']:
+				if item.doctype in ['Quotation Item', 'Sales Order Item', 'Delivery Note Item', 'Sales Invoice Item', 'Akonto Invoice Item']:
 					item.rate_with_margin, item.base_rate_with_margin = self.calculate_margin(item)
 					if flt(item.rate_with_margin) > 0:
 						item.rate = flt(item.rate_with_margin * (1.0 - (item.discount_percentage / 100.0)), item.precision("rate"))
@@ -327,13 +327,13 @@ class calculate_taxes_and_totals(object):
 
 		self._set_in_company_currency(self.doc, ["total_taxes_and_charges", "rounding_adjustment"])
 
-		if self.doc.doctype in ["Quotation", "Sales Order", "Delivery Note", "Sales Invoice"]:
+		if self.doc.doctype in ["Quotation", "Sales Order", "Delivery Note", "Sales Invoice", "Akonto Invoice"]:
 			self.doc.base_grand_total = flt(self.doc.grand_total * self.doc.conversion_rate, self.doc.precision("base_grand_total")) \
 				if self.doc.total_taxes_and_charges else self.doc.base_net_total
 		else:
 			self.doc.taxes_and_charges_added = self.doc.taxes_and_charges_deducted = 0.0
 			for tax in self.doc.get("taxes"):
-				if tax.category in ["Valuation and Total", "Total"]:
+				if getattr(tax, "category", None) and tax.category in ["Valuation and Total", "Total"]:
 					if tax.add_deduct_tax == "Add":
 						self.doc.taxes_and_charges_added += flt(tax.tax_amount_after_discount_amount)
 					else:

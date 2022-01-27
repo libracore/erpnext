@@ -152,8 +152,11 @@ def get_data(filters):
             row['net_asset_value_as_on_from_date'] = (flt(row.get('cost_as_on_from_date')) - 
                 flt(row.get('accumulated_depreciation_as_on_from_date')))
             
-            row['net_asset_value_as_on_to_date'] = (flt(row.get('cost_as_on_to_date')) - 
-                flt(row.get('accumulated_depreciation_as_on_to_date')))
+            if asset.disposal_date:
+                row['net_asset_value_as_on_to_date'] = 0       # disposed asset: 0-value when an asset has been disposed
+            else:
+                row['net_asset_value_as_on_to_date'] = (flt(row.get('cost_as_on_to_date')) - 
+                    flt(row.get('accumulated_depreciation_as_on_to_date')))
             # adjust depreciation years
             if asset.country_code.lower() == "at" and asset.purchase_date.month > 6 and (row['duration_years'] or 0) > 1:
                 row['duration_years'] = row['duration_years'] - 1
