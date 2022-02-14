@@ -389,17 +389,24 @@ erpnext.asset.set_accululated_depreciation = function(frm) {
 };
 
 erpnext.asset.scrap_asset = function(frm) {
-	frappe.confirm(__("Do you really want to scrap this asset?"), function () {
-		frappe.call({
-			args: {
-				"asset_name": frm.doc.name
-			},
-			method: "erpnext.assets.doctype.asset.depreciation.scrap_asset",
-			callback: function(r) {
-				cur_frm.reload_doc();
-			}
-		})
-	})
+    frappe.prompt([
+            {'fieldname': 'date', 'fieldtype': 'Date', 'label': 'Disposal Date', 'default': new Date(), 'reqd': 1}  
+        ],
+        function(values){
+            frappe.call({
+                'args': {
+                    'asset_name': frm.doc.name,
+                    'date': values.date
+                },
+                'method': "erpnext.assets.doctype.asset.depreciation.scrap_asset",
+                'callback': function(r) {
+                    cur_frm.reload_doc();
+                }
+            })
+        },
+        __("Do you really want to scrap this asset?"),
+        __("Yes")
+    )
 };
 
 erpnext.asset.restore_asset = function(frm) {
