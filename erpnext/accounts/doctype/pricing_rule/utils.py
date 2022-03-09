@@ -478,9 +478,12 @@ def apply_pricing_rule(doc, pr_doc, item_row, value, do_not_validate=False):
 	apply_on, items = get_apply_on_and_items(pr_doc, item_row)
 
 	rule_applied = {}
-
-	for item in doc.get("items"):
-		if item.get(apply_on) in items:
+	frappe.log_error("{0}::{1}::{2}".format(apply_on, items, item_row.item_code), "apply_pricing_rule:481")
+	#for item in doc.get("items"):
+	item = item_row
+	if item:
+		if True: #if item.item_code in items: #if item.get(apply_on) in items:
+			frappe.log_error("Apply {0}::{1}".format(item.item_name, item.pricing_rules), "apply_pricing_rule:484")
 			if not item.pricing_rules:
 				item.pricing_rules = item_row.pricing_rules
 
