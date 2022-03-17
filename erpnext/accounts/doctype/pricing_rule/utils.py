@@ -478,27 +478,23 @@ def apply_pricing_rule(doc, pr_doc, item_row, value, do_not_validate=False):
 	apply_on, items = get_apply_on_and_items(pr_doc, item_row)
 
 	rule_applied = {}
-	frappe.log_error("{0}::{1}::{2}".format(apply_on, items, item_row.item_code), "apply_pricing_rule:481")
-	#for item in doc.get("items"):
 	item = item_row
 	if item:
-		if True: #if item.item_code in items: #if item.get(apply_on) in items:
-			frappe.log_error("Apply {0}::{1}".format(item.item_name, item.pricing_rules), "apply_pricing_rule:484")
-			if not item.pricing_rules:
-				item.pricing_rules = item_row.pricing_rules
+		if not item.pricing_rules:
+			item.pricing_rules = item_row.pricing_rules
 
-			for field in ['discount_percentage', 'discount_amount', 'rate']:
-				if not pr_doc.get(field): continue
+		for field in ['discount_percentage', 'discount_amount', 'rate']:
+			if not pr_doc.get(field): continue
 
-				key = (item.name, item.pricing_rules)
-				if not pr_doc.validate_applied_rule:
-					rule_applied[key] = 1
-					item.set(field, value)
-				elif item.get(field) < value:
-					if not do_not_validate and item.idx == item_row.idx:
-						rule_applied[key] = 0
-						frappe.msgprint(_("Row {0}: user has not applied rule <b>{1}</b> on the item <b>{2}</b>")
-							.format(item.idx, pr_doc.title, item.item_code))
+			key = (item.name, item.pricing_rules)
+			if not pr_doc.validate_applied_rule:
+				rule_applied[key] = 1
+				item.set(field, value)
+			elif item.get(field) < value:
+				if not do_not_validate and item.idx == item_row.idx:
+					rule_applied[key] = 0
+					frappe.msgprint(_("Row {0}: user has not applied rule <b>{1}</b> on the item <b>{2}</b>")
+						.format(item.idx, pr_doc.title, item.item_code))
 
 	if rule_applied and doc.get("pricing_rules"):
 		for d in doc.get("pricing_rules"):
