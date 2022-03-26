@@ -82,9 +82,9 @@ class ShareTransfer(Document):
 	def basic_validations(self):
 		if self.transfer_type == 'Purchase':
 			self.to_shareholder = ''
-			if self.from_shareholder is None or self.from_shareholder is '':
+			if self.from_shareholder is None or self.from_shareholder == '':
 				frappe.throw(_('The field From Shareholder cannot be blank'))
-			if self.from_folio_no is None or self.from_folio_no is '':
+			if self.from_folio_no is None or self.from_folio_no == '':
 				self.to_folio_no = self.autoname_folio(self.to_shareholder)
 			if self.asset_account is None:
 				frappe.throw(_('The field Asset Account cannot be blank'))
@@ -92,14 +92,14 @@ class ShareTransfer(Document):
 			self.from_shareholder = ''
 			if self.to_shareholder is None or self.to_shareholder == '':
 				frappe.throw(_('The field To Shareholder cannot be blank'))
-			if self.to_folio_no is None or self.to_folio_no is '':
+			if self.to_folio_no is None or self.to_folio_no == '':
 				self.to_folio_no = self.autoname_folio(self.to_shareholder)
 			if self.asset_account is None:
 				frappe.throw(_('The field Asset Account cannot be blank'))
 		else:
 			if self.from_shareholder is None or self.to_shareholder is None:
 				frappe.throw(_('The fields From Shareholder and To Shareholder cannot be blank'))
-			if self.to_folio_no is None or self.to_folio_no is '':
+			if self.to_folio_no is None or self.to_folio_no == '':
 				self.to_folio_no = self.autoname_folio(self.to_shareholder)
 		if self.equity_or_liability_account is None:
 				frappe.throw(_('The field Equity/Liability Account cannot be blank'))
@@ -185,12 +185,12 @@ class ShareTransfer(Document):
 
 	def folio_no_validation(self):
 		shareholders = ['from_shareholder', 'to_shareholder']
-		shareholders = [shareholder for shareholder in shareholders if self.get(shareholder) is not '']
+		shareholders = [shareholder for shareholder in shareholders if self.get(shareholder) != '']
 		for shareholder in shareholders:
 			doc = frappe.get_doc('Shareholder', self.get(shareholder))
 			if doc.company != self.company:
 				frappe.throw(_('The shareholder does not belong to this company'))
-			if doc.folio_no is '' or doc.folio_no is None:
+			if doc.folio_no == '' or doc.folio_no is None:
 				doc.folio_no = self.from_folio_no \
 					if (shareholder == 'from_shareholder') else self.to_folio_no;
 				doc.save()
