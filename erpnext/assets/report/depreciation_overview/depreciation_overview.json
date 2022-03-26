@@ -1,0 +1,28 @@
+{
+ "add_total_row": 0,
+ "creation": "2022-03-26 09:27:53.209848",
+ "disable_prepared_report": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": "Standard",
+ "modified": "2022-03-26 09:28:22.327471",
+ "modified_by": "Administrator",
+ "module": "Assets",
+ "name": "Depreciation Overview",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "ref_doctype": "Asset",
+ "report_name": "Depreciation Overview",
+ "report_type": "Script Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Accounts Manager"
+  }
+ ]
+}
