@@ -8081,3 +8081,4 @@ DocType: Payment Entry,"Payment Entry {0} is linked against Order {1}, check if 
 DocType: Asset,Depreciation Overview,Abschreibungsübersicht
 DocType: Asset,Depreciation Account,Abschreibungskonto
 DocType: Asset,Document,Dokument
+DocType: Sales Invoice,Sales Invoices,Ausgangsrechnungen
