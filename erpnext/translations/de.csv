@@ -5901,7 +5901,7 @@ DocType: Quality Inspection,Report Date,Berichtsdatum
 DocType: BOM,Routing,Routing
 DocType: Serial No,Asset Details,Details Vermögenswert
 DocType: Employee Tax Exemption Declaration Category,Declared Amount,Angegebener Betrag
-DocType: Bank Statement Transaction Payment Item,Invoices,Eingangsrechnungen
+DocType: Bank Statement Transaction Payment Item,Invoices,Rechnungen
 DocType: Water Analysis,Type of Sample,Art der Probe
 DocType: Batch,Source Document Name,Quelldokumentname
 DocType: Production Plan,Get Raw Materials For Production,Holen Sie sich Rohstoffe für die Produktion
