@@ -89,6 +89,13 @@ def get_data():
 				},
                 {
 					"type": "report",
+					"name": "Depreciation Overview",
+					"doctype": "Asset",
+					"is_query_report": True,
+					"dependencies": ["Asset"],
+				},
+                {
+					"type": "report",
 					"name": "Asset Depreciation Ledger",
 					"doctype": "Asset",
 					"is_query_report": True,
