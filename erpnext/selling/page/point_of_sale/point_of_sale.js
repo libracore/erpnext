@@ -1311,7 +1311,7 @@ class POSItems {
 						'qty', '+1');
 					this.reset_search_field();
 				}
-			}, 300);
+			}, 600);
 		});
 
 		this.item_group_field = frappe.ui.form.make_control({
