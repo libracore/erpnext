@@ -148,6 +148,7 @@
    "width": "300px"
   },
   {
+   "allow_on_submit": 1,
    "columns": 2,
    "fieldname": "delivery_date",
    "fieldtype": "Date",
@@ -743,7 +744,7 @@
  ],
  "idx": 1,
  "istable": 1,
- "modified": "2019-09-13 12:18:54.903107",
+ "modified": "2022-05-02 20:43:15.064807",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order Item",
