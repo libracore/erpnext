@@ -750,7 +750,7 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 				(this.frm.doc.payment_schedule && this.frm.doc.payment_schedule.length)) {
 				var message1 = "";
 				var message2 = "";
-				var final_message = "Please clear the ";
+				var final_message = "Cleared the ";
 
 				if (this.frm.doc.payment_terms_template) {
 					message1 = "selected Payment Terms Template";
@@ -761,8 +761,11 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 					message2 = "Payment Schedule Table";
 					if (message1.length !== 0) message2 = " and " + message2;
 					final_message = final_message + message2;
+                    cur_frm.clear_table("payment_schedule");
+                    cur_frm.refresh();
 				}
-				frappe.msgprint(final_message);
+				// frappe.msgprint(final_message);
+                frappe.show_alert(final_message);
 			}
 		}
 	},
