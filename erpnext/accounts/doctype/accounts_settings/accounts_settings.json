@@ -22,6 +22,7 @@
   "allow_cost_center_in_entry_of_bs_account",
   "add_taxes_from_item_tax_template",
   "automatically_fetch_payment_terms",
+  "allow_zero_sum_gl_entry",
   "print_settings",
   "show_inclusive_tax_in_print",
   "column_break_12",
@@ -188,12 +189,18 @@
    "fieldname": "disable_scrap_asset_journal_entry",
    "fieldtype": "Check",
    "label": "Disable Scrap Asset Journal Entry"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_zero_sum_gl_entry",
+   "fieldtype": "Check",
+   "label": "Allow zero-sum GL Entries"
   }
  ],
  "icon": "icon-cog",
  "idx": 1,
  "issingle": 1,
- "modified": "2022-01-14 09:38:24.763060",
+ "modified": "2022-08-04 17:16:08.761726",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounts Settings",
