@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 import frappe, erpnext
 from frappe import _
-from frappe.utils import flt, fmt_money, getdate, formatdate
+from frappe.utils import flt, fmt_money, getdate, formatdate, cint
 from frappe.model.document import Document
 from frappe.model.naming import set_name_from_naming_options
 from frappe.model.meta import get_field_precision
@@ -66,7 +66,7 @@ class GLEntry(Document):
 					.format(self.voucher_type, self.voucher_no, self.account))
 
 		# Zero value transaction is not allowed
-		if not (flt(self.debit, self.precision("debit")) or flt(self.credit, self.precision("credit"))):
+		if (not (flt(self.debit, self.precision("debit")) or flt(self.credit, self.precision("credit")))) and cint(frappe.get_value("Accounts Settings", "Accounts Settings", "allow_zero_sum_gl_entry")) == 0:
 			frappe.throw(_("{0} {1}: Either debit or credit amount is required for {2}")
 				.format(self.voucher_type, self.voucher_no, self.account))
 

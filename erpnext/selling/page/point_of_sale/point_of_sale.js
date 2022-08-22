@@ -1303,6 +1303,17 @@ class POSItems {
 			}, 300);
 		});
 
+		frappe.ui.keys.on('enter', () => {
+			clearTimeout(this.last_adding);
+			this.last_adding = setTimeout(() => {
+				if (this.items.length == 1) {
+					this.events.update_cart(this.items[0].item_code,
+						'qty', '+1');
+					this.reset_search_field();
+				}
+			}, 600);
+		});
+
 		this.item_group_field = frappe.ui.form.make_control({
 			df: {
 				fieldtype: 'Link',

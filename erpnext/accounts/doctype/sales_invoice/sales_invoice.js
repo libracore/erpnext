@@ -130,6 +130,17 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 				}
 			});
 		}
+        
+        if ((doc.__islocal) && (doc.customer)) {
+            var customer = frappe.model.get_doc("Customer", doc.customer);
+            cur_frm.set_value("payment_terms_template", customer.payment_terms);
+            console.log("set " + customer.payment_terms);
+            setTimeout(function () {
+                if ((!cur_frm.doc.due_date) && (cur_frm.doc.payment_schedule) && (cur_frm.doc.payment_schedule.length > 0)) {
+                    cur_frm.set_value("due_date", cur_frm.doc.payment_schedule[0].due_date);
+                }
+            }, 500);
+        }
 	},
 
 	make_maintenance_schedule: function() {

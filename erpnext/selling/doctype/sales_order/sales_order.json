@@ -615,7 +615,7 @@
   },
   {
    "fieldname": "other_charges_calculation",
-   "fieldtype": "Text",
+   "fieldtype": "Long Text",
    "label": "Taxes and Charges Calculation",
    "no_copy": 1,
    "oldfieldtype": "HTML",
@@ -944,11 +944,11 @@
    "label": "Printing Details"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "language",
    "fieldtype": "Data",
    "label": "Print Language",
-   "print_hide": 1,
-   "allow_on_submit": 1
+   "print_hide": 1
   },
   {
    "allow_on_submit": 1,
@@ -1176,7 +1176,7 @@
  "icon": "fa fa-file-text",
  "idx": 105,
  "is_submittable": 1,
- "modified": "2020-11-22 19:27:56.308839",
+ "modified": "2022-03-07 08:19:20.578423",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Sales Order",
