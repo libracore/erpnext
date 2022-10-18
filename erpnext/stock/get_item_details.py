@@ -542,28 +542,31 @@ def get_item_price(args, item_code, ignore_party=False):
 
 	args['item_code'] = item_code
 
-	conditions = """where item_code=%(item_code)s
-		and price_list=%(price_list)s
-		and ifnull(uom, '') in ('', %(uom)s)"""
+	conditions = """WHERE `item_code` = "{item_code}"
+		AND `price_list` = "{price_list}"
+		AND IFNULL(`uom`, '') IN ('', "{uom}") """.format(
+		item_code=args['item_code'],
+		price_list=args['price_list'],
+		uom=args['uom'])
 
 	if not ignore_party:
 		if args.get("customer"):
-			conditions += " and customer=%(customer)s"
+			conditions += """ AND (`customer` IS NULL OR `customer` = '' OR `customer` = "{0}") """.format(args.get("customer"))
 		elif args.get("supplier"):
-			conditions += " and supplier=%(supplier)s"
+			conditions += """ AND (`supplier` IS NULL OR `supplier` = '' OR `supplier` = "{0}") """.format(args.get("supplier"))
 		else:
-			conditions += " and (customer is null or customer = '') and (supplier is null or supplier = '')"
+			conditions += " AND (`customer` IS NULL OR `customer` = '') AND (`supplier` IS NULL OR `supplier` = '')"
 
 	if args.get('min_qty'):
-		conditions += " and ifnull(min_qty, 0) <= %(min_qty)s"
+		conditions += " AND IFNULL(`min_qty`, 0) <= {min_qty}".format(min_qty=args.get('min_qty'))
 
 	if args.get('transaction_date'):
-		conditions += """ and %(transaction_date)s between
-			ifnull(valid_from, '2000-01-01') and ifnull(valid_upto, '2500-12-31')"""
+		conditions += """ AND "{transaction_date}" BETWEEN
+			IFNULL(`valid_from`, '2000-01-01') AND IFNULL(`valid_upto`, '2500-12-31')""".format(transaction_date=args.get("transaction_date"))
 
-	return frappe.db.sql(""" select name, price_list_rate, uom
-		from `tabItem Price` {conditions}
-		order by uom desc, min_qty desc """.format(conditions=conditions), args)
+	return frappe.db.sql(""" SELECT `name`, `price_list_rate`, `uom`
+		FROM `tabItem Price` {conditions}
+		ORDER BY `uom` DESC, `min_qty` DESC, `price_list_rate` ASC; """.format(conditions=conditions), args)
 
 def get_price_list_rate_for(args, item_code):
 	"""
