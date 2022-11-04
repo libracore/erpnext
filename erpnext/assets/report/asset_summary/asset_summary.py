@@ -152,7 +152,7 @@ def get_data(filters):
             row['net_asset_value_as_on_from_date'] = (flt(row.get('cost_as_on_from_date')) - 
                 flt(row.get('accumulated_depreciation_as_on_from_date')))
             
-            if asset.disposal_date:
+            if asset.disposal_date and getdate(asset.disposal_date) <= getdate(filters.to_date):
                 row['net_asset_value_as_on_to_date'] = 0       # disposed asset: 0-value when an asset has been disposed
             else:
                 row['net_asset_value_as_on_to_date'] = (flt(row.get('cost_as_on_to_date')) - 

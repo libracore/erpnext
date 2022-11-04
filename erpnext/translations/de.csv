@@ -3336,7 +3336,6 @@ apps/erpnext/erpnext/selling/report/customer_acquisition_and_loyalty/customer_ac
 DocType: Soil Texture,Silty Clay Loam,Siltiger Ton Lehm
 DocType: Quiz,Enter 0 to waive limit,"Geben Sie 0 ein, um das Limit aufzuheben"
 DocType: Bank Statement Settings,Mapped Items,Zugeordnete Elemente
-DocType: Amazon MWS Settings,IT,ES
 DocType: Chapter,Chapter,Gruppe
 apps/erpnext/erpnext/utilities/user_progress.py,Pair,Paar
 DocType: Mode of Payment Account,Default account will be automatically updated in POS Invoice when this mode is selected.,"Das Standardkonto wird in POS-Rechnung automatisch aktualisiert, wenn dieser Modus ausgewählt ist."

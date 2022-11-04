@@ -73,7 +73,7 @@
    "fieldtype": "Select",
    "label": "Series",
    "no_copy": 1,
-   "options": "MFG-WO-.YYYY.-",
+   "options": "WO-.YY.-",
    "print_hide": 1,
    "reqd": 1,
    "set_only_once": 1
@@ -471,7 +471,7 @@
  "idx": 1,
  "image_field": "image",
  "is_submittable": 1,
- "modified": "2021-10-18 12:29:35.315239",
+ "modified": "2022-10-31 12:07:52.008148",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Work Order",
@@ -500,6 +500,7 @@
    "role": "Stock User"
   }
  ],
+ "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "ASC",
  "title_field": "production_item",
