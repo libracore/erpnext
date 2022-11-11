@@ -5361,7 +5361,7 @@ No Result for tests with no results. Also, no Lab Test is created. e.g.. Sub Tes
 apps/erpnext/erpnext/accounts/doctype/payment_entry/payment_entry.py,Row #{0}: Duplicate entry in References {1} {2},Zeile # {0}: Eintrag in Referenzen {1} {2} duplizieren
 apps/erpnext/erpnext/config/manufacturing.py,Where manufacturing operations are carried.,"Ort, an dem Arbeitsgänge der Fertigung ablaufen."
 apps/erpnext/erpnext/education/doctype/instructor/instructor.js,As Examiner,Als Prüfer
-DocType: Company,Default Expense Claim Payable Account,Standard-Expense Claim Zahlbares Konto
+DocType: Company,Default Expense Claim Payable Account,Standard-Spesendurchlaufskonto
 DocType: Appointment Type,Default Duration,Standarddauer
 DocType: BOM Explosion Item,Source Warehouse,Ausgangslager
 DocType: Installation Note,Installation Date,Datum der Installation
