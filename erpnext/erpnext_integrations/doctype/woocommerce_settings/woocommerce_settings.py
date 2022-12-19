@@ -105,7 +105,7 @@ class WoocommerceSettings(Document):
 		endpoint = "/api/method/erpnext.erpnext_integrations.connectors.woocommerce_connection.order"
 
 		try:
-			url = frappe.request.url
+			url = frappe.utils.get_request_site_address()
 		except RuntimeError:
 			# for CI Test to work
 			url = "http://localhost:8000"
