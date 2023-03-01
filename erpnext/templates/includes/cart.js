@@ -80,7 +80,9 @@ $.extend(shopping_cart, {
 			}
 			input.val(newVal);
 			var item_code = input.attr("data-item-code");
-			shopping_cart.shopping_cart_update({item_code, qty: newVal});
+            var textarea = $('textarea[data-item-code="' + item_code + '"]');
+            var notes = textarea.val();
+			shopping_cart.shopping_cart_update({item_code, qty: newVal, additional_notes: notes});
 		});
 	},
 

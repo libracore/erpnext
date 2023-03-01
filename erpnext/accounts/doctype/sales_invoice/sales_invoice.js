@@ -132,14 +132,14 @@ erpnext.accounts.SalesInvoiceController = erpnext.selling.SellingController.exte
 		}
         
         if ((doc.__islocal) && (doc.customer)) {
-            var customer = frappe.model.get_doc("Customer", doc.customer);
+            /*var customer = frappe.model.get_doc("Customer", doc.customer);
             cur_frm.set_value("payment_terms_template", customer.payment_terms);
             console.log("set " + customer.payment_terms);
             setTimeout(function () {
                 if ((!cur_frm.doc.due_date) && (cur_frm.doc.payment_schedule) && (cur_frm.doc.payment_schedule.length > 0)) {
                     cur_frm.set_value("due_date", cur_frm.doc.payment_schedule[0].due_date);
                 }
-            }, 500);
+            }, 500); */
         }
 	},
 
@@ -842,6 +842,28 @@ frappe.ui.form.on('Sales Invoice', {
 			method: "erpnext.accounts.doctype.sales_invoice.sales_invoice.create_invoice_discounting",
 			frm: frm
 		});
+	},
+    
+    payment_terms_template: function(frm) {
+		if(frm.doc.payment_terms_template) {
+			frappe.call({
+				method: "erpnext.controllers.accounts_controller.get_payment_terms",
+				args: {
+					terms_template: frm.doc.payment_terms_template,
+					posting_date: frm.doc.posting_date,
+					grand_total: frm.doc.rounded_total || frm.doc.grand_total,
+					bill_date: frm.doc.bill_date
+				},
+				callback: function(r) {
+					if(r.message && !r.exc) {
+						me.frm.set_value("payment_schedule", r.message);
+					}
+                    if (frm.doc.payment_schedule.length > 0) {
+                        cur_frm.set_value("due_date", frm.doc.payment_schedule[0].due_date);
+                    }
+				}
+			})
+		}
 	}
 })
 

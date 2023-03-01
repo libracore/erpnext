@@ -283,9 +283,9 @@
    "fieldname": "source_exchange_rate",
    "fieldtype": "Float",
    "label": "Exchange Rate",
+   "precision": "8",
    "print_hide": 1,
-   "reqd": 1,
-   "precision": "8"
+   "reqd": 1
   },
   {
    "fieldname": "base_paid_amount",
@@ -313,9 +313,9 @@
    "fieldname": "target_exchange_rate",
    "fieldtype": "Float",
    "label": "Exchange Rate",
+   "precision": "8",
    "print_hide": 1,
-   "reqd": 1,
-   "precision": "8"
+   "reqd": 1
   },
   {
    "fieldname": "base_received_amount",
@@ -538,6 +538,7 @@
    "depends_on": "party",
    "fieldname": "bank_account",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Company Bank Account",
    "options": "Bank Account"
   },
@@ -545,6 +546,7 @@
    "depends_on": "party",
    "fieldname": "party_bank_account",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Party Bank Account",
    "options": "Bank Account"
   },
@@ -568,7 +570,7 @@
   }
  ],
  "is_submittable": 1,
- "modified": "2022-01-17 21:29:21.108857",
+ "modified": "2022-12-22 19:51:01.128164",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Payment Entry",

@@ -375,21 +375,21 @@ def get_columns(filters):
 			"width": 180
 		},
 		{
-			"label": _("Debit ({0})".format(currency)),
+			"label": "{0} ({1})".format(_("Debit"), currency),
 			"fieldname": "debit",
 			"fieldtype": "Float",
 			"width": 100,
             "precision": 2
 		},
 		{
-			"label": _("Credit ({0})".format(currency)),
+			"label": "{0} ({1})".format(_("Credit"), currency),
 			"fieldname": "credit",
 			"fieldtype": "Float",
 			"width": 100,
             "precision": 2
 		},
 		{
-			"label": _("Balance ({0})".format(currency)),
+			"label": "{0} ({1})".format(_("Balance"), currency),
 			"fieldname": "balance",
 			"fieldtype": "Float",
 			"width": 130,
