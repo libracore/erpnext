@@ -364,6 +364,8 @@ class SellingController(StockController):
 				po_nos = frappe.get_all('Sales Order', 'po_no', filters = {'name': ('in', sales_orders)})
 				if po_nos and po_nos[0].get('po_no'):
 					self.po_no = ', '.join(list(set([d.po_no for d in po_nos if d.po_no])))
+					if len(self.po_no) > 140:
+						self.po_no = "{0}..".format(self.po_no[:138])
 
 	def set_gross_profit(self):
 		if self.doctype == "Sales Order":
