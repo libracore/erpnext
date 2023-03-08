@@ -43,7 +43,8 @@ def get_data(filters):
             IFNULL(`tabAsset`.`disposal_date`, `tabAsset`.`purchase_date`) AS `date_key`
         FROM `tabAsset`
         WHERE 
-            (`tabAsset`.`purchase_date` >= "{from_date}"
+            `tabAsset`.`docstatus` < 2
+            AND (`tabAsset`.`purchase_date` >= "{from_date}"
              AND `tabAsset`.`purchase_date` <= "{to_date}")
             OR (`tabAsset`.`disposal_date` >= "{from_date}"
              AND `tabAsset`.`disposal_date` <= "{to_date}")
