@@ -35,7 +35,7 @@ class Lead(SellingController):
 		})
 
 		self.set_status()
-		self.check_email_id_is_unique()
+		# self.check_email_id_is_unique()           # remove 2023-02-06: can be achieved by setting customize: unique (thereby it is configurable)
 
 		if self.email_id:
 			if not self.flags.ignore_email_validation:
