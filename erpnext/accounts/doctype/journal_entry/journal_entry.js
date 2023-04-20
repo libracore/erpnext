@@ -318,8 +318,8 @@ erpnext.accounts.JournalEntry = frappe.ui.form.Controller.extend({
 	},
 
 	accounts_add: function(doc, cdt, cdn) {
-		/* 2023-03-31: do not copy debtors/creditors, this leads to issues with foreign currencies 
-        var row = frappe.get_doc(cdt, cdn);
+		var row = frappe.get_doc(cdt, cdn);
+        /* 2023-03-31: do not copy debtors/creditors, this leads to issues with foreign currencies 
 		$.each(doc.accounts, function(i, d) {
 			if(d.account && d.party && d.party_type) {
 				row.account = d.account;
