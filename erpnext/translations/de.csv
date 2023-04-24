@@ -156,6 +156,7 @@
 "apps/erpnext/erpnext/accounts/doctype/journal_entry/journal_entry.py","Row {0}: {1} {2} does not match with {3}","Zeile {0}: {1} {2} stimmt nicht mit {3} überein"
 "apps/erpnext/erpnext/stock/doctype/stock_reconciliation/stock_reconciliation.py","Row # {0}:","Zeile # {0}:"
 "DocType: Timesheet","Total Costing Amount","Gesamtkalkulation Betrag"
+"DocType: Timesheet","Overlap problem","Überschneidungsproblem"
 "DocType: Sales Invoice","Vehicle No","Fahrzeug-Nr."
 "apps/erpnext/erpnext/manufacturing/doctype/bom/bom.py","Please select Price List","Bitte eine Preisliste auswählen"
 "DocType: Accounts Settings","Currency Exchange Settings","Einstellungen Währungsumtausch"

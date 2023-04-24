@@ -162,15 +162,26 @@ class Timesheet(Document):
 
 		existing = self.get_overlap_for(fieldname, args, value)
 		if existing:
-			frappe.throw(_("Row {0}: From Time and To Time of {1} is overlapping with {2}")
-				.format(args.idx, self.name, existing.name), OverlapError)
+			if type(existing) == tuple:
+				frappe.throw(
+					title=_('Overlap problem'),
+					msg="<b>{ts}:</b><br> <b> {row} {r1}</b>: {fr} <b>{tf1}</b> {to} <b>{tt1}</b> <br> <b>{row} {r2}</b>: {fr} <b>{tf2}</b> {to} <b>{tt2}</b>"
+					.format(ts=self.name, r1=args.idx, tf1=args.from_time, tt1=args.to_time, r2=existing[1]['idx'], tf2=existing[1]['from_time'], tt2=existing[1]['to_time'], row=_("Row"), fr=_("From"), to=_("to"))
+				)
+			else:
+				frappe.throw(
+					title=_('Overlap problem'),
+					msg=_("<b>{ts1}:</b> <br> <b>{row} {r1}</b>: {fr} <b>{tf1}</b> {to} <b>{tt1}</b> <br><br> <b>{ts2}:</b> <br> <b>{row} {r2}</b>: {fr} <b>{tf2}</b> {to} <b>{tt2}</b>")
+					.format(ts1=self.name, r1=args.idx, tf1=args.from_time, tt1=args.to_time, ts2=existing.name, r2=existing.idx, tf2=existing.from_time, tt2=existing.to_time, row=_("Row"), fr=_("From"), to=_("to"))
+				)
 
 	def get_overlap_for(self, fieldname, args, value):
+		row = None
 		cond = "ts.`{0}`".format(fieldname)
 		if fieldname == 'workstation':
 			cond = "tsd.`{0}`".format(fieldname)
 
-		existing = frappe.db.sql("""select ts.name as name, tsd.from_time as from_time, tsd.to_time as to_time from
+		existing = frappe.db.sql("""select ts.name as name, tsd.from_time as from_time, tsd.to_time as to_time, tsd.idx as idx from
 			`tabTimesheet Detail` tsd, `tabTimesheet` ts where {0}=%(val)s and tsd.parent = ts.name and
 			(
 				(%(from_time)s > tsd.from_time and %(from_time)s < tsd.to_time) or
@@ -192,7 +203,9 @@ class Timesheet(Document):
 				args.idx != time_log.idx and ((args.from_time > time_log.from_time and args.from_time < time_log.to_time) or
 				(args.to_time > time_log.from_time and args.to_time < time_log.to_time) or
 				(args.from_time <= time_log.from_time and args.to_time >= time_log.to_time)):
-				return self
+				
+				row = {'idx': time_log.idx, 'name': time_log.parent, 'from_time': time_log.from_time, 'to_time': time_log.to_time}			
+				return self, row
 
 		return existing[0] if existing else None
 
