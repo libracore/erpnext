@@ -7,7 +7,7 @@ import frappe
 import unittest
 from bs4 import BeautifulSoup
 from frappe.tests.test_website import set_request
-from frappe.website.render import render
+from frappe.website.utils import render
 
 class TestHomepageSection(unittest.TestCase):
 	def test_homepage_section_card(self):

@@ -7,8 +7,7 @@ import frappe
 from frappe.utils import getdate, validate_email_address, today, add_years, format_datetime
 from frappe.model.naming import set_name_by_naming_series
 from frappe import throw, _, scrub
-from frappe.permissions import add_user_permission, remove_user_permission, \
-	set_user_permission_if_allowed, has_permission
+from frappe.permissions import add_user_permission, remove_user_permission, has_permission
 from frappe.model.document import Document
 from erpnext.utilities.transaction_base import delete_events
 from frappe.utils.nestedset import NestedSet
@@ -99,7 +98,7 @@ class Employee(NestedSet):
 		if employee_user_permission_exists: return
 
 		add_user_permission("Employee", self.name, self.user_id)
-		set_user_permission_if_allowed("Company", self.company, self.user_id)
+		add_user_permission("Company", self.company, self.user_id)
 
 	def update_user(self):
 		settings = frappe.get_doc("HR Settings", "HR Settings")

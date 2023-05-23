@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 import frappe
-import frappe.website.render
+import frappe.website.utils
 
 def execute():
 	for item_code in frappe.db.sql_list("""select distinct variant_of from `tabItem`
@@ -12,4 +12,4 @@ def execute():
 		item.make_route()
 		item.db_set("route", item.route, update_modified=False)
 
-	frappe.website.render.clear_cache()
+	frappe.website.utils.clear_cache()

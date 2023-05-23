@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 import frappe
-import frappe.website.render
+import frappe.website.utils
 
 page_title = "Partners"
 
