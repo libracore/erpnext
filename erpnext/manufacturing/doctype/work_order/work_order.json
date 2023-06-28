@@ -359,6 +359,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "total_operating_cost",
    "fieldtype": "Currency",
    "label": "Total Operating Cost",
@@ -471,7 +472,7 @@
  "idx": 1,
  "image_field": "image",
  "is_submittable": 1,
- "modified": "2022-10-31 12:07:52.008148",
+ "modified": "2023-06-28 18:14:18.502272",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Work Order",
