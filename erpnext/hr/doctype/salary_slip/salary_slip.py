@@ -361,12 +361,11 @@ class SalarySlip(TransactionBase):
 			return amount
 
 		except NameError as err:
-			frappe.throw(_("Name error: {0}".format(err)))
+			frappe.throw(_("Name error: {0} ({1})".format(err, d.abbr)))
 		except SyntaxError as err:
-			frappe.throw(_("Syntax error in formula or condition: {0}".format(err)))
-		except Exception as e:
-			frappe.throw(_("Error in formula or condition: {0}".format(e)))
-			raise
+			frappe.throw(_("Syntax error in formula or condition: {0} ({1})".format(err, d.abbr)))
+		except Exception as err:
+			frappe.throw(_("Error in formula or condition: {0} ({1})".format(err, d.abbr)))
 
 	def add_employee_benefits(self, payroll_period):
 		for struct_row in self._salary_structure_doc.get("earnings"):
