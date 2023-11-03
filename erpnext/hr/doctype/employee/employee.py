@@ -7,8 +7,13 @@ import frappe
 from frappe.utils import getdate, validate_email_address, today, add_years, format_datetime
 from frappe.model.naming import set_name_by_naming_series
 from frappe import throw, _, scrub
-from frappe.permissions import add_user_permission, remove_user_permission, \
-	set_user_permission_if_allowed, has_permission
+from frappe.permissions import (
+	add_user_permission,
+	get_doc_permissions,
+	has_permission,
+	remove_user_permission,
+	set_user_permission_if_allowed,
+)
 from frappe.model.document import Document
 from erpnext.utilities.transaction_base import delete_events
 from frappe.utils.nestedset import NestedSet
