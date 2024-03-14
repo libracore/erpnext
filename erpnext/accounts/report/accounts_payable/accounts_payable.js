@@ -53,10 +53,26 @@ frappe.query_reports["Accounts Payable"] = {
 			"reqd": 1
 		},
 		{
+			"fieldname":"account",
+			"label": __("Account"),
+			"fieldtype": "Link",
+			"options": "Account",
+            "get_query": () => {
+				var company = frappe.query_report.get_filter_value('company');
+				return {
+					filters: {
+						'company': company,
+                        'account_type': "Payable"
+					}
+				}
+			}
+		},
+		{
 			"fieldname":"finance_book",
 			"label": __("Finance Book"),
 			"fieldtype": "Link",
-			"options": "Finance Book"
+			"options": "Finance Book",
+			"hidden": 1
 		},
 		{
 			"fieldname":"cost_center",
