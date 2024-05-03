@@ -52,11 +52,27 @@ frappe.query_reports["Accounts Receivable"] = {
 			"default": "120",
 			"reqd": 1
 		},
+        {
+			"fieldname":"account",
+			"label": __("Account"),
+			"fieldtype": "Link",
+			"options": "Account",
+            "get_query": () => {
+				var company = frappe.query_report.get_filter_value('company');
+				return {
+					filters: {
+						'company': company,
+                        'account_type': "Receivable"
+					}
+				}
+			}
+		},
 		{
 			"fieldname":"finance_book",
 			"label": __("Finance Book"),
 			"fieldtype": "Link",
-			"options": "Finance Book"
+			"options": "Finance Book",
+			"hidden": 1
 		},
 		{
 			"fieldname":"cost_center",
@@ -134,21 +150,25 @@ frappe.query_reports["Accounts Receivable"] = {
 			"fieldname":"based_on_payment_terms",
 			"label": __("Based On Payment Terms"),
 			"fieldtype": "Check",
+			"hidden": 1
 		},
 		{
 			"fieldname":"show_future_payments",
 			"label": __("Show Future Payments"),
 			"fieldtype": "Check",
+			"hidden": 1
 		},
 		{
 			"fieldname":"show_delivery_notes",
 			"label": __("Show Delivery Notes"),
 			"fieldtype": "Check",
+			"hidden": 1
 		},
 		{
 			"fieldname":"show_sales_person",
 			"label": __("Show Sales Person"),
 			"fieldtype": "Check",
+			"hidden": 1
 		},
 		{
 			"fieldname":"tax_id",

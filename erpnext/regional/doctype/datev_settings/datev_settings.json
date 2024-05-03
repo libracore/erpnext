@@ -1,5 +1,4 @@
 {
- "actions": [],
  "autoname": "field:client",
  "creation": "2019-08-13 23:56:34.259906",
  "doctype": "DocType",
@@ -13,7 +12,9 @@
   "section_break_4",
   "consultant",
   "column_break_6",
-  "consultant_number"
+  "consultant_number",
+  "sec_advanced",
+  "encoding"
  ],
  "fields": [
   {
@@ -66,10 +67,21 @@
    "fieldtype": "Int",
    "label": "Account Number Length",
    "reqd": 1
+  },
+  {
+   "fieldname": "sec_advanced",
+   "fieldtype": "Section Break",
+   "label": "Advanced"
+  },
+  {
+   "default": "latin_1",
+   "fieldname": "encoding",
+   "fieldtype": "Select",
+   "label": "Encoding",
+   "options": "latin_1\ncp1252\nutf-8"
   }
  ],
- "links": [],
- "modified": "2020-11-05 17:52:11.674329",
+ "modified": "2023-03-02 11:31:16.647033",
  "modified_by": "Administrator",
  "module": "Regional",
  "name": "DATEV Settings",

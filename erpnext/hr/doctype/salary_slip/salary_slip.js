@@ -126,7 +126,14 @@ frappe.ui.form.on("Salary Slip", {
 				frm.refresh();
 			}
 		});
-	}
+	},
+    on_submit: function(frm) {
+        if (frm.doc.payroll_entry) {
+            // should not submit Salary Slips from Payrolls directly
+            frappe.msgprint( __("Please submit this document from the Payroll Entry."), __("Validation") );
+            frappe.validated = false;
+        }
+    }
 })
 
 frappe.ui.form.on('Salary Slip Timesheet', {

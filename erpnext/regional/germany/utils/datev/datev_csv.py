@@ -29,6 +29,8 @@ def get_datev_csv(data, filters, csv_class):
 	empty_df = pd.DataFrame(columns=csv_class.COLUMNS)
 	data_df = pd.DataFrame.from_records(data)
 	result = empty_df.append(data_df, sort=True)
+	company = filters.get('company')
+	datev_settings = frappe.get_doc('DATEV Settings', {'client': company})
 
 	if csv_class.DATA_CATEGORY == DataCategory.TRANSACTIONS:
 		result['Belegdatum'] = pd.to_datetime(result['Belegdatum'])
@@ -42,7 +44,7 @@ def get_datev_csv(data, filters, csv_class):
 		# European decimal seperator
 		decimal=',',
 		# Windows "ANSI" encoding
-		encoding='latin_1',
+		encoding=datev_settings.encoding or 'latin_1',
 		# format date as DDMM
 		date_format='%d%m',
 		# Windows line terminator
@@ -56,10 +58,10 @@ def get_datev_csv(data, filters, csv_class):
 	)
 
 	if not six.PY2:
-		data = data.encode('latin_1')
+		data = data.encode(datev_settings.encoding or 'latin_1')
 
 	header = get_header(filters, csv_class)
-	header = ';'.join(header).encode('latin_1')
+	header = ';'.join(header).encode(datev_settings.encoding or 'latin_1')
 
 	# 1st Row: Header with meta data
 	# 2nd Row: Data heading (Überschrift der Nutzdaten), included in `data` here.
