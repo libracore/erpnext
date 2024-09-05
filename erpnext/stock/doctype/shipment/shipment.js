@@ -152,7 +152,7 @@ frappe.ui.form.on('Shipment', {
 						}
 						frappe.throw(__("Email or Phone/Mobile of the Contact are mandatory to continue.")
 							+ "</br>" + __("Please set Email/Phone for the contact")
-							+ ` <a href='/app/contact/${contact_name}'>${contact_name}</a>`);
+							+ " <a href='" + frappe.utils.get_form_link("Contact", contact_name) + "'>" + contact_name + "</a>");
 					}
 					let contact_display = r.message.contact_display;
 					if (r.message.contact_email) {

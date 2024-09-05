@@ -29,6 +29,8 @@ class StockReconciliation(StockController):
 		self.validate_posting_time()
 		if not self.ignore_remove_items_with_no_change:
 			self.remove_items_with_no_change()
+		else:
+			self.calculate_difference_amount()
 		self.validate_data()
 		self.validate_expense_account()
 		self.set_total_qty_and_amount()
@@ -86,6 +88,12 @@ class StockReconciliation(StockController):
 			for i, item in enumerate(self.items):
 				item.idx = i + 1
 			frappe.msgprint(_("Removed items with no change in quantity or value."))
+
+	def calculate_difference_amount(self):
+		self.difference_amount = 0.0
+		for item in self.items:
+			self.difference_amount += item.amount_difference
+
 
 	def validate_data(self):
 		def _get_msg(row_num, msg):

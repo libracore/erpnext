@@ -43,7 +43,7 @@ class SellingController(StockController):
 		self.set_qty_as_per_stock_uom()
 		self.set_po_nos()
 		self.set_gross_profit()
-		set_default_income_account_for_item(self)
+		# set_default_income_account_for_item(self)		# removed as it causes more harm by setting the first occurence as default
 		self.set_customer_address()
 		self.validate_for_duplicate_items()
 

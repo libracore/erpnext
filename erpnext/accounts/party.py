@@ -300,8 +300,7 @@ def validate_party_accounts(doc):
 
 		if doc.get("default_currency") and party_account_currency and company_default_currency:
 			if not (party_account_currency == doc.default_currency or party_account_currency == company_default_currency):
-				frappe.throw(_("Billing currency must be equal to debtor's currency or company's currency equal to debtor's currency"))
-
+				frappe.throw(_("Billing currency must be equal to debtor's currency or company's currency equal to debtor's currency ({0})").format(account.company))
 
 @frappe.whitelist()
 def get_due_date(posting_date, party_type, party, company=None, bill_date=None):
