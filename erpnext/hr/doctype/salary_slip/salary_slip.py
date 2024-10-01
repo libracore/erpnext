@@ -72,6 +72,11 @@ class SalarySlip(TransactionBase):
 		self.set_status()
 		self.update_status()
 		self.update_salary_slip_in_additional_salary()
+		self.cancel_journal_entry()
+	
+	def cancel_journal_entry(self):
+		if self.journal_entry and not self.payroll_entry:
+			frappe.get_doc("Journal Entry", self.journal_entry).cancel()
 
 	def on_trash(self):
 		from frappe.model.naming import revert_series_if_last

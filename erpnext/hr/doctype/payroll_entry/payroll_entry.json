@@ -260,7 +260,7 @@
  ],
  "icon": "fa fa-cog",
  "is_submittable": 1,
- "modified": "2019-09-12 15:46:31.436381",
+ "modified": "2024-10-01 09:32:08.622510",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Payroll Entry",
@@ -269,7 +269,6 @@
   {
    "cancel": 1,
    "create": 1,
-   "delete": 1,
    "read": 1,
    "report": 1,
    "role": "HR Manager",

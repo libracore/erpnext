@@ -14,12 +14,12 @@ from erpnext.hr.doctype.employee.employee import get_holiday_list_for_employee
 class PayrollEntry(Document):
 	def onload(self):
 		if not self.docstatus==1 or self.salary_slips_submitted:
-    			return
+			return
 
 		# check if salary slips were manually submitted
 		entries = frappe.db.count("Salary Slip", {'payroll_entry': self.name, 'docstatus': 1}, ['name'])
 		if cint(entries) == len(self.employees):
-    			self.set_onload("submitted_ss", True)
+			self.set_onload("submitted_ss", True)
 
 	def on_submit(self):
 		pass #self.create_salary_slips()   # will be done by the function call
@@ -30,8 +30,14 @@ class PayrollEntry(Document):
 				frappe.throw(_("Cannot Submit, Employees left to mark attendance"))
 
 	def on_cancel(self):
-		frappe.delete_doc("Salary Slip", frappe.db.sql_list("""select name from `tabSalary Slip`
-			where payroll_entry=%s """, (self.name)))
+		self.cancel_salary_slip()
+	
+	def cancel_salary_slip(self):
+		salary_slips = frappe.db.sql("""SELECT `name`, `journal_entry` FROM `tabSalary Slip` WHERE `payroll_entry` = '{0}' AND `docstatus` = 1""".format(self.name), as_dict=True)
+		for salary_slip in salary_slips:
+			frappe.get_doc("Salary Slip", salary_slip.name).cancel()
+		if salary_slips[0].journal_entry:
+			frappe.get_doc("Journal Entry", salary_slips[0].journal_entry).cancel()
 
 	def get_emp_list(self):
 		"""
