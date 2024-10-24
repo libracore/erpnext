@@ -11,8 +11,7 @@ from frappe.permissions import (
 	add_user_permission,
 	get_doc_permissions,
 	has_permission,
-	remove_user_permission,
-	set_user_permission_if_allowed,
+	remove_user_permission
 )
 from frappe.model.document import Document
 from erpnext.utilities.transaction_base import delete_events
@@ -104,7 +103,7 @@ class Employee(NestedSet):
 		if employee_user_permission_exists: return
 
 		add_user_permission("Employee", self.name, self.user_id)
-		set_user_permission_if_allowed("Company", self.company, self.user_id)
+		add_user_permission("Company", self.company, self.user_id)
 
 	def update_user(self):
 		settings = frappe.get_doc("HR Settings", "HR Settings")
