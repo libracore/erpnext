@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2017, Frappe Technologies Pvt. Ltd. and contributors
+# Copyright (c) 2017-2024, libracore, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
@@ -36,8 +36,10 @@ class PayrollEntry(Document):
 		salary_slips = frappe.db.sql("""SELECT `name`, `journal_entry` FROM `tabSalary Slip` WHERE `payroll_entry` = '{0}' AND `docstatus` = 1""".format(self.name), as_dict=True)
 		for salary_slip in salary_slips:
 			frappe.get_doc("Salary Slip", salary_slip.name).cancel()
-		if salary_slips[0].journal_entry:
+		# find corresponding journal entry
+		if len(salary_slips) > 0 and salary_slips[0].journal_entry:
 			frappe.get_doc("Journal Entry", salary_slips[0].journal_entry).cancel()
+		return
 
 	def get_emp_list(self):
 		"""
