@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2015-2024, libracore, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 
 import re
-from past.builtins import cmp
+from frappe.utils import cmp
 import functools
 
 import frappe, erpnext
