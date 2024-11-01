@@ -27,8 +27,7 @@
   "base_tax_amount",
   "base_total",
   "base_tax_amount_after_discount_amount",
-  "item_wise_tax_detail",
-  "parenttype"
+  "item_wise_tax_detail"
  ],
  "fields": [
   {
@@ -195,15 +194,6 @@
    "oldfieldtype": "Small Text",
    "print_hide": 1,
    "read_only": 1
-  },
-  {
-   "fieldname": "parenttype",
-   "fieldtype": "Data",
-   "hidden": 1,
-   "label": "Parenttype",
-   "oldfieldname": "parenttype",
-   "oldfieldtype": "Data",
-   "print_hide": 1
   },
   {
    "fieldname": "accounting_dimensions_section",

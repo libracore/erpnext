@@ -11,7 +11,7 @@ from frappe.desk.reportview import build_match_conditions, get_filters_cond
 from erpnext.utilities.transaction_base import TransactionBase
 from erpnext.accounts.party import validate_party_accounts, get_dashboard_info, get_timeline_data # keep this
 from frappe.contacts.address_and_contact import load_address_and_contact, delete_contact_and_address
-from frappe.model.rename_doc import update_linked_doctypes
+from frappe.model.utils.rename_doc import update_linked_doctypes
 
 class Customer(TransactionBase):
 	def get_feed(self):
