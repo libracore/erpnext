@@ -3,13 +3,13 @@ from frappe import _
 
 app_name = "erpnext"
 app_title = "ERPNext"
-app_publisher = "Frappe Technologies Pvt. Ltd."
-app_description = """ERP made simple"""
+app_publisher = "libracore AG"
+app_description = """libracore business software"""
 app_icon = "fa fa-th"
 app_color = "#e74c3c"
-app_email = "info@erpnext.com"
+app_email = "info@libracore.com"
 app_license = "GNU General Public License (v3)"
-source_link = "https://github.com/frappe/erpnext"
+source_link = "https://github.com/libracore/erpnext"
 app_logo_url = '/assets/erpnext/images/erp-icon.svg'
 
 
@@ -355,52 +355,54 @@ user_privacy_documents = [
 	}
 ]
 
-global_search_doctypes = [
-	{"doctype": "Customer", "index": 0},
-	{"doctype": "Supplier", "index": 1},
-	{"doctype": "Item", "index": 2},
-	{"doctype": "Warehouse", "index": 3},
-	{"doctype": "Account", "index": 4},
-	{"doctype": "Employee", "index": 5},
-	{"doctype": "BOM", "index": 6},
-	{"doctype": "Sales Invoice", "index": 7},
-	{"doctype": "Sales Order", "index": 8},
-	{"doctype": "Quotation", "index": 9},
-	{"doctype": "Work Order", "index": 10},
-	{"doctype": "Purchase Receipt", "index": 11},
-	{"doctype": "Purchase Invoice", "index": 12},
-	{"doctype": "Delivery Note", "index": 13},
-	{"doctype": "Stock Entry", "index": 14},
-	{"doctype": "Material Request", "index": 15},
-	{"doctype": "Delivery Trip", "index": 16},
-	{"doctype": "Pick List", "index": 17},
-	{"doctype": "Salary Slip", "index": 18},
-	{"doctype": "Leave Application", "index": 19},
-	{"doctype": "Expense Claim", "index": 20},
-	{"doctype": "Payment Entry", "index": 21},
-	{"doctype": "Lead", "index": 22},
-	{"doctype": "Opportunity", "index": 23},
-	{"doctype": "Item Price", "index": 24},
-	{"doctype": "Purchase Taxes and Charges Template", "index": 25},
-	{"doctype": "Sales Taxes and Charges", "index": 26},
-	{"doctype": "Asset", "index": 27},
-	{"doctype": "Project", "index": 28},
-	{"doctype": "Task", "index": 29},
-	{"doctype": "Timesheet", "index": 30},
-	{"doctype": "Issue", "index": 31},
-	{"doctype": "Serial No", "index": 32},
-	{"doctype": "Batch", "index": 33},
-	{"doctype": "Branch", "index": 34},
-	{"doctype": "Department", "index": 35},
-	{"doctype": "Employee Grade", "index": 36},
-	{"doctype": "Designation", "index": 37},
-	{"doctype": "Job Opening", "index": 38},
-	{"doctype": "Job Applicant", "index": 39},
-	{"doctype": "Job Offer", "index": 40},
-	{"doctype": "Salary Structure Assignment", "index": 41},
-	{"doctype": "Appraisal", "index": 42},
-	{"doctype": "Loan", "index": 43},
-	{"doctype": "Maintenance Schedule", "index": 44},
-	{"doctype": "Maintenance Visit", "index": 45},
-	{"doctype": "Warranty Claim", "index": 46},
-]
+global_search_doctypes = {
+    "Default": [
+        {"doctype": "Customer", "index": 0},
+        {"doctype": "Supplier", "index": 1},
+        {"doctype": "Item", "index": 2},
+        {"doctype": "Warehouse", "index": 3},
+        {"doctype": "Account", "index": 4},
+        {"doctype": "Employee", "index": 5},
+        {"doctype": "BOM", "index": 6},
+        {"doctype": "Sales Invoice", "index": 7},
+        {"doctype": "Sales Order", "index": 8},
+        {"doctype": "Quotation", "index": 9},
+        {"doctype": "Work Order", "index": 10},
+        {"doctype": "Purchase Receipt", "index": 11},
+        {"doctype": "Purchase Invoice", "index": 12},
+        {"doctype": "Delivery Note", "index": 13},
+        {"doctype": "Stock Entry", "index": 14},
+        {"doctype": "Material Request", "index": 15},
+        {"doctype": "Delivery Trip", "index": 16},
+        {"doctype": "Pick List", "index": 17},
+        {"doctype": "Salary Slip", "index": 18},
+        {"doctype": "Leave Application", "index": 19},
+        {"doctype": "Expense Claim", "index": 20},
+        {"doctype": "Payment Entry", "index": 21},
+        {"doctype": "Lead", "index": 22},
+        {"doctype": "Opportunity", "index": 23},
+        {"doctype": "Item Price", "index": 24},
+        {"doctype": "Purchase Taxes and Charges Template", "index": 25},
+        {"doctype": "Sales Taxes and Charges", "index": 26},
+        {"doctype": "Asset", "index": 27},
+        {"doctype": "Project", "index": 28},
+        {"doctype": "Task", "index": 29},
+        {"doctype": "Timesheet", "index": 30},
+        {"doctype": "Issue", "index": 31},
+        {"doctype": "Serial No", "index": 32},
+        {"doctype": "Batch", "index": 33},
+        {"doctype": "Branch", "index": 34},
+        {"doctype": "Department", "index": 35},
+        {"doctype": "Employee Grade", "index": 36},
+        {"doctype": "Designation", "index": 37},
+        {"doctype": "Job Opening", "index": 38},
+        {"doctype": "Job Applicant", "index": 39},
+        {"doctype": "Job Offer", "index": 40},
+        {"doctype": "Salary Structure Assignment", "index": 41},
+        {"doctype": "Appraisal", "index": 42},
+        {"doctype": "Loan", "index": 43},
+        {"doctype": "Maintenance Schedule", "index": 44},
+        {"doctype": "Maintenance Visit", "index": 45},
+        {"doctype": "Warranty Claim", "index": 46},
+    ]
+}
