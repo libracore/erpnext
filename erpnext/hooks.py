@@ -12,8 +12,16 @@ app_license = "GNU General Public License (v3)"
 source_link = "https://github.com/libracore/erpnext"
 app_logo_url = '/assets/erpnext/images/erp-icon.svg'
 
+add_to_apps_screen = [
+    {
+        "name": "erpnext",
+        "logo": "/assets/erpnext/images/erpnext-logo-blue.png",
+        "title": "ERPNext",
+        "route": "/app/home"
+    }
+]
 
-develop_version = '12.x.x-develop'
+develop_version = '15.x.x-develop'
 
 app_include_js = "assets/js/erpnext.min.js"
 app_include_css = "assets/css/erpnext.css"
