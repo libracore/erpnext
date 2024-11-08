@@ -23,7 +23,7 @@ def after_install():
 	add_all_roles_to("Administrator")
 	create_default_cash_flow_mapper_templates()
 	create_default_success_action()
-	create_default_energy_point_rules()
+	#create_default_energy_point_rules()
 	add_company_to_session_defaults()
 	frappe.db.commit()
 
@@ -101,7 +101,5 @@ def create_default_energy_point_rules():
 
 def add_company_to_session_defaults():
 	settings = frappe.get_single("Session Default Settings")
-	settings.append("session_defaults", {
-		"ref_doctype": "Company"
-	})
+	settings.append("session_defaults", {"ref_doctype": "Company"})
 	settings.save()
