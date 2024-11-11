@@ -222,7 +222,7 @@ class TestMaterialRequest(unittest.TestCase):
 		po.load_from_db()
 		mr.update_status('Stopped')
 		self.assertRaises(frappe.InvalidStatusError, po.submit)
-		frappe.db.set(po, "docstatus", 1)
+		frappe.db.set_value(po.doctype, po.name, "docstatus", 1)
 		self.assertRaises(frappe.InvalidStatusError, po.cancel)
 
 		# resubmit and check for per complete

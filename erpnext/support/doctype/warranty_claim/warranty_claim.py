@@ -32,7 +32,7 @@ class WarrantyClaim(TransactionBase):
 			lst1 = ','.join([x[0] for x in lst])
 			frappe.throw(_("Cancel Material Visit {0} before cancelling this Warranty Claim").format(lst1))
 		else:
-			frappe.db.set(self, 'status', 'Cancelled')
+			frappe.db.set_value(self.doctype, self.name, 'status', 'Cancelled')
 
 	def on_update(self):
 		pass

@@ -90,10 +90,10 @@ class Opportunity(TransactionBase):
 
 	def declare_enquiry_lost(self, lost_reasons_list, detailed_reason=None):
 		if not self.has_active_quotation():
-			frappe.db.set(self, 'status', 'Lost')
+			frappe.db.set_value(self.doctype, self.name, 'status', 'Lost')
 
 			if detailed_reason:
-				frappe.db.set(self, 'order_lost_reason', detailed_reason)
+				frappe.db.set_value(self.doctype, self.name, 'order_lost_reason', detailed_reason)
 
 			for reason in lost_reasons_list:
 				self.append('lost_reasons', reason)

@@ -87,7 +87,7 @@ class MaterialRequest(BuyingController):
 			self.title = _('{0} Request for {1}').format(self.material_request_type, items)[:100]
 
 	def on_submit(self):
-		# frappe.db.set(self, 'status', 'Submitted')
+		# frappe.db.set_value(self.doctype, self.name, 'status', 'Submitted')
 		self.update_requested_qty()
 		self.update_requested_qty_in_production_plan()
 		if self.material_request_type == 'Purchase':

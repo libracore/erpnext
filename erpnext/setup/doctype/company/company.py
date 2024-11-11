@@ -146,9 +146,9 @@ class Company(NestedSet):
 		frappe.local.flags.ignore_root_company_validation = True
 		create_charts(self.name, self.chart_of_accounts, self.existing_company)
 
-		frappe.db.set(self, "default_receivable_account", frappe.db.get_value("Account",
+		frappe.db.set_value(self.doctype, self.name, "default_receivable_account", frappe.db.get_value("Account",
 			{"company": self.name, "account_type": "Receivable", "is_group": 0}))
-		frappe.db.set(self, "default_payable_account", frappe.db.get_value("Account",
+		frappe.db.set_value(self.doctype, self.name, "default_payable_account", frappe.db.get_value("Account",
 			{"company": self.name, "account_type": "Payable", "is_group": 0}))
 
 	def validate_coa_input(self):
@@ -294,12 +294,12 @@ class Company(NestedSet):
 				cc_doc.flags.ignore_mandatory = True
 			cc_doc.insert()
 
-		frappe.db.set(self, "cost_center", _("Main") + " - " + self.abbr)
-		frappe.db.set(self, "round_off_cost_center", _("Main") + " - " + self.abbr)
-		frappe.db.set(self, "depreciation_cost_center", _("Main") + " - " + self.abbr)
+		frappe.db.set_value(self.doctype, self.name, "cost_center", _("Main") + " - " + self.abbr)
+		frappe.db.set_value(self.doctype, self.name, "round_off_cost_center", _("Main") + " - " + self.abbr)
+		frappe.db.set_value(self.doctype, self.name, "depreciation_cost_center", _("Main") + " - " + self.abbr)
 
 	def after_rename(self, olddn, newdn, merge=False):
-		frappe.db.set(self, "company_name", newdn)
+		frappe.db.set_value(self.doctype, self.name, "company_name", newdn)
 
 		frappe.db.sql("""update `tabDefaultValue` set defvalue=%s
 			where defkey='Company' and defvalue=%s""", (newdn, olddn))

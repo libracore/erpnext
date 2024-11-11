@@ -81,7 +81,7 @@ class Fees(AccountsController):
 
 	def on_cancel(self):
 		delete_gl_entries(voucher_type=self.doctype, voucher_no=self.name)
-		# frappe.db.set(self, 'status', 'Cancelled')
+		# frappe.db.set_value(self.doctype, self.name, 'status', 'Cancelled')
 
 
 	def make_gl_entries(self):

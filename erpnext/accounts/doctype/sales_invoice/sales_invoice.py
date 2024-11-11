@@ -244,7 +244,7 @@ class SalesInvoice(SellingController):
 			self.update_stock_ledger()
 
 		self.make_gl_entries_on_cancel()
-		frappe.db.set(self, 'status', 'Cancelled')
+		frappe.db.set_value(self.doctype, self.name, 'status', 'Cancelled')
 
 		if frappe.db.get_single_value('Selling Settings', 'sales_update_frequency') == "Each Transaction":
 			update_company_current_month_sales(self.company)
@@ -580,7 +580,7 @@ class SalesInvoice(SellingController):
 			frappe.db.sql("""delete from `tabC-Form Invoice Detail` where invoice_no = %s
 					and parent = %s""", (self.amended_from,	self.c_form_no))
 
-			frappe.db.set(self, 'c_form_no', '')
+			frappe.db.set_value(self.doctype, self.name, 'c_form_no', '')
 
 	def validate_c_form_on_cancel(self):
 		""" Display message if C-Form no exists on cancellation of Sales Invoice"""
@@ -1495,7 +1495,7 @@ def get_loyalty_programs(customer):
 	lp_details = get_loyalty_programs(customer)
 
 	if len(lp_details) == 1:
-		frappe.db.set(customer, 'loyalty_program', lp_details[0])
+		frappe.db.set_value(customer.doctype, customre.name, 'loyalty_program', lp_details[0])
 		return []
 	else:
 		return lp_details

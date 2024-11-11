@@ -338,7 +338,7 @@ def update_serial_nos(sle, item_det):
 	if sle.is_cancelled == "No" and not sle.serial_no and cint(sle.actual_qty) > 0 \
 			and item_det.has_serial_no == 1 and item_det.serial_no_series:
 		serial_nos = get_auto_serial_nos(item_det.serial_no_series, sle.actual_qty)
-		frappe.db.set(sle, "serial_no", serial_nos)
+		frappe.db.set_value(sle.doctype, sle.name, "serial_no", serial_nos)
 		validate_serial_no(sle, item_det)
 	if sle.serial_no:
 		auto_make_serial_nos(sle)

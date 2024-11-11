@@ -787,7 +787,7 @@ class PurchaseInvoice(BuyingController):
 
 		self.make_gl_entries_on_cancel()
 		self.update_project()
-		frappe.db.set(self, 'status', 'Cancelled')
+		frappe.db.set_value(self.doctype, self.name, 'status', 'Cancelled')
 
 		unlink_inter_company_doc(self.doctype, self.name, self.inter_company_invoice_reference)
 

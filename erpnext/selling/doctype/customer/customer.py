@@ -193,7 +193,7 @@ class Customer(TransactionBase):
 
 	def after_rename(self, olddn, newdn, merge=False):
 		if frappe.defaults.get_global_default('cust_master_name') == 'Customer Name':
-			frappe.db.set(self, "customer_name", newdn)
+			frappe.db.set_value(self.doctype, self.name, "customer_name", newdn)
 
 	def set_loyalty_program(self):
 		if self.loyalty_program: return

@@ -239,7 +239,7 @@ class WorkOrder(Document):
 	def on_cancel(self):
 		self.validate_cancel()
 
-		frappe.db.set(self,'status', 'Cancelled')
+		frappe.db.set_value(self.doctype, self.name, 'status', 'Cancelled')
 		self.update_work_order_qty_in_so()
 		self.delete_job_card()
 		self.update_completed_qty_in_material_request()

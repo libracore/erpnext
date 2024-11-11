@@ -78,7 +78,7 @@ class MaintenanceSchedule(TransactionBase):
 					"ref_name": self.name
 				}).insert(ignore_permissions=1)
 
-		frappe.db.set(self, 'status', 'Submitted')
+		frappe.db.set_value(self.doctype, self.name, 'status', 'Submitted')
 
 	def create_schedule_list(self, start_date, end_date, no_of_visit, sales_person):
 		schedule_list = []
@@ -170,7 +170,7 @@ class MaintenanceSchedule(TransactionBase):
 		self.validate_sales_order()
 
 	def on_update(self):
-		frappe.db.set(self, 'status', 'Draft')
+		frappe.db.set_value(self.doctype, self.name, 'status', 'Draft')
 
 	def update_amc_date(self, serial_nos, amc_expiry_date=None):
 		for serial_no in serial_nos:
@@ -234,7 +234,7 @@ class MaintenanceSchedule(TransactionBase):
 			if d.serial_no:
 				serial_nos = get_valid_serial_nos(d.serial_no)
 				self.update_amc_date(serial_nos)
-		frappe.db.set(self, 'status', 'Cancelled')
+		frappe.db.set_value(self.doctype, self.name, 'status', 'Cancelled')
 		delete_events(self.doctype, self.name)
 
 	def on_trash(self):

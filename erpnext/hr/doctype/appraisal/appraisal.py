@@ -59,10 +59,10 @@ class Appraisal(Document):
 		self.total_score = total
 
 	def on_submit(self):
-		frappe.db.set(self, 'status', 'Submitted')
+		frappe.db.set_value(self.doctype, self.name, 'status', 'Submitted')
 
 	def on_cancel(self):
-		frappe.db.set(self, 'status', 'Cancelled')
+		frappe.db.set_value(self.doctype, self.name, 'status', 'Cancelled')
 
 @frappe.whitelist()
 def fetch_appraisal_template(source_name, target_doc=None):

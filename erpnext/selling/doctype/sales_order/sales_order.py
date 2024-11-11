@@ -189,7 +189,7 @@ class SalesOrder(SellingController):
 		self.update_project()
 		self.update_prevdoc_status('cancel')
 
-		frappe.db.set(self, 'status', 'Cancelled')
+		frappe.db.set_value(self.doctype, self.name, 'status', 'Cancelled')
 
 		self.update_blanket_order()
 

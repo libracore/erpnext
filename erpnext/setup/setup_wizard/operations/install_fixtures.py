@@ -418,7 +418,7 @@ def install_post_company_fixtures(args=None):
 
 
 def install_defaults(args=None):
-	records = [
+	"""records = [
 		# Price Lists
 		{ "doctype": "Price List", "price_list_name": _("Standard Buying"), "enabled": 1, "buying": 1, "selling": 0, "currency": args.currency },
 		{ "doctype": "Price List", "price_list_name": _("Standard Selling"), "enabled": 1, "buying": 0, "selling": 1, "currency": args.currency },
@@ -501,7 +501,7 @@ def install_defaults(args=None):
 		},
 	]
 
-	make_records(records)
+	make_records(records)"""
 
 def add_dashboards():
 	from erpnext.setup.setup_wizard.data.dashboard_charts import get_company_for_dashboards

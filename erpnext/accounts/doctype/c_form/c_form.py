@@ -55,7 +55,7 @@ class CForm(Document):
 
 	def set_total_invoiced_amount(self):
 		total = sum([flt(d.grand_total) for d in self.get('invoices')])
-		frappe.db.set(self, 'total_invoiced_amount', total)
+		frappe.db.set_value(self.doctype, self.name, 'total_invoiced_amount', total)
 
 	def get_invoice_details(self, invoice_no):
 		"""	Pull details from invoices for referrence """
