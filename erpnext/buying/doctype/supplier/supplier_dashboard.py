@@ -6,7 +6,7 @@ from frappe import _
 def get_data():
 	return {
 		'heatmap': True,
-		'heatmap_message': _('This is based on transactions against this Supplier. See timeline below for details'),
+		'heatmap_message': _('This is based on invoices against this Supplier. See timeline below for details'),
 		'fieldname': 'supplier',
 		'non_standard_fieldnames': {
 			'Payment Entry': 'party_name'

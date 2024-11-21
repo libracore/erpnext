@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2015-2024, libracore, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
@@ -9,7 +9,7 @@ import frappe.defaults
 from frappe.utils import flt, cint, cstr, today
 from frappe.desk.reportview import build_match_conditions, get_filters_cond
 from erpnext.utilities.transaction_base import TransactionBase
-from erpnext.accounts.party import validate_party_accounts, get_dashboard_info, get_timeline_data # keep this
+from erpnext.accounts.party import validate_party_accounts, get_dashboard_info
 from frappe.contacts.address_and_contact import load_address_and_contact, delete_contact_and_address
 from frappe.model.rename_doc import update_linked_doctypes
 
@@ -409,3 +409,26 @@ def get_customer_primary_address(doctype, txt, searchfield, start, page_len, fil
 			'customer': customer,
 			'txt': '%%%s%%' % txt
 		})
+
+def get_timeline_data(doctype, name):
+    '''returns timeline data for the past one year'''
+
+    out = {}
+
+    data = frappe.db.sql("""
+        SELECT 
+            UNIX_TIMESTAMP(DATE(`posting_date`)) AS `date`, 
+            COUNT(`name`) AS `count`
+        FROM `tabSales Invoice`
+        WHERE `customer` = {name}
+            AND `creation` >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+            AND `docstatus` < 2
+        GROUP BY `date`
+
+        
+        """.format(doctype=frappe.db.escape(doctype), name=frappe.db.escape(name)), as_dict=True)
+    
+    for d in data:
+        out[d['date']] = d['count']
+    
+    return out
