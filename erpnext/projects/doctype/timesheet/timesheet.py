@@ -178,6 +178,8 @@ class Timesheet(Document):
 	def get_overlap_for(self, fieldname, args, value):
 		row = None
 		cond = "ts.`{0}`".format(fieldname)
+		if not args.from_time or not args.to_time:
+			return None
 		if fieldname == 'workstation':
 			cond = "tsd.`{0}`".format(fieldname)
 
@@ -199,13 +201,14 @@ class Timesheet(Document):
 			}, as_dict=True)
 		# check internal overlap
 		for time_log in self.time_logs:
-			if (fieldname != 'workstation' or args.get(fieldname) == time_log.get(fieldname)) and \
-				args.idx != time_log.idx and ((args.from_time > time_log.from_time and args.from_time < time_log.to_time) or
-				(args.to_time > time_log.from_time and args.to_time < time_log.to_time) or
-				(args.from_time <= time_log.from_time and args.to_time >= time_log.to_time)):
-				
-				row = {'idx': time_log.idx, 'name': time_log.parent, 'from_time': time_log.from_time, 'to_time': time_log.to_time}			
-				return self, row
+			if time_log.from_time and time_log.to_time:
+				if (fieldname != 'workstation' or args.get(fieldname) == time_log.get(fieldname)) and \
+					args.idx != time_log.idx and ((args.from_time > time_log.from_time and args.from_time < time_log.to_time) or
+					(args.to_time > time_log.from_time and args.to_time < time_log.to_time) or
+					(args.from_time <= time_log.from_time and args.to_time >= time_log.to_time)):
+					
+					row = {'idx': time_log.idx, 'name': time_log.parent, 'from_time': time_log.from_time, 'to_time': time_log.to_time}			
+					return self, row
 
 		return existing[0] if existing else None
 
