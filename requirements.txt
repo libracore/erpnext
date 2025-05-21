@@ -8,3 +8,5 @@ gocardless_pro
 woocommerce
 pandas
 plaid-python==7.2.1
+stripe
+future
