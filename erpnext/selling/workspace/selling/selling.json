@@ -488,7 +488,7 @@
    "type": "Link"
   }
  ],
- "modified": "2025-05-22 11:43:49.204382",
+ "modified": "2025-05-22 18:21:36.504433",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling",
@@ -498,7 +498,7 @@
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 5.0,
+ "sequence_id": 7.0,
  "shortcuts": [],
  "title": "Selling"
 }

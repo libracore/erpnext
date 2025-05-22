@@ -9,7 +9,7 @@
  "hide_custom": 0,
  "icon": "buying",
  "idx": 0,
- "indicator_color": "green",
+ "indicator_color": "",
  "is_hidden": 0,
  "label": "Buying",
  "links": [
@@ -250,7 +250,7 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 1,
+   "is_query_report": 0,
    "label": "Purchase Analytics",
    "link_count": 0,
    "link_to": "Purchase Analytics",
@@ -261,7 +261,7 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 1,
+   "is_query_report": 0,
    "label": "Supplier-Wise Sales Analytics",
    "link_count": 0,
    "link_to": "Supplier-Wise Sales Analytics",
@@ -272,7 +272,7 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 1,
+   "is_query_report": 0,
    "label": "Purchase Order Trends",
    "link_count": 0,
    "link_to": "Purchase Order Trends",
@@ -283,7 +283,7 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 1,
+   "is_query_report": 0,
    "label": "Procurement Tracker",
    "link_count": 0,
    "link_to": "Procurement Tracker",
@@ -294,7 +294,7 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 1,
+   "is_query_report": 0,
    "label": "Requested Items To Be Ordered",
    "link_count": 0,
    "link_to": "Requested Items To Be Ordered",
@@ -363,7 +363,7 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 1,
+   "is_query_report": 0,
    "label": "Items To Be Requested",
    "link_count": 0,
    "link_to": "Items To Be Requested",
@@ -374,7 +374,7 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 1,
+   "is_query_report": 0,
    "label": "Item-wise Purchase History",
    "link_count": 0,
    "link_to": "Item-wise Purchase History",
@@ -385,7 +385,7 @@
   },
   {
    "hidden": 0,
-   "is_query_report": 1,
+   "is_query_report": 0,
    "label": "Material Requests without Supplier Quotations",
    "link_count": 0,
    "link_to": "Material Requests for which Supplier Quotations are not created",
@@ -395,7 +395,7 @@
    "type": "Link"
   }
  ],
- "modified": "2025-05-22 17:09:08.228814",
+ "modified": "2025-05-22 18:21:35.760459",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Buying",
