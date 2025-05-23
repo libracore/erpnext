@@ -1,19 +1,22 @@
 {
+ "actions": [],
  "allow_import": 1,
- "allow_rename": 1,
- "creation": "2013-03-07 18:50:32",
+ "creation": "2023-05-29 13:02:17.121296",
  "description": "A logical Warehouse against which stock entries are made.",
  "doctype": "DocType",
  "document_type": "Setup",
+ "engine": "InnoDB",
  "field_order": [
   "warehouse_detail",
-  "warehouse_name",
-  "is_group",
-  "company",
   "disabled",
+  "warehouse_name",
+  "column_break_3",
+  "is_group",
+  "parent_warehouse",
+  "is_rejected_warehouse",
   "column_break_4",
   "account",
-  "warehouse_type",
+  "company",
   "address_and_contact",
   "address_html",
   "column_break_10",
@@ -28,8 +31,11 @@
   "city",
   "state",
   "pin",
+  "transit_section",
+  "warehouse_type",
+  "column_break_qajx",
+  "default_in_transit_warehouse",
   "tree_details",
-  "parent_warehouse",
   "lft",
   "rgt",
   "old_parent"
@@ -42,7 +48,6 @@
    "oldfieldtype": "Section Break"
   },
   {
-   "description": "If blank, parent Warehouse Account or company default will be considered",
    "fieldname": "warehouse_name",
    "fieldtype": "Data",
    "label": "Warehouse Name",
@@ -56,7 +61,7 @@
    "fieldname": "is_group",
    "fieldtype": "Check",
    "in_list_view": 1,
-   "label": "Is Group"
+   "label": "Is Group Warehouse"
   },
   {
    "fieldname": "company",
@@ -67,6 +72,7 @@
    "oldfieldname": "company",
    "oldfieldtype": "Link",
    "options": "Company",
+   "read_only_depends_on": "eval: !doc.__islocal",
    "remember_last_selected_value": 1,
    "reqd": 1,
    "search_index": 1
@@ -75,7 +81,7 @@
    "default": "0",
    "fieldname": "disabled",
    "fieldtype": "Check",
-   "in_list_view": 1,
+   "hidden": 1,
    "label": "Disabled"
   },
   {
@@ -83,12 +89,14 @@
    "fieldtype": "Column Break"
   },
   {
+   "description": "If blank, parent Warehouse Account or company default will be considered in transactions",
    "fieldname": "account",
    "fieldtype": "Link",
    "label": "Account",
    "options": "Account"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "address_and_contact",
    "fieldtype": "Section Break",
    "label": "Address and Contact"
@@ -159,7 +167,6 @@
   {
    "fieldname": "city",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "City",
    "oldfieldname": "city",
    "oldfieldtype": "Data"
@@ -222,14 +229,45 @@
    "fieldtype": "Link",
    "label": "Warehouse Type",
    "options": "Warehouse Type"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval: doc.warehouse_type !== 'Transit';",
+   "fieldname": "default_in_transit_warehouse",
+   "fieldtype": "Link",
+   "label": "Default In-Transit Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "transit_section",
+   "fieldtype": "Section Break",
+   "label": "Transit"
+  },
+  {
+   "fieldname": "column_break_qajx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "If yes, then this warehouse will be used to store rejected materials",
+   "fieldname": "is_rejected_warehouse",
+   "fieldtype": "Check",
+   "label": "Is Rejected Warehouse"
   }
  ],
  "icon": "fa fa-building",
  "idx": 1,
- "modified": "2019-05-22 11:17:23.357490",
+ "is_tree": 1,
+ "links": [],
+ "modified": "2024-08-14 16:08:15.733597",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Warehouse",
+ "nsm_parent_field": "parent_warehouse",
  "owner": "Administrator",
  "permissions": [
   {
@@ -242,7 +280,6 @@
    "read": 1,
    "report": 1,
    "role": "Item Manager",
-   "set_user_permissions": 1,
    "share": 1,
    "write": 1
   },
@@ -279,8 +316,9 @@
    "role": "Manufacturing User"
   }
  ],
- "quick_entry": 1,
  "show_name_in_global_search": 1,
+ "sort_field": "modified",
  "sort_order": "DESC",
- "title_field": "warehouse_name"
+ "states": [],
+ "track_changes": 1
 }

@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "allow_import": 1,
  "autoname": "ACC-ERR-.YYYY.-.#####",
  "creation": "2018-04-13 18:25:55.943587",
@@ -7,13 +8,16 @@
  "engine": "InnoDB",
  "field_order": [
   "posting_date",
+  "rounding_loss_allowance",
   "column_break_2",
   "company",
-  "with_parties",
   "section_break_4",
   "get_entries",
   "accounts",
   "section_break_6",
+  "gain_loss_unbooked",
+  "gain_loss_booked",
+  "column_break_10",
   "total_gain_loss",
   "amended_from"
  ],
@@ -60,12 +64,6 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "total_gain_loss",
-   "fieldtype": "Currency",
-   "label": "Total Gain/Loss",
-   "read_only": 1
-  },
-  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -75,17 +73,47 @@
    "read_only": 1
   },
   {
-   "default": "0",
-   "fieldname": "with_parties",
-   "fieldtype": "Check",
-   "label": "With Parties"
+   "fieldname": "gain_loss_unbooked",
+   "fieldtype": "Currency",
+   "label": "Gain/Loss from Revaluation",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "description": "Gain/Loss accumulated in foreign currency account. Accounts with '0' balance in either Base or Account currency",
+   "fieldname": "gain_loss_booked",
+   "fieldtype": "Currency",
+   "label": "Gain/Loss already booked",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_gain_loss",
+   "fieldtype": "Currency",
+   "label": "Total Gain/Loss",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0.05",
+   "description": "Only values between [0,1) are allowed. Like {0.00, 0.04, 0.09, ...}\nEx: If allowance is set at 0.07, accounts that have balance of 0.07 in either of the currencies will be considered as zero balance account",
+   "fieldname": "rounding_loss_allowance",
+   "fieldtype": "Float",
+   "label": "Rounding Loss Allowance",
+   "precision": "9"
   }
  ],
  "is_submittable": 1,
- "modified": "2023-04-16 20:54:10.027021",
+ "links": [],
+ "modified": "2023-06-20 07:29:06.972434",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Exchange Rate Revaluation",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -136,5 +164,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

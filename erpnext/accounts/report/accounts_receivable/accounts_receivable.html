@@ -10,10 +10,8 @@
 
 	<h2 class="text-center" style="margin-top:0">{%= __(report.report_name) %}</h2>
 	<h4 class="text-center">
-		{% if (filters.customer_name) { %}
-			{%= filters.customer_name %}
-		{% } else { %}
-			{%= filters.customer || filters.supplier %}
+		{% if (filters.party) { %}
+			{%= __(filters.party) %}
 		{% } %}
 	</h4>
 	<h6 class="text-center">
@@ -42,11 +40,13 @@
 
 	{% if(filters.show_future_payments) { %}
 		{% var balance_row = data.slice(-1).pop();
-			var range1 = report.columns[11].label;
-			var range2 = report.columns[12].label;
-			var range3 = report.columns[13].label;
-			var range4 = report.columns[14].label;
-			var range5 = report.columns[15].label;
+			var start = report.columns.findIndex((elem) => (elem.fieldname == 'age'));
+			var range1 = report.columns[start].label;
+			var range2 = report.columns[start+1].label;
+			var range3 = report.columns[start+2].label;
+			var range4 = report.columns[start+3].label;
+			var range5 = report.columns[start+4].label;
+			var range6 = report.columns[start+5].label;
 		%}
 		{% if(balance_row) { %}
 		<table class="table table-bordered table-condensed">
@@ -70,22 +70,37 @@
 					<th>{%= __(range3) %}</th>
 					<th>{%= __(range4) %}</th>
 					<th>{%= __(range5) %}</th>
+					<th>{%= __(range6) %}</th>
 					<th>{%= __("Total") %}</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
 					<td>{%= __("Total Outstanding") %}</td>
-					<td class="text-right">{%= format_number(balance_row["range1"], null, 2) %}</td>
-					<td class="text-right">{%= format_currency(balance_row["range2"]) %}</td>
-					<td class="text-right">{%= format_currency(balance_row["range3"]) %}</td>
-					<td class="text-right">{%= format_currency(balance_row["range4"]) %}</td>
-					<td class="text-right">{%= format_currency(balance_row["range5"]) %}</td>
+					<td class="text-right">
+						{%= format_number(balance_row["age"], null, 2) %}
+					</td>
+					<td class="text-right">
+						{%= format_currency(balance_row["range1"], data[data.length-1]["currency"]) %}
+					</td>
+					<td class="text-right">
+						{%= format_currency(balance_row["range2"], data[data.length-1]["currency"]) %}
+					</td>
+					<td class="text-right">
+						{%= format_currency(balance_row["range3"], data[data.length-1]["currency"]) %}
+					</td>
+					<td class="text-right">
+						{%= format_currency(balance_row["range4"], data[data.length-1]["currency"]) %}
+					</td>
+					<td class="text-right">
+						{%= format_currency(balance_row["range5"], data[data.length-1]["currency"]) %}
+					</td>
 					<td class="text-right">
 						{%= format_currency(flt(balance_row["outstanding"]), data[data.length-1]["currency"]) %}
-						</td>
+					</td>
 				</tr>
 					<td>{%= __("Future Payments") %}</td>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>
@@ -96,6 +111,7 @@
 					</td>
 				<tr class="cvs-footer">
 					<th class="text-left">{%= __("Cheques Required") %}</th>
+					<th></th>
 					<th></th>
 					<th></th>
 					<th></th>
@@ -123,7 +139,7 @@
 						<th style="width: 24%">{%= __("Reference") %}</th>
 					{% } %}
 					{% if(!filters.show_future_payments) { %}
-						<th style="width: 20%">{%= (filters.customer || filters.supplier) ? __("Remarks"): __("Party") %}</th>
+						<th style="width: 20%">{%= (filters.party) ? __("Remarks"): __("Party") %}</th>
 					{% } %}
 					<th style="width: 10%; text-align: right">{%= __("Invoiced Amount") %}</th>
 					{% if(!filters.show_future_payments) { %}
@@ -140,7 +156,7 @@
 						<th style="width: 10%">{%= __("Remaining Balance") %}</th>
 					{% } %}
 				{% } else { %}
-					<th style="width: 40%">{%= (filters.customer || filters.supplier) ? __("Remarks"): __("Party") %}</th>
+					<th style="width: 40%">{%= (filters.party) ? __("Remarks"): __("Party") %}</th>
 					<th style="width: 15%">{%= __("Total Invoiced Amount") %}</th>
 					<th style="width: 15%">{%= __("Total Paid Amount") %}</th>
 					<th style="width: 15%">{%= report.report_name === "Accounts Receivable Summary" ? __('Credit Note Amount') : __('Debit Note Amount') %}</th>
@@ -169,7 +185,7 @@
 
 						{% if(!filters.show_future_payments) { %}
 						<td>
-							{% if(!(filters.customer || filters.supplier)) { %}
+							{% if(!(filters.party)) { %}
 								{%= data[i]["party"] %}
 								{% if(data[i]["customer_name"] && data[i]["customer_name"] != data[i]["party"]) { %}
 									<br> {%= data[i]["customer_name"] %}
@@ -240,9 +256,9 @@
 					{% } %}
 				{% } else { %}
 					{% if(data[i]["party"]|| "&nbsp;") { %}
-						{% if((data[i]["party"]) != __("'Total'")) { %}
+						{% if(!data[i]["is_total_row"]) { %}
 							<td>
-								{% if(!(filters.customer || filters.supplier)) { %}
+								{% if(!(filters.party)) { %}
 									{%= data[i]["party"] %}
 									{% if(data[i]["customer_name"] && data[i]["customer_name"] != data[i]["party"]) { %}
 										<br> {%= data[i]["customer_name"] %}
@@ -266,4 +282,4 @@
 			{% } %}
 		</tbody>
 	</table>
-	<p class="text-right text-muted">{{ __("Printed On ") }}{%= frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string()) %}</p>
+	<p class="text-right text-muted">{%= __("Printed on {0}", [frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string())]) %}</p>

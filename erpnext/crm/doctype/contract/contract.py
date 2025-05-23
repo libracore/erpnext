@@ -1,26 +1,60 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2018, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
-from __future__ import unicode_literals
 
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import getdate, now_datetime, nowdate
+from frappe.utils import getdate, nowdate
 
 
 class Contract(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from frappe.types import DF
+
+		from erpnext.crm.doctype.contract_fulfilment_checklist.contract_fulfilment_checklist import (
+			ContractFulfilmentChecklist,
+		)
+
+		amended_from: DF.Link | None
+		contract_template: DF.Link | None
+		contract_terms: DF.TextEditor
+		document_name: DF.DynamicLink | None
+		document_type: DF.Literal[
+			"", "Quotation", "Project", "Sales Order", "Purchase Order", "Sales Invoice", "Purchase Invoice"
+		]
+		end_date: DF.Date | None
+		fulfilment_deadline: DF.Date | None
+		fulfilment_status: DF.Literal["N/A", "Unfulfilled", "Partially Fulfilled", "Fulfilled", "Lapsed"]
+		fulfilment_terms: DF.Table[ContractFulfilmentChecklist]
+		ip_address: DF.Data | None
+		is_signed: DF.Check
+		party_name: DF.DynamicLink
+		party_type: DF.Literal["Customer", "Supplier", "Employee"]
+		party_user: DF.Link | None
+		requires_fulfilment: DF.Check
+		signed_by_company: DF.Link | None
+		signed_on: DF.Datetime | None
+		signee: DF.Data | None
+		start_date: DF.Date | None
+		status: DF.Literal["Unsigned", "Active", "Inactive"]
+	# end: auto-generated types
+
 	def autoname(self):
 		name = self.party_name
 
 		if self.contract_template:
-			name += " - {} Agreement".format(self.contract_template)
+			name += f" - {self.contract_template} Agreement"
 
 		# If identical, append contract name with the next number in the iteration
 		if frappe.db.exists("Contract", name):
-			count = len(frappe.get_all("Contract", filters={"name": ["like", "%{}%".format(name)]}))
-			name = "{} - {}".format(name, count)
+			count = len(frappe.get_all("Contract", filters={"name": ["like", f"%{name}%"]}))
+			name = f"{name} - {count}"
 
 		self.name = _(name)
 
@@ -28,6 +62,9 @@ class Contract(Document):
 		self.validate_dates()
 		self.update_contract_status()
 		self.update_fulfilment_status()
+
+	def before_submit(self):
+		self.signed_by_company = frappe.session.user
 
 	def before_update_after_submit(self):
 		self.update_contract_status()
@@ -74,11 +111,11 @@ def get_status(start_date, end_date):
 	Get a Contract's status based on the start, current and end dates
 
 	Args:
-		start_date (str): The start date of the contract
-		end_date (str): The end date of the contract
+	        start_date (str): The start date of the contract
+	        end_date (str): The end date of the contract
 
 	Returns:
-		str: 'Active' if within range, otherwise 'Inactive'
+	        str: 'Active' if within range, otherwise 'Inactive'
 	"""
 
 	if not end_date:
@@ -97,13 +134,13 @@ def update_status_for_contracts():
 	and submitted Contracts
 	"""
 
-	contracts = frappe.get_all("Contract",
-								filters={"is_signed": True,
-										"docstatus": 1},
-								fields=["name", "start_date", "end_date"])
+	contracts = frappe.get_all(
+		"Contract",
+		filters={"is_signed": True, "docstatus": 1},
+		fields=["name", "start_date", "end_date"],
+	)
 
 	for contract in contracts:
-		status = get_status(contract.get("start_date"),
-							contract.get("end_date"))
+		status = get_status(contract.get("start_date"), contract.get("end_date"))
 
 		frappe.db.set_value("Contract", contract.get("name"), "status", status)

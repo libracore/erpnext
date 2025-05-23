@@ -1,94 +1,85 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2017, Frappe Technologies Pvt. Ltd. and contributors
+# Copyright (c) 2022, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
-from __future__ import unicode_literals
-import frappe, json
-from frappe.utils import cstr, flt
-from frappe import _
-from six import string_types
-from erpnext.manufacturing.doctype.bom.bom import get_boms_in_bottom_up_order
+import json
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+	from erpnext.manufacturing.doctype.bom_update_log.bom_update_log import BOMUpdateLog
+
+import frappe
 from frappe.model.document import Document
+from frappe.utils import date_diff, get_datetime, now
+
 
 class BOMUpdateTool(Document):
-	def replace_bom(self):
-		self.validate_bom()
-		self.update_new_bom()
-		bom_list = self.get_parent_boms(self.new_bom)
-		updated_bom = []
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
 
-		for bom in bom_list:
-			try:
-				bom_obj = frappe.get_doc("BOM", bom)
-				bom_obj.load_doc_before_save()
-				updated_bom = bom_obj.update_cost_and_exploded_items(updated_bom)
-				bom_obj.calculate_cost()
-				bom_obj.update_parent_cost()
-				bom_obj.db_update()
-				if (getattr(bom_obj.meta, 'track_changes', False) and not bom_obj.flags.ignore_version):
-					bom_obj.save_version()
+	from typing import TYPE_CHECKING
 
-				frappe.db.commit()
-			except Exception:
-				frappe.db.rollback()
-				frappe.log_error(frappe.get_traceback())
+	if TYPE_CHECKING:
+		from frappe.types import DF
 
-	def validate_bom(self):
-		if cstr(self.current_bom) == cstr(self.new_bom):
-			frappe.throw(_("Current BOM and New BOM can not be same"))
+		current_bom: DF.Link
+		new_bom: DF.Link
+	# end: auto-generated types
 
-		if frappe.db.get_value("BOM", self.current_bom, "item") \
-			!= frappe.db.get_value("BOM", self.new_bom, "item"):
-				frappe.throw(_("The selected BOMs are not for the same item"))
+	pass
 
-	def update_new_bom(self):
-		new_bom_unitcost = frappe.db.sql("""select total_cost/quantity
-			from `tabBOM` where name = %s""", self.new_bom)
-		new_bom_unitcost = flt(new_bom_unitcost[0][0]) if new_bom_unitcost else 0
-
-		frappe.db.sql("""update `tabBOM Item` set bom_no=%s,
-			rate=%s, amount=stock_qty*%s where bom_no = %s and docstatus < 2 and parenttype='BOM'""",
-			(self.new_bom, new_bom_unitcost, new_bom_unitcost, self.current_bom))
-
-	def get_parent_boms(self, bom, bom_list=None):
-		if not bom_list:
-			bom_list = []
-
-		data = frappe.db.sql(""" select distinct parent from `tabBOM Item`
-			where bom_no = %s and docstatus < 2 and parenttype='BOM'""", bom)
-
-		for d in data:
-			bom_list.append(d[0])
-			self.get_parent_boms(d[0], bom_list)
-
-		return list(set(bom_list))
 
 @frappe.whitelist()
-def enqueue_replace_bom(args):
-	if isinstance(args, string_types):
-		args = json.loads(args)
+def enqueue_replace_bom(boms: dict | str | None = None, args: dict | str | None = None) -> "BOMUpdateLog":
+	"""Returns a BOM Update Log (that queues a job) for BOM Replacement."""
+	boms = boms or args
+	if isinstance(boms, str):
+		boms = json.loads(boms)
 
-	frappe.enqueue("erpnext.manufacturing.doctype.bom_update_tool.bom_update_tool.replace_bom", args=args, timeout=4000)
-	frappe.msgprint(_("Queued for replacing the BOM. It may take a few minutes."))
+	update_log = create_bom_update_log(boms=boms)
+	return update_log
+
 
 @frappe.whitelist()
-def enqueue_update_cost():
-	frappe.enqueue("erpnext.manufacturing.doctype.bom_update_tool.bom_update_tool.update_cost")
-	frappe.msgprint(_("Queued for updating latest price in all Bill of Materials. It may take a few minutes."))
+def enqueue_update_cost() -> "BOMUpdateLog":
+	"""Returns a BOM Update Log (that queues a job) for BOM Cost Updation."""
+	update_log = create_bom_update_log(update_type="Update Cost")
+	return update_log
 
-def update_latest_price_in_all_boms():
+
+def auto_update_latest_price_in_all_boms() -> None:
+	"""Called via hooks.py."""
 	if frappe.db.get_single_value("Manufacturing Settings", "update_bom_costs_automatically"):
-		update_cost()
+		wip_log = frappe.get_all(
+			"BOM Update Log",
+			fields=["creation", "status"],
+			filters={"update_type": "Update Cost", "status": ["in", ["Queued", "In Progress"]]},
+			limit_page_length=1,
+			order_by="creation desc",
+		)
 
-def replace_bom(args):
-	args = frappe._dict(args)
+		if not wip_log or is_older_log(wip_log[0]):
+			create_bom_update_log(update_type="Update Cost")
 
-	doc = frappe.get_doc("BOM Update Tool")
-	doc.current_bom = args.current_bom
-	doc.new_bom = args.new_bom
-	doc.replace_bom()
 
-def update_cost():
-	bom_list = get_boms_in_bottom_up_order()
-	for bom in bom_list:
-		frappe.get_doc("BOM", bom).update_cost(update_parent=False, from_child_bom=True)
+def is_older_log(log: dict) -> bool:
+	no_of_days = date_diff(get_datetime(now()), get_datetime(log.creation))
+	return no_of_days > 10
+
+
+def create_bom_update_log(
+	boms: dict[str, str] | None = None,
+	update_type: Literal["Replace BOM", "Update Cost"] = "Replace BOM",
+) -> "BOMUpdateLog":
+	"""Creates a BOM Update Log that handles the background job."""
+
+	boms = boms or {}
+	current_bom = boms.get("current_bom")
+	new_bom = boms.get("new_bom")
+	return frappe.get_doc(
+		{
+			"doctype": "BOM Update Log",
+			"current_bom": current_bom,
+			"new_bom": new_bom,
+			"update_type": update_type,
+		}
+	).submit()

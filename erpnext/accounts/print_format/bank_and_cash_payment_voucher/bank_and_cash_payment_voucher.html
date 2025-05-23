@@ -19,7 +19,7 @@
             </div>
             <div class="col-xs-6">
                 <table>
-                    <tr><td><strong>Date: </strong></td><td>{{ frappe.utils.formatdate(doc.creation) }}</td></tr>
+                    <tr><td><strong>Date: </strong></td><td>{{ frappe.utils.format_date(doc.creation) }}</td></tr>
                 </table>
             </div>
     </div>
@@ -49,7 +49,7 @@
             {% endfor %}
             <tr>
                     <td class="right" colspan="3" ><strong>Total (debit) </strong></td>
-                    <td class="left" >{{ gl | sum(attribute='debit') }}</td>
+                    <td class="left" >{{ frappe.format((gl | sum(attribute="debit")), {fieldtype: "Currency"}) }}</td>
             </tr>
             <tr>
                     <td class="top-bottom" colspan="5"><strong>Credit</strong></td>
@@ -69,7 +69,7 @@
             {% endfor %}
             <tr>
                     <td class="right" colspan="3"><strong>Total (credit) </strong></td>
-                    <td class="left" >{{ gl | sum(attribute='credit') }}</td>
+                    <td class="left" >{{ frappe.format((gl | sum(attribute="credit")), {fieldtype: "Currency"}) }}</td>
             </tr>
         </table>
     <div>

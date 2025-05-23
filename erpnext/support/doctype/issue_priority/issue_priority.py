@@ -1,14 +1,20 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2019, Frappe Technologies Pvt. Ltd. and contributors
 # For license information, please see license.txt
 
-from __future__ import unicode_literals
-import frappe
-from frappe import _
+
 from frappe.model.document import Document
 
-class IssuePriority(Document):
 
-	def validate(self):
-		if frappe.db.exists("Issue Priority", {"name": self.name}):
-			frappe.throw(_("Issue Priority Already Exists"))
+class IssuePriority(Document):
+	# begin: auto-generated types
+	# This code is auto-generated. Do not modify anything in this block.
+
+	from typing import TYPE_CHECKING
+
+	if TYPE_CHECKING:
+		from frappe.types import DF
+
+		description: DF.SmallText | None
+	# end: auto-generated types
+
+	pass

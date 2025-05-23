@@ -1,12 +1,13 @@
-from __future__ import unicode_literals
-from frappe import _
-
 def get_data():
 	return {
-		'fieldname': 'pick_list',
-		'transactions': [
-			{
-				'items': ['Stock Entry', 'Delivery Note']
-			},
-		]
+		"fieldname": "pick_list",
+		"non_standard_fieldnames": {
+			"Stock Reservation Entry": "from_voucher_no",
+		},
+		"internal_links": {
+			"Sales Order": ["locations", "sales_order"],
+		},
+		"transactions": [
+			{"items": ["Stock Entry", "Sales Order", "Delivery Note", "Stock Reservation Entry"]},
+		],
 	}
