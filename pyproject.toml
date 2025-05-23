@@ -24,8 +24,8 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://www.libracore.com/"
-Repository = "https://gitlibracore.io/libracore/erpnext.git"
-"Bug Reports" = "https://gitlibracore.io/libracore/erpnext/issues"
+Repository = "https://git.libracore.io/libracore/erpnext.git"
+"Bug Reports" = "https://git.libracore.io/libracore/erpnext/issues"
 
 [build-system]
 requires = ["flit_core >=3.4,<4"]
