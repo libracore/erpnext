@@ -1,0 +1,31 @@
+{
+ "custom_fields": [],
+ "custom_perms": [],
+ "doctype": "Payroll Entry",
+ "property_setters": [
+  {
+   "_assign": null,
+   "_comments": null,
+   "_liked_by": null,
+   "_user_tags": null,
+   "creation": "2025-04-07 11:20:00.862068",
+   "default_value": null,
+   "doc_type": "Payroll Entry",
+   "docstatus": 0,
+   "doctype_or_field": "DocField",
+   "field_name": "payroll_frequency",
+   "idx": 0,
+   "modified": "2025-04-07 11:20:00.862068",
+   "modified_by": "Administrator",
+   "name": "Payroll Entry-payroll_frequency-options",
+   "owner": "Administrator",
+   "parent": null,
+   "parentfield": null,
+   "parenttype": null,
+   "property": "options",
+   "property_type": "Text",
+   "value": "Monthly\nFortnightly\nBimonthly\nWeekly\nDaily"
+  }
+ ],
+ "sync_on_migrate": 1
+}
