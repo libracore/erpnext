@@ -11,13 +11,14 @@
   "customer_name",
   "supplier",
   "supplier_name",
+  "currency",
   "column_break_8",
   "from_date",
   "to_date",
   "company",
+  "amended_from",
   "section_break_12",
   "items",
-  "amended_from",
   "terms_and_conditions_section",
   "tc_name",
   "terms"
@@ -97,7 +98,7 @@
   {
    "fieldname": "items",
    "fieldtype": "Table",
-   "label": "Item",
+   "label": "Items",
    "options": "Blanket Order Item",
    "reqd": 1
   },
@@ -125,10 +126,16 @@
    "fieldname": "terms",
    "fieldtype": "Text Editor",
    "label": "Terms and Conditions Details"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
   }
  ],
  "is_submittable": 1,
- "modified": "2019-06-19 11:59:09.279607",
+ "modified": "2025-06-03 08:34:46.575127",
  "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Blanket Order",
