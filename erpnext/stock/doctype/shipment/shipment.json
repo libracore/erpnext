@@ -34,6 +34,7 @@
   "shipment_parcel",
   "parcel_template",
   "add_template",
+  "total_weight",
   "column_break_28",
   "shipment_delivery_note",
   "shipment_details_section",
@@ -412,9 +413,9 @@
   },
   {
    "fieldname": "incoterm",
-   "fieldtype": "Select",
+   "fieldtype": "Link",
    "label": "Incoterm",
-   "options": "EXW (Ex Works)\nFCA (Free Carrier)\nCPT (Carriage Paid To)\nCIP (Carriage and Insurance Paid to)\nDPU (Delivered At Place Unloaded)\nDAP (Delivered At Place)\nDDP (Delivered Duty Paid)"
+   "options": "Incoterm"
   },
   {
    "fieldname": "shipment_delivery_note",
@@ -429,14 +430,21 @@
    "label": "Pickup Contact Person",
    "mandatory_depends_on": "eval:doc.pickup_from_type === 'Company'",
    "options": "User"
+  },
+  {
+   "fieldname": "total_weight",
+   "fieldtype": "Float",
+   "label": "Total Weight (kg)",
+   "read_only": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2021-04-13 17:14:18.181818",
+ "modified": "2025-02-20 16:55:20.076418",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Shipment",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
@@ -470,5 +478,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

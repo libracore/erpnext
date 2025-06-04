@@ -1,16 +1,18 @@
 # Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
-from __future__ import unicode_literals
+
 import frappe
 import frappe.share
 from frappe import _
-from frappe.utils import cstr, now_datetime, cint, flt, get_time
+from frappe.utils import cint, flt, get_time, now_datetime
+
 from erpnext.controllers.status_updater import StatusUpdater
 
-from six import string_types
 
-class UOMMustBeIntegerError(frappe.ValidationError): pass
+class UOMMustBeIntegerError(frappe.ValidationError):
+	pass
+
 
 class TransactionBase(StatusUpdater):
 	def validate_posting_time(self):
@@ -18,69 +20,21 @@ class TransactionBase(StatusUpdater):
 		if frappe.flags.in_import and self.posting_date:
 			self.set_posting_time = 1
 
-		if not getattr(self, 'set_posting_time', None):
+		if not getattr(self, "set_posting_time", None):
 			now = now_datetime()
-			self.posting_date = now.strftime('%Y-%m-%d')
-			self.posting_time = now.strftime('%H:%M:%S.%f')
+			self.posting_date = now.strftime("%Y-%m-%d")
+			self.posting_time = now.strftime("%H:%M:%S.%f")
 		elif self.posting_time:
 			try:
 				get_time(self.posting_time)
 			except ValueError:
-				frappe.throw(_('Invalid Posting Time'))
+				frappe.throw(_("Invalid Posting Time"))
 
-	def add_calendar_event(self, opts, force=False):
-		if cstr(self.contact_by) != cstr(self._prev.contact_by) or \
-				cstr(self.contact_date) != cstr(self._prev.contact_date) or force or \
-				(hasattr(self, "ends_on") and cstr(self.ends_on) != cstr(self._prev.ends_on)):
-
-			self.delete_events()
-			self._add_calendar_event(opts)
-
-	def delete_events(self):
-		participations = frappe.get_all("Event Participants", filters={"reference_doctype": self.doctype, "reference_docname": self.name,
-			"parenttype": "Event"}, fields=["name", "parent"])
-
-		if participations:
-			for participation in participations:
-				total_participants = frappe.get_all("Event Participants", filters={"parenttype": "Event", "parent": participation.parent})
-
-				if len(total_participants) <= 1:
-					frappe.db.sql("delete from `tabEvent` where name='%s'" % participation.parent)
-
-				frappe.db.sql("delete from `tabEvent Participants` where name='%s'" % participation.name)
-
-
-	def _add_calendar_event(self, opts):
-		opts = frappe._dict(opts)
-
-		if self.contact_date:
-			event = frappe.get_doc({
-				"doctype": "Event",
-				"owner": opts.owner or self.owner,
-				"subject": opts.subject,
-				"description": opts.description,
-				"starts_on":  self.contact_date,
-				"ends_on": opts.ends_on,
-				"event_type": "Private"
-			})
-
-			event.append('event_participants', {
-				"reference_doctype": self.doctype,
-				"reference_docname": self.name
-				}
-			)
-
-			event.insert(ignore_permissions=True)
-
-			if frappe.db.exists("User", self.contact_by):
-				frappe.share.add("Event", event.name, self.contact_by,
-					flags={"ignore_share_permission": True})
-
-	def validate_uom_is_integer(self, uom_field, qty_fields):
-		validate_uom_is_integer(self, uom_field, qty_fields)
+	def validate_uom_is_integer(self, uom_field, qty_fields, child_dt=None):
+		validate_uom_is_integer(self, uom_field, qty_fields, child_dt)
 
 	def validate_with_previous_doc(self, ref):
-		self.exclude_fields = ["conversion_factor", "uom"] if self.get('is_return') else []
+		self.exclude_fields = ["conversion_factor", "uom"] if self.get("is_return") else []
 
 		for key, val in ref.items():
 			is_child = val.get("is_child_table")
@@ -104,10 +58,9 @@ class TransactionBase(StatusUpdater):
 
 	def compare_values(self, ref_doc, fields, doc=None):
 		for reference_doctype, ref_dn_list in ref_doc.items():
+			prev_doc_detail_map = self.get_prev_doc_reference_details(ref_dn_list, reference_doctype, fields)
 			for reference_name in ref_dn_list:
-				prevdoc_values = frappe.db.get_value(reference_doctype, reference_name,
-					[d[0] for d in fields], as_dict=1)
-
+				prevdoc_values = prev_doc_detail_map.get(reference_name)
 				if not prevdoc_values:
 					frappe.throw(_("Invalid reference {0} {1}").format(reference_doctype, reference_name))
 
@@ -115,29 +68,79 @@ class TransactionBase(StatusUpdater):
 					if prevdoc_values[field] is not None and field not in self.exclude_fields:
 						self.validate_value(field, condition, prevdoc_values[field], doc)
 
+	def get_prev_doc_reference_details(self, reference_names, reference_doctype, fields):
+		prev_doc_detail_map = {}
+		details = frappe.get_all(
+			reference_doctype,
+			filters={"name": ("in", reference_names)},
+			fields=["name"] + [d[0] for d in fields],
+		)
+
+		for d in details:
+			prev_doc_detail_map.setdefault(d.name, d)
+
+		return prev_doc_detail_map
 
 	def validate_rate_with_reference_doc(self, ref_details):
+		if self.get("is_internal_supplier"):
+			return
+
+		buying_doctypes = ["Purchase Order", "Purchase Invoice", "Purchase Receipt"]
+
+		if self.doctype in buying_doctypes:
+			action, role_allowed_to_override = frappe.get_cached_value(
+				"Buying Settings", "None", ["maintain_same_rate_action", "role_to_override_stop_action"]
+			)
+		else:
+			action, role_allowed_to_override = frappe.get_cached_value(
+				"Selling Settings", "None", ["maintain_same_rate_action", "role_to_override_stop_action"]
+			)
+
+		stop_actions = []
 		for ref_dt, ref_dn_field, ref_link_field in ref_details:
+			reference_names = [d.get(ref_link_field) for d in self.get("items") if d.get(ref_link_field)]
+			reference_details = self.get_reference_details(reference_names, ref_dt + " Item")
 			for d in self.get("items"):
 				if d.get(ref_link_field):
-					ref_rate = frappe.db.get_value(ref_dt + " Item", d.get(ref_link_field), "rate")
+					ref_rate = reference_details.get(d.get(ref_link_field))
 
-					if abs(flt(d.rate - ref_rate, d.precision("rate"))) >= .01:
-						frappe.throw(_("Row #{0}: Rate must be same as {1}: {2} ({3} / {4}) ")
-							.format(d.idx, ref_dt, d.get(ref_dn_field), d.rate, ref_rate))
+					if abs(flt(d.rate - ref_rate, d.precision("rate"))) >= 0.01:
+						if action == "Stop":
+							if role_allowed_to_override not in frappe.get_roles():
+								stop_actions.append(
+									_("Row #{0}: Rate must be same as {1}: {2} ({3} / {4})").format(
+										d.idx, ref_dt, d.get(ref_dn_field), d.rate, ref_rate
+									)
+								)
+						else:
+							frappe.msgprint(
+								_("Row #{0}: Rate must be same as {1}: {2} ({3} / {4})").format(
+									d.idx, ref_dt, d.get(ref_dn_field), d.rate, ref_rate
+								),
+								title=_("Warning"),
+								indicator="orange",
+							)
+		if stop_actions:
+			frappe.throw(stop_actions, as_list=True)
+
+	def get_reference_details(self, reference_names, reference_doctype):
+		return frappe._dict(
+			frappe.get_all(
+				reference_doctype,
+				filters={"name": ("in", reference_names)},
+				fields=["name", "rate"],
+				as_list=1,
+			)
+		)
 
 	def get_link_filters(self, for_doctype):
 		if hasattr(self, "prev_link_mapper") and self.prev_link_mapper.get(for_doctype):
 			fieldname = self.prev_link_mapper[for_doctype]["fieldname"]
 
-			values = filter(None, tuple([item.as_dict()[fieldname] for item in self.items]))
+			values = filter(None, tuple(item.as_dict()[fieldname] for item in self.items))
 
 			if values:
-				ret = {
-					for_doctype : {
-						"filters": [[for_doctype, "name", "in", values]]
-					}
-				}
+				ret = {for_doctype: {"filters": [[for_doctype, "name", "in", values]]}}
 			else:
 				ret = None
 		else:
@@ -145,8 +148,94 @@ class TransactionBase(StatusUpdater):
 
 		return ret
 
+	def reset_default_field_value(self, default_field: str, child_table: str, child_table_field: str):
+		"""Reset "Set default X" fields on forms to avoid confusion.
+
+		example:
+		        doc = {
+		                "set_from_warehouse": "Warehouse A",
+		                "items": [{"from_warehouse": "warehouse B"}, {"from_warehouse": "warehouse A"}],
+		        }
+		        Since this has dissimilar values in child table, the default field will be erased.
+
+		        doc.reset_default_field_value("set_from_warehouse", "items", "from_warehouse")
+		"""
+		child_table_values = set()
+
+		for row in self.get(child_table):
+			child_table_values.add(row.get(child_table_field))
+
+		if len(child_table_values) > 1:
+			self.set(default_field, None)
+
+	def validate_currency_for_receivable_payable_and_advance_account(self):
+		if self.doctype in ["Customer", "Supplier"]:
+			account_type = "Receivable" if self.doctype == "Customer" else "Payable"
+			for x in self.accounts:
+				company_default_currency = frappe.get_cached_value("Company", x.company, "default_currency")
+				receivable_payable_account_currency = None
+				advance_account_currency = None
+
+				if x.account:
+					receivable_payable_account_currency = frappe.get_cached_value(
+						"Account", x.account, "account_currency"
+					)
+
+				if x.advance_account:
+					advance_account_currency = frappe.get_cached_value(
+						"Account", x.advance_account, "account_currency"
+					)
+				if receivable_payable_account_currency and (
+					receivable_payable_account_currency != self.default_currency
+					and receivable_payable_account_currency != company_default_currency
+				):
+					frappe.throw(
+						_(
+							"{0} Account: {1} ({2}) must be in either customer billing currency: {3} or Company default currency: {4}"
+						).format(
+							account_type,
+							frappe.bold(x.account),
+							frappe.bold(receivable_payable_account_currency),
+							frappe.bold(self.default_currency),
+							frappe.bold(company_default_currency),
+						)
+					)
+
+				if advance_account_currency and (
+					advance_account_currency != self.default_currency
+					and advance_account_currency != company_default_currency
+				):
+					frappe.throw(
+						_(
+							"Advance Account: {0} must be in either customer billing currency: {1} or Company default currency: {2}"
+						).format(
+							frappe.bold(x.advance_account),
+							frappe.bold(self.default_currency),
+							frappe.bold(company_default_currency),
+						)
+					)
+
+				if (
+					receivable_payable_account_currency
+					and advance_account_currency
+					and receivable_payable_account_currency != advance_account_currency
+				):
+					frappe.throw(
+						_(
+							"Both {0} Account: {1} and Advance Account: {2} must be of same currency for company: {3}"
+						).format(
+							account_type,
+							frappe.bold(x.account),
+							frappe.bold(x.advance_account),
+							frappe.bold(x.company),
+						)
+					)
+
+
 def delete_events(ref_type, ref_name):
-	events = frappe.db.sql_list(""" SELECT
+	events = (
+		frappe.db.sql_list(
+			""" SELECT
 			distinct `tabEvent`.name
 		from
 			`tabEvent`, `tabEvent Participants`
@@ -154,18 +243,27 @@ def delete_events(ref_type, ref_name):
 			`tabEvent`.name = `tabEvent Participants`.parent
 			and `tabEvent Participants`.reference_doctype = %s
 			and `tabEvent Participants`.reference_docname = %s
-		""", (ref_type, ref_name)) or []
+		""",
+			(ref_type, ref_name),
+		)
+		or []
+	)
 
 	if events:
 		frappe.delete_doc("Event", events, for_reload=True)
 
+
 def validate_uom_is_integer(doc, uom_field, qty_fields, child_dt=None):
-	if isinstance(qty_fields, string_types):
+	if isinstance(qty_fields, str):
 		qty_fields = [qty_fields]
 
-	distinct_uoms = list(set([d.get(uom_field) for d in doc.get_all_children()]))
-	integer_uoms = filter(lambda uom: frappe.db.get_value("UOM", uom,
-		"must_be_whole_number", cache=True) or None, distinct_uoms)
+	distinct_uoms = tuple(set(uom for uom in (d.get(uom_field) for d in doc.get_all_children()) if uom))
+	integer_uoms = set(
+		d[0]
+		for d in frappe.db.get_values(
+			"UOM", (("name", "in", distinct_uoms), ("must_be_whole_number", "=", 1)), cache=True
+		)
+	)
 
 	if not integer_uoms:
 		return
@@ -175,5 +273,16 @@ def validate_uom_is_integer(doc, uom_field, qty_fields, child_dt=None):
 			for f in qty_fields:
 				qty = d.get(f)
 				if qty:
-					if abs(cint(qty) - flt(qty)) > 0.0000001:
-						frappe.throw(_("Quantity ({0}) cannot be a fraction in row {1}").format(qty, d.idx), UOMMustBeIntegerError)
+					precision = d.precision(f)
+					if abs(cint(qty) - flt(qty, precision)) > 0.0000001:
+						frappe.throw(
+							_(
+								"Row {1}: Quantity ({0}) cannot be a fraction. To allow this, disable '{2}' in UOM {3}."
+							).format(
+								flt(qty, precision),
+								d.idx,
+								frappe.bold(_("Must be Whole Number")),
+								frappe.bold(d.get(uom_field)),
+							),
+							UOMMustBeIntegerError,
+						)

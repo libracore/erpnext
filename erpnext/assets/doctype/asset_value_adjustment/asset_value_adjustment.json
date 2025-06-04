@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2018-05-11 00:22:43.695151",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -7,14 +8,17 @@
   "company",
   "asset",
   "asset_category",
-  "finance_book",
-  "journal_entry",
   "column_break_4",
   "date",
+  "finance_book",
+  "amended_from",
+  "value_details_section",
   "current_asset_value",
   "new_asset_value",
+  "column_break_11",
   "difference_amount",
-  "amended_from",
+  "difference_account",
+  "journal_entry",
   "accounting_dimensions_section",
   "cost_center",
   "dimension_col_break"
@@ -51,6 +55,7 @@
    "fieldtype": "Link",
    "label": "Journal Entry",
    "options": "Journal Entry",
+   "no_copy": 1,
    "read_only": 1
   },
   {
@@ -60,7 +65,8 @@
   {
    "fieldname": "date",
    "fieldtype": "Date",
-   "label": "Date"
+   "label": "Date",
+   "reqd": 1
   },
   {
    "fieldname": "current_asset_value",
@@ -75,6 +81,7 @@
    "fieldtype": "Currency",
    "in_list_view": 1,
    "label": "New Asset Value",
+   "no_copy": 1,
    "reqd": 1
   },
   {
@@ -107,10 +114,29 @@
   {
    "fieldname": "dimension_col_break",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "value_details_section",
+   "fieldtype": "Section Break",
+   "label": "Value Details"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+    "fieldname": "difference_account",
+    "fieldtype": "Link",
+    "label": "Difference Account",
+    "no_copy": 1,
+    "options": "Account",
+    "reqd": 1
   }
  ],
+ "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "modified": "2019-05-26 09:46:23.613412",
+ "links": [],
+ "modified": "2024-08-13 16:21:18.639208",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Asset Value Adjustment",

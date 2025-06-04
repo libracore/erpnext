@@ -1,30 +1,35 @@
 {
- "creation": "2014-10-16 14:35:41.950175",
+ "actions": [],
+ "creation": "2025-04-09 12:12:19.824560",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "details",
   "operation",
-  "bom",
-  "description",
-  "col_break1",
-  "completed_qty",
   "status",
+  "completed_qty",
+  "process_loss_qty",
+  "column_break_4",
+  "bom",
+  "workstation_type",
   "workstation",
+  "sequence_id",
+  "section_break_10",
+  "description",
   "estimated_time_and_cost",
   "planned_start_time",
-  "planned_end_time",
-  "column_break_10",
-  "time_in_mins",
   "hour_rate",
+  "time_in_mins",
+  "column_break_10",
+  "planned_end_time",
   "batch_size",
   "planned_operating_cost",
   "section_break_9",
   "actual_start_time",
-  "actual_end_time",
-  "column_break_11",
   "actual_operation_time",
+  "column_break_11",
+  "actual_end_time",
   "actual_operating_cost"
  ],
  "fields": [
@@ -33,6 +38,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "columns": 2,
    "fieldname": "operation",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -40,49 +46,45 @@
    "oldfieldname": "operation_no",
    "oldfieldtype": "Data",
    "options": "Operation",
-   "read_only": 1,
    "reqd": 1
   },
   {
+   "columns": 2,
    "fieldname": "bom",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "BOM",
    "no_copy": 1,
    "options": "BOM",
-   "print_hide": 1,
-   "read_only": 1
+   "print_hide": 1
   },
   {
    "fieldname": "description",
    "fieldtype": "Text Editor",
    "label": "Operation Description",
    "oldfieldname": "opn_description",
-   "oldfieldtype": "Text",
-   "read_only": 1
+   "oldfieldtype": "Text"
   },
   {
-   "fieldname": "col_break1",
-   "fieldtype": "Column Break"
-  },
-  {
+   "columns": 2,
    "description": "Operation completed for how many finished goods?",
    "fieldname": "completed_qty",
    "fieldtype": "Float",
+   "in_list_view": 1,
    "label": "Completed Qty",
-   "no_copy": 1,
-   "read_only": 1
+   "no_copy": 1
   },
   {
+   "columns": 1,
    "default": "Pending",
    "fieldname": "status",
    "fieldtype": "Select",
-   "in_list_view": 1,
    "label": "Status",
    "no_copy": 1,
-   "options": "Pending\nWork in Progress\nCompleted",
-   "read_only": 1
+   "options": "Pending\nWork in Progress\nCompleted"
   },
   {
+   "columns": 1,
    "fieldname": "workstation",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -115,11 +117,12 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "in Minutes",
+   "columns": 1,
+   "description": "In Minutes",
    "fieldname": "time_in_mins",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "Operation Time",
+   "label": "Time",
    "oldfieldname": "time_in_mins",
    "oldfieldtype": "Currency",
    "reqd": 1
@@ -145,6 +148,7 @@
    "label": "Actual Time and Cost"
   },
   {
+   "description": "Updated via 'Time Log' (In Minutes)",
    "fieldname": "actual_start_time",
    "fieldtype": "Datetime",
    "label": "Actual Start Time",
@@ -152,7 +156,7 @@
    "read_only": 1
   },
   {
-   "description": "Updated via 'Time Log'",
+   "description": "Updated via 'Time Log' (In Minutes)",
    "fieldname": "actual_end_time",
    "fieldtype": "Datetime",
    "label": "Actual End Time",
@@ -164,7 +168,7 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "in Minutes\nUpdated via 'Time Log'",
+   "description": "Updated via 'Time Log' (In Minutes)",
    "fieldname": "actual_operation_time",
    "fieldtype": "Float",
    "label": "Actual Operation Time",
@@ -182,19 +186,52 @@
   },
   {
    "fieldname": "batch_size",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "label": "Batch Size",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sequence_id",
+   "fieldtype": "Int",
+   "label": "Sequence ID",
+   "print_hide": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_10",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "workstation_type",
+   "fieldtype": "Link",
+   "label": "Workstation Type",
+   "options": "Workstation Type"
+  },
+  {
+   "columns": 2,
+   "fieldname": "process_loss_qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Process Loss Qty",
+   "no_copy": 1,
    "read_only": 1
   }
  ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
  "istable": 1,
- "modified": "2019-07-16 23:01:07.720337",
- "modified_by": "govindsmenokee@gmail.com",
+ "links": [],
+ "modified": "2025-04-09 16:21:47.110564",
+ "modified_by": "Administrator",
  "module": "Manufacturing",
  "name": "Work Order Operation",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

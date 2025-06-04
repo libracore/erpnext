@@ -1,5 +1,6 @@
 {
- "autoname": "format:REV-{#####}",
+ "actions": [],
+ "autoname": "format:QA-REV-{#####}",
  "creation": "2018-10-02 11:45:16.301955",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -17,6 +18,7 @@
  ],
  "fields": [
   {
+   "default": "Today",
    "fieldname": "date",
    "fieldtype": "Date",
    "in_list_view": 1,
@@ -49,7 +51,7 @@
    "collapsible": 1,
    "fieldname": "sb_01",
    "fieldtype": "Section Break",
-   "label": "Additional Information"
+   "label": "Notes"
   },
   {
    "fieldname": "reviews",
@@ -62,7 +64,8 @@
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
-   "options": "Open\nClosed"
+   "options": "Open\nPassed\nFailed",
+   "read_only": 1
   },
   {
    "fieldname": "goal",
@@ -73,7 +76,15 @@
    "reqd": 1
   }
  ],
- "modified": "2019-05-26 23:12:47.302189",
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "group": "Review",
+   "link_doctype": "Quality Action",
+   "link_fieldname": "review"
+  }
+ ],
+ "modified": "2023-08-28 22:33:22.472980",
  "modified_by": "Administrator",
  "module": "Quality Management",
  "name": "Quality Review",
@@ -99,12 +110,26 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "All",
+   "role": "Desk User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Quality Manager",
    "share": 1,
    "write": 1
   }
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
+ "title_field": "goal",
  "track_changes": 1
 }

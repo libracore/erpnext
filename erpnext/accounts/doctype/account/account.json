@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "allow_copy": 1,
  "allow_import": 1,
  "creation": "2013-01-30 12:49:46",
@@ -17,7 +18,6 @@
   "root_type",
   "report_type",
   "account_currency",
-  "inter_company_account",
   "column_break1",
   "parent_account",
   "account_type",
@@ -55,8 +55,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Account Number",
-   "read_only": 1
+   "label": "Account Number"
   },
   {
    "default": "0",
@@ -72,7 +71,6 @@
    "oldfieldname": "company",
    "oldfieldtype": "Link",
    "options": "Company",
-   "read_only": 1,
    "remember_last_selected_value": 1,
    "reqd": 1
   },
@@ -100,12 +98,6 @@
    "options": "Currency"
   },
   {
-   "default": "0",
-   "fieldname": "inter_company_account",
-   "fieldtype": "Check",
-   "label": "Inter Company Account"
-  },
-  {
    "fieldname": "column_break1",
    "fieldtype": "Column Break",
    "width": "50%"
@@ -129,13 +121,14 @@
    "label": "Account Type",
    "oldfieldname": "account_type",
    "oldfieldtype": "Select",
-   "options": "\nAccumulated Depreciation\nAsset Received But Not Billed\nBank\nCash\nChargeable\nCapital Work in Progress\nCost of Goods Sold\nDepreciation\nEquity\nExpense Account\nExpenses Included In Asset Valuation\nExpenses Included In Valuation\nFixed Asset\nIncome Account\nPayable\nReceivable\nRound Off\nStock\nStock Adjustment\nStock Received But Not Billed\nTax\nTemporary"
+   "options": "\nAccumulated Depreciation\nAsset Received But Not Billed\nBank\nCash\nChargeable\nCapital Work in Progress\nCost of Goods Sold\nCurrent Asset\nCurrent Liability\nDepreciation\nDirect Expense\nDirect Income\nEquity\nExpense Account\nExpenses Included In Asset Valuation\nExpenses Included In Valuation\nFixed Asset\nIncome Account\nIndirect Expense\nIndirect Income\nLiability\nPayable\nReceivable\nRound Off\nRound Off for Opening\nStock\nStock Adjustment\nStock Received But Not Billed\nService Received But Not Billed\nTax\nTemporary",
+   "search_index": 1
   },
   {
    "description": "Rate at which this tax is applied",
    "fieldname": "tax_rate",
    "fieldtype": "Float",
-   "label": "Rate",
+   "label": "Tax Rate",
    "oldfieldname": "tax_rate",
    "oldfieldtype": "Currency"
   },
@@ -188,7 +181,6 @@
    "label": "Include in gross"
   },
   {
-   "bold": 1,
    "default": "0",
    "fieldname": "disabled",
    "fieldtype": "Check",
@@ -197,10 +189,13 @@
  ],
  "icon": "fa fa-money",
  "idx": 1,
- "modified": "2019-08-23 03:40:58.441295",
+ "is_tree": 1,
+ "links": [],
+ "modified": "2024-08-19 15:19:11.095045",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Account",
+ "nsm_parent_field": "parent_account",
  "owner": "Administrator",
  "permissions": [
   {
@@ -247,7 +242,6 @@
    "read": 1,
    "report": 1,
    "role": "Accounts Manager",
-   "set_user_permissions": 1,
    "share": 1,
    "write": 1
   }
@@ -256,5 +250,6 @@
  "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "ASC",
+ "states": [],
  "track_changes": 1
 }

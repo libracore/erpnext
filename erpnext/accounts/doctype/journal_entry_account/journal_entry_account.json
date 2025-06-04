@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "autoname": "hash",
  "creation": "2013-02-22 01:27:39",
  "doctype": "DocType",
@@ -8,15 +9,14 @@
  "field_order": [
   "account",
   "account_type",
-  "balance",
   "col_break1",
   "bank_account",
   "party_type",
   "party",
-  "party_balance",
   "accounting_dimensions_section",
   "cost_center",
   "dimension_col_break",
+  "project",
   "currency_section",
   "account_currency",
   "column_break_10",
@@ -31,7 +31,7 @@
   "reference_type",
   "reference_name",
   "reference_due_date",
-  "project",
+  "reference_detail_no",
   "col_break3",
   "is_advance",
   "user_remark",
@@ -40,7 +40,7 @@
  "fields": [
   {
    "bold": 1,
-   "columns": 3,
+   "columns": 2,
    "fieldname": "account",
    "fieldtype": "Link",
    "in_global_search": 1,
@@ -62,17 +62,7 @@
    "print_hide": 1
   },
   {
-   "fieldname": "balance",
-   "fieldtype": "Currency",
-   "label": "Account Balance",
-   "no_copy": 1,
-   "oldfieldname": "balance",
-   "oldfieldtype": "Data",
-   "options": "account_currency",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
+   "allow_on_submit": 1,
    "default": ":Company",
    "description": "If Income or Expense",
    "fieldname": "cost_center",
@@ -92,25 +82,18 @@
   {
    "fieldname": "party_type",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Party Type",
    "options": "DocType",
    "search_index": 1
   },
   {
-   "columns": 3,
+   "columns": 2,
    "fieldname": "party",
    "fieldtype": "Dynamic Link",
    "in_list_view": 1,
    "label": "Party",
    "options": "party_type"
-  },
-  {
-   "fieldname": "party_balance",
-   "fieldtype": "Currency",
-   "label": "Party Balance",
-   "options": "account_currency",
-   "print_hide": 1,
-   "read_only": 1
   },
   {
    "fieldname": "currency_section",
@@ -199,22 +182,28 @@
    "fieldname": "reference_type",
    "fieldtype": "Select",
    "label": "Reference Type",
-   "options": "\nSales Invoice\nPurchase Invoice\nJournal Entry\nSales Order\nPurchase Order\nExpense Claim\nAsset\nLoan\nPayroll Entry\nEmployee Advance\nExchange Rate Revaluation\nInvoice Discounting"
+   "no_copy": 1,
+   "options": "\nSales Invoice\nPurchase Invoice\nJournal Entry\nSales Order\nPurchase Order\nExpense Claim\nAsset\nLoan\nPayroll Entry\nEmployee Advance\nExchange Rate Revaluation\nInvoice Discounting\nFees\nFull and Final Statement\nPayment Entry",
+   "search_index": 1
   },
   {
    "fieldname": "reference_name",
    "fieldtype": "Dynamic Link",
    "in_list_view": 1,
    "label": "Reference Name",
-   "options": "reference_type"
+   "no_copy": 1,
+   "options": "reference_type",
+   "search_index": 1
   },
   {
    "depends_on": "eval:doc.reference_type&&!in_list(doc.reference_type, ['Expense Claim', 'Asset', 'Employee Loan', 'Employee Advance'])",
    "fieldname": "reference_due_date",
-   "fieldtype": "Select",
-   "label": "Reference Due Date"
+   "fieldtype": "Date",
+   "label": "Reference Due Date",
+   "no_copy": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
@@ -266,17 +255,28 @@
    "fieldtype": "Link",
    "label": "Bank Account",
    "options": "Bank Account"
+  },
+  {
+   "fieldname": "reference_detail_no",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Reference Detail No",
+   "no_copy": 1,
+   "search_index": 1
   }
  ],
  "idx": 1,
  "istable": 1,
- "modified": "2019-09-12 12:16:17.588399",
+ "links": [],
+ "modified": "2024-02-05 01:10:50.224840",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Journal Entry Account",
+ "naming_rule": "Random",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

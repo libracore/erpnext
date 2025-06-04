@@ -1,10 +1,12 @@
 {
+ "actions": [],
  "creation": "2019-03-24 14:48:59.649168",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "disable",
+  "apply_multiple_pricing_rules",
   "column_break_2",
   "rule_description",
   "section_break_1",
@@ -20,12 +22,15 @@
   "column_break_9",
   "free_item_uom",
   "free_item_rate",
+  "round_free_qty",
   "section_break_12",
   "warehouse",
   "threshold_percentage",
   "column_break_15",
   "priority",
-  "apply_multiple_pricing_rules"
+  "is_recursive",
+  "recurse_for",
+  "apply_recursion_over"
  ],
  "fields": [
   {
@@ -152,15 +157,49 @@
    "fieldname": "apply_multiple_pricing_rules",
    "fieldtype": "Check",
    "label": "Apply Multiple Pricing Rules"
+  },
+  {
+   "default": "0",
+   "description": "Discounts to be applied in sequential ranges like buy 1 get 1, buy 2 get 2, buy 3 get 3 and so on",
+   "fieldname": "is_recursive",
+   "fieldtype": "Check",
+   "label": "Is Recursive"
+  },
+  {
+   "default": "0",
+   "depends_on": "is_recursive",
+   "description": "Give free item for every N quantity",
+   "fieldname": "recurse_for",
+   "fieldtype": "Float",
+   "label": "Recurse Every (As Per Transaction UOM)",
+   "mandatory_depends_on": "is_recursive"
+  },
+  {
+   "default": "0",
+   "depends_on": "is_recursive",
+   "description": "Qty for which recursion isn't applicable.",
+   "fieldname": "apply_recursion_over",
+   "fieldtype": "Float",
+   "label": "Apply Recursion Over (As Per Transaction UOM)",
+   "mandatory_depends_on": "is_recursive"
+  },
+  {
+   "default": "0",
+   "fieldname": "round_free_qty",
+   "fieldtype": "Check",
+   "label": "Round Free Qty"
   }
  ],
+ "index_web_pages_for_search": 1,
  "istable": 1,
- "modified": "2019-07-21 00:00:56.674284",
+ "links": [],
+ "modified": "2024-07-22 17:25:07.880984",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Promotional Scheme Product Discount",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",
- "sort_order": "DESC"
+ "sort_order": "DESC",
+ "states": []
 }
