@@ -17,9 +17,10 @@ dependencies = [
     "woocommerce~=3.0.0",
     "pandas~=2.1.2",
     "plaid-python==7.2.1",
-    "stripe~=12.2.0",
     "future~=1.0.0",
-    
+    "stripe~=12.2.0",
+    "gocardless~=0.5.3",
+
     # integration dependencies
 
 ]
