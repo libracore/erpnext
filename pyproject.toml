@@ -20,7 +20,8 @@ dependencies = [
     "future~=1.0.0",
     "stripe~=12.2.0",
     "gocardless~=0.5.3",
-
+    "gocardless-pro~=3.0.0",
+    
     # integration dependencies
 
 ]
