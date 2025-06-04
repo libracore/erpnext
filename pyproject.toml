@@ -17,7 +17,8 @@ dependencies = [
     "woocommerce~=3.0.0",
     "pandas~=2.1.2",
     "plaid-python==7.2.1",
-
+    "stripe~=12.2.0",
+    
     # integration dependencies
 
 ]
