@@ -18,6 +18,7 @@ dependencies = [
     "pandas~=2.1.2",
     "plaid-python==7.2.1",
     "python-youtube~=0.8.3",                # note: DO NOT USE 0.9.5, because this will lead to a depencency conflict
+    "barcodenumber~=0.5.0",
     # integration dependencies
 
 ]
