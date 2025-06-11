@@ -16,6 +16,7 @@ frappe.query_reports["General Ledger"] = {
             label: __("Finance Book"),
             fieldtype: "Link",
             options: "Finance Book",
+            hidden: 1,
         },
         {
             fieldname: "from_date",
@@ -175,6 +176,7 @@ frappe.query_reports["General Ledger"] = {
             label: __("Consider Accounting Dimensions"),
             fieldtype: "Check",
             default: 1,
+            hidden: 1,
         },
         {
             fieldname: "show_opening_entries",
@@ -186,36 +188,44 @@ frappe.query_reports["General Ledger"] = {
             label: __("Include Default FB Entries"),
             fieldtype: "Check",
             default: 1,
+            hidden: 1,
         },
         {
             fieldname: "show_cancelled_entries",
             label: __("Show Cancelled Entries"),
             fieldtype: "Check",
+            hidden: 1,
         },
         {
             fieldname: "show_net_values_in_party_account",
             label: __("Show Net Values in Party Account"),
             fieldtype: "Check",
+            hidden: 1,
         },
         {
             fieldname: "add_values_in_transaction_currency",
             label: __("Add Columns in Transaction Currency"),
             fieldtype: "Check",
+            hidden: 1,
         },
         {
             fieldname: "show_remarks",
             label: __("Show Remarks"),
             fieldtype: "Check",
+            default: 1,
+            hidden: 1,
         },
         {
             fieldname: "ignore_err",
             label: __("Ignore Exchange Rate Revaluation Journals"),
             fieldtype: "Check",
+            hidden: 1,
         },
         {
             fieldname: "ignore_cr_dr_notes",
             label: __("Ignore System Generated Credit / Debit Notes"),
             fieldtype: "Check",
+            hidden: 1,
         },
     ],
 };
