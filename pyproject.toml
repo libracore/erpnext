@@ -17,7 +17,7 @@ dependencies = [
     "woocommerce~=3.0.0",
     "pandas~=2.1.2",
     "plaid-python==7.2.1",
-    "python-youtube~=0.9.7",
+    "python-youtube~=0.8.3",                # note: DO NOT USE 0.9.5, because this will lead to a depencency conflict
     # integration dependencies
 
 ]
