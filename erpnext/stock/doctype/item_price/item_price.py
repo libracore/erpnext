@@ -67,5 +67,7 @@ class ItemPrice(Document):
 	def before_save(self):
 		if self.selling:
 			self.reference = self.customer
+			self.reference_name = frappe.get_value("Customer", self.customer, "customer_name") if self.customer else None
 		if self.buying:
 			self.reference = self.supplier
+			self.reference_name = frappe.get_value("Supplier", self.supplier, "supplier_name") if self.supplier else None
