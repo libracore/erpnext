@@ -249,7 +249,11 @@ def _get_cart_quotation(party=None):
 	if quotation:
 		qdoc = frappe.get_doc("Quotation", quotation[0].name)
 	else:
-		company = frappe.db.get_value("Shopping Cart Settings", None, ["company"])
+		company_method = frappe.get_hooks("get_shopping_cart_company")
+		if not company_method:
+			company = frappe.db.get_value("Shopping Cart Settings", None, ["company"])
+		else:
+			company = frappe.get_attr(company_method[-1])() or frappe.db.get_value("Shopping Cart Settings", None, ["company"])
 		qdoc = frappe.get_doc({
 			"doctype": "Quotation",
 			"naming_series": get_shopping_cart_settings().quotation_series or "QTN-CART-",
