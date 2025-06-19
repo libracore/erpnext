@@ -1620,12 +1620,13 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 	},
 
 	get_advances: function() {
-		if(!this.frm.is_return) {
+		if (!this.frm.is_return) {
 			return this.frm.call({
 				method: "set_advances",
 				doc: this.frm.doc,
 				callback: function(r, rt) {
 					refresh_field("advances");
+					cur_frm.dirty();                // enable save for the form
 				}
 			})
 		}
