@@ -15,7 +15,7 @@ from frappe.utils import cint, nowdate, today, unique
 from pypika import Order
 
 import erpnext
-from erpnext.stock.get_item_details import _get_item_tax_template
+from erpnext.stock.get_item_details import ItemDetailsCtx, _get_item_tax_template
 
 
 # searches for active employees
@@ -196,7 +196,12 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 
 	searchfields = searchfields + [
 		field
-		for field in [searchfield or "name", "item_code", "item_group", "item_name"]
+		for field in [
+			searchfield or "name",
+			"item_code",
+			"item_group",
+			"item_name",
+		]
 		if field not in searchfields
 	]
 	searchfields = " or ".join([field + " like %(txt)s" for field in searchfields])
@@ -231,7 +236,7 @@ def item_query(doctype, txt, searchfield, start, page_len, filters, as_dict=Fals
 			filters.pop("supplier", None)
 
 	description_cond = ""
-	if frappe.db.count(doctype, cache=True) < 50000:
+	if frappe.db.estimate_count(doctype) < 50000:
 		# scan description only if items are less than 50000
 		description_cond = "or tabItem.description LIKE %(txt)s"
 
@@ -394,7 +399,7 @@ def get_batch_no(doctype, txt, searchfield, start, page_len, filters):
 	doctype = "Batch"
 	meta = frappe.get_meta(doctype, cached=True)
 	searchfields = meta.get_search_fields()
-	page_len = 30
+	page_len = 300
 
 	batches = get_batches_from_stock_ledger_entries(searchfields, txt, filters, start, page_len)
 	batches.extend(get_batches_from_serial_and_batch_bundle(searchfields, txt, filters, start, page_len))
@@ -870,15 +875,17 @@ def get_tax_template(doctype, txt, searchfield, start, page_len, filters):
 		valid_from = filters.get("valid_from")
 		valid_from = valid_from[1] if isinstance(valid_from, list) else valid_from
 
-		args = {
-			"item_code": filters.get("item_code"),
-			"posting_date": valid_from,
-			"tax_category": filters.get("tax_category"),
-			"company": company,
-			"base_net_rate": filters.get("base_net_rate"),
-		}
+		ctx = ItemDetailsCtx(
+			{
+				"item_code": filters.get("item_code"),
+				"posting_date": valid_from,
+				"tax_category": filters.get("tax_category"),
+				"company": company,
+				"base_net_rate": filters.get("base_net_rate"),
+			}
+		)
 
-		taxes = _get_item_tax_template(args, taxes, for_validate=True)
+		taxes = _get_item_tax_template(ctx, taxes, for_validate=True)
 		txt = txt.lower()
 		return [(d,) for d in set(taxes) if not txt or txt in d.lower()]
 
@@ -941,7 +948,7 @@ def get_filtered_child_rows(doctype, txt, searchfield, start, page_len, filters)
 @frappe.whitelist()
 @frappe.validate_and_sanitize_search_inputs
 def get_item_uom_query(doctype, txt, searchfield, start, page_len, filters):
-	if frappe.db.get_single_value("Stock Settings", "allow_uom_with_conversion_rate_defined_in_item"):
+	if frappe.get_single_value("Stock Settings", "allow_uom_with_conversion_rate_defined_in_item"):
 		query_filters = {"parent": filters.get("item_code")}
 
 		if txt:

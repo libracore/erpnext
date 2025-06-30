@@ -7,10 +7,10 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "naming_series",
   "budget_against",
   "company",
   "cost_center",
-  "naming_series",
   "project",
   "fiscal_year",
   "column_break_3",
@@ -28,6 +28,10 @@
   "applicable_on_booking_actual_expenses",
   "action_if_annual_budget_exceeded",
   "action_if_accumulated_monthly_budget_exceeded",
+  "control_action_for_cumulative_expense_section",
+  "applicable_on_cumulative_expense",
+  "action_if_annual_exceeded_on_cumulative_expense",
+  "action_if_accumulated_monthly_exceeded_on_cumulative_expense",
   "section_break_21",
   "accounts"
  ],
@@ -195,19 +199,46 @@
   },
   {
    "fieldname": "naming_series",
-   "fieldtype": "Data",
-   "hidden": 1,
+   "fieldtype": "Select",
    "label": "Series",
    "no_copy": 1,
+   "options": "BUDGET-.YYYY.-",
    "print_hide": 1,
-   "read_only": 1,
+   "reqd": 1,
    "set_only_once": 1
+  },
+  {
+   "fieldname": "control_action_for_cumulative_expense_section",
+   "fieldtype": "Section Break",
+   "label": "Control Action for Cumulative Expense"
+  },
+  {
+   "default": "0",
+   "description": "(Purchase Order + Material Request + Actual Expense)",
+   "fieldname": "applicable_on_cumulative_expense",
+   "fieldtype": "Check",
+   "label": "Applicable on Cumulative Expense"
+  },
+  {
+   "depends_on": "eval:doc.applicable_on_cumulative_expense == 1",
+   "fieldname": "action_if_annual_exceeded_on_cumulative_expense",
+   "fieldtype": "Select",
+   "label": "Action if Anual Budget Exceeded on Cumulative Expense",
+   "options": "\nStop\nWarn\nIgnore"
+  },
+  {
+   "depends_on": "eval:doc.applicable_on_cumulative_expense == 1",
+   "fieldname": "action_if_accumulated_monthly_exceeded_on_cumulative_expense",
+   "fieldtype": "Select",
+   "label": "Action if Accumulative Monthly Budget Exceeded on Cumulative Expense",
+   "options": "\nStop\nWarn\nIgnore"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2022-10-10 22:14:36.361509",
+ "modified": "2025-06-16 15:57:13.114981",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Budget",
@@ -231,7 +262,8 @@
    "write": 1
   }
  ],
- "sort_field": "modified",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

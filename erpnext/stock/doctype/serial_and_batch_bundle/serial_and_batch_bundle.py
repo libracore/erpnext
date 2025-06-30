@@ -65,6 +65,7 @@ class SerialandBatchBundle(Document):
 		has_batch_no: DF.Check
 		has_serial_no: DF.Check
 		is_cancelled: DF.Check
+		is_packed: DF.Check
 		is_rejected: DF.Check
 		item_code: DF.Link
 		item_group: DF.Link | None
@@ -83,7 +84,7 @@ class SerialandBatchBundle(Document):
 	# end: auto-generated types
 
 	def autoname(self):
-		if frappe.db.get_single_value(
+		if frappe.get_single_value(
 			"Stock Settings", "set_serial_and_batch_bundle_naming_based_on_naming_series"
 		):
 			if not self.naming_series:
@@ -114,7 +115,7 @@ class SerialandBatchBundle(Document):
 			return
 
 		self.allow_existing_serial_nos()
-		if not self.flags.ignore_validate_serial_batch or frappe.flags.in_test:
+		if not self.flags.ignore_validate_serial_batch or frappe.in_test:
 			self.validate_serial_nos_duplicate()
 			self.check_future_entries_exists()
 
@@ -160,7 +161,7 @@ class SerialandBatchBundle(Document):
 		if self.type_of_transaction == "Outward" or not self.has_serial_no:
 			return
 
-		if frappe.db.get_single_value("Stock Settings", "allow_existing_serial_no"):
+		if frappe.get_single_value("Stock Settings", "allow_existing_serial_no"):
 			return
 
 		if self.voucher_type not in ["Purchase Receipt", "Purchase Invoice", "Stock Entry"]:
@@ -225,15 +226,34 @@ class SerialandBatchBundle(Document):
 		if not (self.has_serial_no and self.type_of_transaction == "Outward"):
 			return
 
-		serial_nos = [d.serial_no for d in self.entries if d.serial_no]
+		if self.voucher_type == "Stock Reconciliation":
+			serial_nos = self.get_serial_nos_for_validate()
+		else:
+			serial_nos = [d.serial_no for d in self.entries if d.serial_no]
+
+		if not serial_nos:
+			return
+
 		kwargs = {
 			"item_code": self.item_code,
 			"warehouse": self.warehouse,
 			"check_serial_nos": True,
 			"serial_nos": serial_nos,
+			"sabb_voucher_type": self.voucher_type,
+			"sabb_voucher_no": self.voucher_no,
+			"sabb_voucher_detail_no": self.voucher_detail_no,
 		}
 		if self.voucher_type == "POS Invoice":
 			kwargs["ignore_voucher_nos"] = [self.voucher_no]
+
+		if self.voucher_type == "Stock Reconciliation":
+			kwargs.update(
+				{
+					"voucher_no": self.voucher_no,
+					"posting_date": self.posting_date,
+					"posting_time": self.posting_time,
+				}
+			)
 
 		available_serial_nos = get_available_serial_nos(frappe._dict(kwargs))
 
@@ -665,14 +685,17 @@ class SerialandBatchBundle(Document):
 		):
 			self.throw_error_message(f"The {self.voucher_type} # {self.voucher_no} should be submit first.")
 
-	def check_future_entries_exists(self):
+	def check_future_entries_exists(self, is_cancelled=False):
 		if self.flags and self.flags.via_landed_cost_voucher:
 			return
 
 		if not self.has_serial_no:
 			return
 
-		serial_nos = [d.serial_no for d in self.entries if d.serial_no]
+		if self.voucher_type == "Stock Reconciliation":
+			serial_nos = self.get_serial_nos_for_validate(is_cancelled=is_cancelled)
+		else:
+			serial_nos = [d.serial_no for d in self.entries if d.serial_no]
 
 		if not serial_nos:
 			return
@@ -720,21 +743,51 @@ class SerialandBatchBundle(Document):
 
 			frappe.throw(_(msg), title=_(title), exc=SerialNoExistsInFutureTransactionError)
 
+	def get_serial_nos_for_validate(self, is_cancelled=False):
+		serial_nos = [d.serial_no for d in self.entries if d.serial_no]
+		skip_serial_nos = self.get_skip_serial_nos_for_stock_reconciliation(is_cancelled=is_cancelled)
+		serial_nos = list(set(sorted(serial_nos)) - set(sorted(skip_serial_nos)))
+
+		return serial_nos
+
+	def get_skip_serial_nos_for_stock_reconciliation(self, is_cancelled=False):
+		data = get_stock_reco_details(self.voucher_detail_no)
+		if not data:
+			return []
+
+		if data.current_serial_no:
+			current_serial_nos = set(parse_serial_nos(data.current_serial_no))
+			serial_nos = set(parse_serial_nos(data.serial_no)) if data.serial_no else set([])
+			return list(serial_nos.intersection(current_serial_nos))
+		elif data.current_serial_and_batch_bundle:
+			current_serial_nos = set(get_serial_nos_from_bundle(data.current_serial_and_batch_bundle))
+			if is_cancelled:
+				return current_serial_nos
+
+			serial_nos = (
+				set(get_serial_nos_from_bundle(data.serial_and_batch_bundle))
+				if data.serial_and_batch_bundle
+				else set([])
+			)
+			return list(serial_nos.intersection(current_serial_nos))
+
+		return []
+
 	def reset_qty(self, row, qty_field=None):
 		qty_field = self.get_qty_field(row, qty_field=qty_field)
-		qty = abs(row.get(qty_field))
+		qty = abs(flt(row.get(qty_field), self.precision("total_qty")))
 
 		idx = None
 		while qty > 0:
 			for d in self.entries:
-				row_qty = abs(d.qty)
+				row_qty = abs(flt(d.qty, d.precision("qty")))
 				if row_qty >= qty:
 					d.db_set("qty", qty if self.type_of_transaction == "Inward" else qty * -1)
 					qty = 0
 					idx = d.idx
 					break
 				else:
-					qty -= row_qty
+					qty = flt(qty - row_qty, d.precision("qty"))
 					idx = d.idx
 
 		if idx and len(self.entries) > idx:
@@ -923,8 +976,6 @@ class SerialandBatchBundle(Document):
 			)
 
 	def validate_serial_and_batch_no_for_returned(self):
-		from erpnext.stock.doctype.serial_no.serial_no import get_serial_nos
-
 		if not self.returned_against:
 			return
 
@@ -949,7 +1000,7 @@ class SerialandBatchBundle(Document):
 				if d.serial_and_batch_bundle:
 					serial_nos = get_serial_nos_from_bundle(d.serial_and_batch_bundle)
 				else:
-					serial_nos = get_serial_nos(d.serial_no)
+					serial_nos = parse_serial_nos(d.serial_no)
 
 			elif self.has_batch_no:
 				if d.serial_and_batch_bundle:
@@ -1111,7 +1162,7 @@ class SerialandBatchBundle(Document):
 			).run()
 
 	def validate_serial_and_batch_inventory(self):
-		self.check_future_entries_exists()
+		self.check_future_entries_exists(is_cancelled=True)
 		self.validate_batch_inventory()
 
 	def validate_batch_inventory(self):
@@ -1416,13 +1467,6 @@ def make_batch_nos(item_code, batch_nos):
 	frappe.db.bulk_insert("Batch", fields=fields, values=set(batch_nos_details))
 
 	frappe.msgprint(_("Batch Nos are created successfully"), alert=True)
-
-
-def parse_serial_nos(data):
-	if isinstance(data, list):
-		return data
-
-	return [s.strip() for s in cstr(data).strip().replace(",", "\n").split("\n") if s.strip()]
 
 
 @frappe.whitelist()
@@ -1758,7 +1802,10 @@ def get_available_serial_nos(kwargs):
 			filters["warehouse"] = kwargs.warehouse
 
 	# Since SLEs are not present against Reserved Stock [POS invoices, SRE], need to ignore reserved serial nos.
-	ignore_serial_nos = get_reserved_serial_nos(kwargs)
+	ignore_serial_nos, consider_serial_nos = get_reserved_serial_nos(kwargs)
+
+	if consider_serial_nos:
+		filters["name"] = ("in", consider_serial_nos)
 
 	# To ignore serial nos in the same record for the draft state
 	if kwargs.get("ignore_serial_nos"):
@@ -1811,8 +1858,6 @@ def get_non_expired_batches(batches):
 
 
 def get_serial_nos_based_on_posting_date(kwargs, ignore_serial_nos):
-	from erpnext.stock.doctype.serial_no.serial_no import get_serial_nos
-
 	serial_nos = set()
 	data = get_stock_ledgers_for_serial_nos(kwargs)
 
@@ -1826,13 +1871,14 @@ def get_serial_nos_based_on_posting_date(kwargs, ignore_serial_nos):
 					serial_nos.difference_update(sns)
 
 		elif d.serial_no:
-			sns = get_serial_nos(d.serial_no)
+			sns = parse_serial_nos(d.serial_no)
 			if d.actual_qty > 0:
 				serial_nos.update(sns)
 			else:
 				serial_nos.difference_update(sns)
 
 	serial_nos = list(serial_nos)
+
 	for serial_no in ignore_serial_nos:
 		if serial_no in serial_nos:
 			serial_nos.remove(serial_no)
@@ -1868,19 +1914,81 @@ def get_reserved_serial_nos(kwargs) -> list:
 	"""Returns a list of `Serial No` reserved in POS Invoice and Stock Reservation Entry."""
 
 	ignore_serial_nos = []
+	consider_serial_nos = []
 
 	# Extend the list by serial nos reserved in POS Invoice
 	ignore_serial_nos.extend(get_reserved_serial_nos_for_pos(kwargs))
 
-	# Extend the list by serial nos reserved via SRE
-	ignore_serial_nos.extend(get_reserved_serial_nos_for_sre(kwargs))
+	reserved_entries = get_reserved_serial_nos_for_sre(kwargs)
+	if not reserved_entries:
+		return ignore_serial_nos, consider_serial_nos
 
-	return ignore_serial_nos
+	if kwargs.get("sabb_voucher_type") == "Delivery Note" and kwargs.get("against_sales_order"):
+		reserved_voucher_details = [kwargs.get("against_sales_order")]
+	else:
+		reserved_voucher_details = get_reserved_voucher_details(kwargs)
+
+	serial_nos = []
+	for entry in reserved_entries:
+		if entry.voucher_no in reserved_voucher_details:
+			consider_serial_nos.append(entry.serial_no)
+			continue
+
+		if kwargs.get("serial_nos") and entry.serial_no in kwargs.get("serial_nos"):
+			frappe.throw(
+				_(
+					"The Serial No {0} is reserved against the {1} {2} and cannot be used for any other transaction."
+				).format(bold(entry.serial_no), entry.voucher_type, bold(entry.voucher_no)),
+				title=_("Serial No Reserved"),
+			)
+
+		serial_nos.append(entry.serial_no)
+
+	# Extend the list by serial nos reserved via SRE
+	ignore_serial_nos.extend(serial_nos)
+
+	return ignore_serial_nos, consider_serial_nos
+
+
+def get_reserved_voucher_details(kwargs):
+	reserved_voucher_details = []
+
+	value = {
+		"Delivery Note": ["Delivery Note Item", "against_sales_order"],
+		"Stock Entry": ["Stock Entry", "work_order"],
+		"Work Order": ["Work Order", "production_plan"],
+	}.get(kwargs.get("sabb_voucher_type"))
+
+	if not value or not kwargs.get("sabb_voucher_no"):
+		return reserved_voucher_details
+
+	voucher_based_filters = {
+		"Delivery Note": {
+			"name": kwargs.get("sabb_voucher_detail_no"),
+			"parent": kwargs.get("sabb_voucher_no"),
+			"docstatus": ("<", 2),
+		},
+		"Stock Entry": {
+			"name": kwargs.get("sabb_voucher_no"),
+			"docstatus": ("<", 2),
+		},
+		"Work Order": {
+			"name": kwargs.get("sabb_voucher_no"),
+			"docstatus": ("<", 2),
+		},
+	}.get(kwargs.get("sabb_voucher_type"))
+
+	reserved_voucher_details = frappe.get_all(
+		value[0],
+		pluck=value[1],
+		filters=voucher_based_filters,
+	)
+
+	return reserved_voucher_details
 
 
 def get_reserved_serial_nos_for_pos(kwargs):
 	from erpnext.controllers.sales_and_purchase_return import get_returned_serial_nos
-	from erpnext.stock.doctype.serial_no.serial_no import get_serial_nos
 
 	ignore_serial_nos = []
 	pos_invoices = frappe.get_all(
@@ -1916,7 +2024,7 @@ def get_reserved_serial_nos_for_pos(kwargs):
 	returned_serial_nos = []
 	for pos_invoice in pos_invoices:
 		if pos_invoice.serial_no:
-			ignore_serial_nos.extend(get_serial_nos(pos_invoice.serial_no))
+			ignore_serial_nos.extend(parse_serial_nos(pos_invoice.serial_no))
 
 		if pos_invoice.is_return:
 			continue
@@ -1958,7 +2066,11 @@ def get_reserved_serial_nos_for_sre(kwargs) -> list:
 		frappe.qb.from_(sre)
 		.inner_join(sb_entry)
 		.on(sre.name == sb_entry.parent)
-		.select(sb_entry.serial_no)
+		.select(
+			sb_entry.serial_no,
+			sre.voucher_no,
+			sre.voucher_type,
+		)
 		.where(
 			(sre.docstatus == 1)
 			& (sre.item_code == kwargs.item_code)
@@ -1974,7 +2086,7 @@ def get_reserved_serial_nos_for_sre(kwargs) -> list:
 	if kwargs.ignore_voucher_nos:
 		query = query.where(sre.name.notin(kwargs.ignore_voucher_nos))
 
-	return [row[0] for row in query.run()]
+	return query.run(as_dict=True)
 
 
 def get_reserved_batches_for_pos(kwargs) -> dict:
@@ -2449,12 +2561,14 @@ def get_stock_ledgers_for_serial_nos(kwargs):
 	query = (
 		frappe.qb.from_(stock_ledger_entry)
 		.select(
+			stock_ledger_entry.posting_datetime,
 			stock_ledger_entry.actual_qty,
 			stock_ledger_entry.serial_no,
 			stock_ledger_entry.serial_and_batch_bundle,
 		)
 		.where(stock_ledger_entry.is_cancelled == 0)
 		.orderby(stock_ledger_entry.posting_datetime)
+		.orderby(stock_ledger_entry.creation)
 	)
 
 	if kwargs.get("posting_date"):
@@ -2583,3 +2697,20 @@ def make_batch_no(batch_no, item_code):
 @frappe.whitelist()
 def is_duplicate_serial_no(bundle_id, serial_no):
 	return frappe.db.exists("Serial and Batch Entry", {"parent": bundle_id, "serial_no": serial_no})
+
+
+def parse_serial_nos(serial_no):
+	if isinstance(serial_no, list):
+		return serial_no
+
+	return [s.strip() for s in cstr(serial_no).strip().replace(",", "\n").split("\n") if s.strip()]
+
+
+@frappe.request_cache
+def get_stock_reco_details(voucher_detail_no):
+	return frappe.db.get_value(
+		"Stock Reconciliation Item",
+		voucher_detail_no,
+		["current_serial_no", "serial_no", "serial_and_batch_bundle", "current_serial_and_batch_bundle"],
+		as_dict=True,
+	)

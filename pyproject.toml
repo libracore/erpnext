@@ -4,7 +4,7 @@ authors = [
     { name = "libracore AG", email = "info@libracore.com"}
 ]
 description = "Open Source Enterprise Resource Planning Platform"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
@@ -23,14 +23,13 @@ dependencies = [
     "stripe~=11.2.0",
     "gocardless~=0.5.3",
     "gocardless-pro~=1.48.0",
-    # integration dependencies
+    "pycountry~=22.3.5",
+    "rapidfuzz~=3.12.2",
+    "holidays~=0.28",
 
+    # Not used directly - required by PyQRCode for PNG generation
+    "pypng~=0.20220715.0",
 ]
-
-[project.urls]
-Homepage = "https://www.libracore.com/"
-Repository = "https://git.libracore.io/libracore/erpnext.git"
-"Bug Reports" = "https://git.libracore.io/libracore/erpnext/issues"
 
 [build-system]
 requires = ["flit_core >=3.4,<4"]
@@ -96,3 +95,8 @@ nixpkgs-deps = [
     "nodejs_20",
     "python312",
 ]
+
+[project.urls]
+Homepage = "https://git.libracore.io/libracore/erpnext"
+Repository = "https://git.libracore.io/libracore/erpnext.git"
+"Bug Reports" = "https://git.libracore.io/libracore/erpnext/issues"

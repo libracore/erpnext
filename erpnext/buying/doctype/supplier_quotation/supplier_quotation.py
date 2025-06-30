@@ -31,7 +31,7 @@ class SupplierQuotation(BuyingController):
 		)
 
 		additional_discount_percentage: DF.Float
-		address_display: DF.SmallText | None
+		address_display: DF.TextEditor | None
 		amended_from: DF.Link | None
 		apply_discount_on: DF.Literal["", "Grand Total", "Net Total"]
 		auto_repeat: DF.Link | None
@@ -46,7 +46,7 @@ class SupplierQuotation(BuyingController):
 		base_total: DF.Currency
 		base_total_taxes_and_charges: DF.Currency
 		billing_address: DF.Link | None
-		billing_address_display: DF.SmallText | None
+		billing_address_display: DF.TextEditor | None
 		buying_price_list: DF.Link | None
 		company: DF.Link
 		contact_display: DF.SmallText | None
@@ -60,6 +60,7 @@ class SupplierQuotation(BuyingController):
 		discount_amount: DF.Currency
 		grand_total: DF.Currency
 		group_same_items: DF.Check
+		has_unit_price_items: DF.Check
 		ignore_pricing_rule: DF.Check
 		in_words: DF.Data | None
 		incoterm: DF.Link | None
@@ -81,7 +82,7 @@ class SupplierQuotation(BuyingController):
 		rounding_adjustment: DF.Currency
 		select_print_heading: DF.Link | None
 		shipping_address: DF.Link | None
-		shipping_address_display: DF.SmallText | None
+		shipping_address_display: DF.TextEditor | None
 		shipping_rule: DF.Link | None
 		status: DF.Literal["", "Draft", "Submitted", "Stopped", "Cancelled", "Expired"]
 		supplier: DF.Link
@@ -102,6 +103,10 @@ class SupplierQuotation(BuyingController):
 		transaction_date: DF.Date
 		valid_till: DF.Date | None
 	# end: auto-generated types
+
+	def before_validate(self):
+		self.set_has_unit_price_items()
+		self.flags.allow_zero_qty = self.has_unit_price_items
 
 	def validate(self):
 		super().validate()
@@ -128,6 +133,17 @@ class SupplierQuotation(BuyingController):
 
 	def on_trash(self):
 		pass
+
+	def set_has_unit_price_items(self):
+		"""
+		If permitted in settings and any item has 0 qty, the SQ has unit price items.
+		"""
+		if not frappe.db.get_single_value("Buying Settings", "allow_zero_qty_in_supplier_quotation"):
+			return
+
+		self.has_unit_price_items = any(
+			not row.qty for row in self.get("items") if (row.item_code and not row.qty)
+		)
 
 	def validate_with_previous_doc(self):
 		super().validate_with_previous_doc(

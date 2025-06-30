@@ -6,6 +6,8 @@ from collections import defaultdict
 import frappe
 from frappe import _
 from frappe.model.meta import get_field_precision
+from frappe.query_builder import DocType
+from frappe.query_builder.functions import Abs
 from frappe.utils import cint, flt, format_datetime, get_datetime
 
 import erpnext
@@ -152,7 +154,7 @@ def validate_returned_items(doc):
 			items_returned = True
 
 	if not items_returned:
-		frappe.throw(_("Atleast one item should be entered with negative quantity in return document"))
+		frappe.throw(_("At least one item should be entered with negative quantity in return document"))
 
 
 def validate_quantity(doc, key, args, ref, valid_items, already_returned_items):
@@ -387,6 +389,8 @@ def make_return_doc(doctype: str, source_name: str, target_doc=None, return_agai
 		if doc.get("is_return"):
 			if doc.doctype == "Sales Invoice" or doc.doctype == "POS Invoice":
 				doc.consolidated_invoice = ""
+				if doc.doctype == "Sales Invoice":
+					doc.pos_closing_entry = ""
 				# no copy enabled for party_account_currency
 				doc.party_account_currency = source.party_account_currency
 				doc.set("payments", [])
@@ -430,99 +434,6 @@ def make_return_doc(doctype: str, source_name: str, target_doc=None, return_agai
 			doc.supplier_warehouse = source.supplier_warehouse
 		else:
 			doc.run_method("calculate_taxes_and_totals")
-
-	def update_serial_batch_no(source_doc, target_doc, source_parent, item_details, qty_field):
-		from erpnext.stock.doctype.serial_no.serial_no import get_serial_nos
-		from erpnext.stock.serial_batch_bundle import SerialBatchCreation
-
-		returned_serial_nos = []
-		returned_batches = frappe._dict()
-		serial_and_batch_field = (
-			"serial_and_batch_bundle" if qty_field == "stock_qty" else "rejected_serial_and_batch_bundle"
-		)
-		old_serial_no_field = "serial_no" if qty_field == "stock_qty" else "rejected_serial_no"
-		old_batch_no_field = "batch_no"
-
-		if (
-			source_doc.get(serial_and_batch_field)
-			or source_doc.get(old_serial_no_field)
-			or source_doc.get(old_batch_no_field)
-		):
-			if item_details.has_serial_no:
-				returned_serial_nos = get_returned_serial_nos(
-					source_doc, source_parent, serial_no_field=serial_and_batch_field
-				)
-			else:
-				returned_batches = get_returned_batches(
-					source_doc, source_parent, batch_no_field=serial_and_batch_field
-				)
-
-			type_of_transaction = "Inward"
-			if source_doc.get(serial_and_batch_field) and (
-				frappe.db.get_value(
-					"Serial and Batch Bundle", source_doc.get(serial_and_batch_field), "type_of_transaction"
-				)
-				== "Inward"
-			):
-				type_of_transaction = "Outward"
-			elif source_parent.doctype in [
-				"Purchase Invoice",
-				"Purchase Receipt",
-				"Subcontracting Receipt",
-			]:
-				type_of_transaction = "Outward"
-
-			warehouse = source_doc.warehouse if qty_field == "stock_qty" else source_doc.rejected_warehouse
-			if source_parent.doctype in [
-				"Sales Invoice",
-				"POS Invoice",
-				"Delivery Note",
-			] and source_parent.get("is_internal_customer"):
-				type_of_transaction = "Outward"
-				warehouse = source_doc.target_warehouse
-
-			cls_obj = SerialBatchCreation(
-				{
-					"type_of_transaction": type_of_transaction,
-					"serial_and_batch_bundle": source_doc.get(serial_and_batch_field),
-					"returned_against": source_doc.name,
-					"item_code": source_doc.item_code,
-					"returned_serial_nos": returned_serial_nos,
-					"voucher_type": source_parent.doctype,
-					"do_not_submit": True,
-					"warehouse": warehouse,
-					"has_serial_no": item_details.has_serial_no,
-					"has_batch_no": item_details.has_batch_no,
-				}
-			)
-
-			serial_nos = []
-			batches = frappe._dict()
-			if source_doc.get(old_batch_no_field):
-				batches = frappe._dict({source_doc.batch_no: source_doc.get(qty_field)})
-			elif source_doc.get(old_serial_no_field):
-				serial_nos = get_serial_nos(source_doc.get(old_serial_no_field))
-			elif source_doc.get(serial_and_batch_field):
-				if item_details.has_serial_no:
-					serial_nos = get_serial_nos_from_bundle(source_doc.get(serial_and_batch_field))
-				else:
-					batches = get_batches_from_bundle(source_doc.get(serial_and_batch_field))
-
-			if serial_nos:
-				cls_obj.serial_nos = sorted(list(set(serial_nos) - set(returned_serial_nos)))
-			elif batches:
-				for batch in batches:
-					if batch in returned_batches:
-						batches[batch] -= flt(returned_batches.get(batch))
-
-				cls_obj.batches = batches
-
-			if source_doc.get(serial_and_batch_field):
-				cls_obj.duplicate_package()
-				if cls_obj.serial_and_batch_bundle:
-					target_doc.set(serial_and_batch_field, cls_obj.serial_and_batch_bundle)
-			else:
-				target_doc.set(serial_and_batch_field, cls_obj.make_serial_and_batch_bundle().name)
 
 	def update_item(source_doc, target_doc, source_parent):
 		target_doc.qty = -1 * source_doc.qty
@@ -751,7 +662,8 @@ def get_rate_for_return(
 	if voucher_type in ("Purchase Receipt", "Purchase Invoice", "Subcontracting Receipt"):
 		select_field = "incoming_rate"
 	else:
-		select_field = "abs(stock_value_difference / actual_qty)"
+		StockLedgerEntry = frappe.qb.DocType("Stock Ledger Entry")
+		select_field = Abs(StockLedgerEntry.stock_value_difference / StockLedgerEntry.actual_qty)
 
 	rate = flt(frappe.db.get_value("Stock Ledger Entry", filters, select_field))
 	if not (rate and return_against) and voucher_type in ["Sales Invoice", "Delivery Note"]:
@@ -772,6 +684,14 @@ def get_rate_for_return(
 				},
 				raise_error_if_no_rate=False,
 			)
+
+	if not rate and voucher_type in ["Sales Invoice", "Delivery Note"]:
+		details = frappe.db.get_value(
+			voucher_type + " Item", voucher_detail_no, ["rate", "allow_zero_valuation_rate"], as_dict=1
+		)
+
+		if details and not details.allow_zero_valuation_rate:
+			rate = flt(details.rate)
 
 	return rate
 
@@ -866,8 +786,6 @@ def get_returned_serial_nos(child_doc, parent_doc, serial_no_field=None, ignore_
 
 
 def get_returned_batches(child_doc, parent_doc, batch_no_field=None, ignore_voucher_detail_no=None):
-	from erpnext.stock.serial_batch_bundle import get_batches_from_bundle
-
 	batches = frappe._dict()
 
 	old_field = "batch_no"
@@ -1176,3 +1094,52 @@ def get_available_serial_nos(serial_nos, warehouse):
 def get_payment_data(invoice):
 	payment = frappe.db.get_all("Sales Invoice Payment", {"parent": invoice}, ["mode_of_payment", "amount"])
 	return payment
+
+
+@frappe.whitelist()
+def get_invoice_item_returned_qty(doctype, invoice, customer, item_row_name):
+	is_return, docstatus = frappe.db.get_value(doctype, invoice, ["is_return", "docstatus"])
+	if not is_return and docstatus == 1:
+		return get_returned_qty_map_for_row(invoice, customer, item_row_name, doctype)
+
+
+@frappe.whitelist()
+def is_invoice_returnable(doctype, invoice):
+	is_return, docstatus, customer = frappe.db.get_value(
+		doctype, invoice, ["is_return", "docstatus", "customer"]
+	)
+	if is_return or docstatus == 0:
+		return False
+
+	invoice_item_qty = frappe.db.get_all(f"{doctype} Item", {"parent": invoice}, ["name", "qty"])
+
+	already_full_returned = 0
+	for d in invoice_item_qty:
+		returned_qty = get_returned_qty_map_for_row(invoice, customer, d.name, doctype)
+		if returned_qty.qty == d.qty:
+			already_full_returned += 1
+
+	return len(invoice_item_qty) != already_full_returned
+
+
+def get_sales_invoice_item_from_consolidated_invoice(return_against_pos_invoice, pos_invoice_item):
+	try:
+		SalesInvoice = DocType("Sales Invoice")
+		SalesInvoiceItem = DocType("Sales Invoice Item")
+
+		query = (
+			frappe.qb.from_(SalesInvoice)
+			.from_(SalesInvoiceItem)
+			.select(SalesInvoiceItem.name)
+			.where(
+				(SalesInvoice.name == SalesInvoiceItem.parent)
+				& (SalesInvoice.is_return == 0)
+				& (SalesInvoiceItem.pos_invoice == return_against_pos_invoice)
+				& (SalesInvoiceItem.pos_invoice_item == pos_invoice_item)
+			)
+		)
+
+		result = query.run(as_dict=True)
+		return result[0].name if result else None
+	except Exception:
+		return None

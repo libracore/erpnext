@@ -109,6 +109,8 @@ def get_stock_balance(
 
 	from erpnext.stock.stock_ledger import get_previous_sle
 
+	frappe.has_permission("Item", "read", throw=True)
+
 	if posting_date is None:
 		posting_date = nowdate()
 	if posting_time is None:

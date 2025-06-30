@@ -2,15 +2,12 @@
 # License: GNU General Public License v3. See license.txt
 
 
-import click
 import frappe
 from frappe import _
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 from frappe.desk.page.setup_wizard.setup_wizard import add_all_roles_to
 from frappe.utils import cint
 
-import erpnext
-from erpnext.setup.default_energy_point_rules import get_default_energy_point_rules
 from erpnext.setup.doctype.incoterm.incoterm import create_incoterms
 
 from .default_success_action import get_default_success_action
@@ -25,44 +22,26 @@ def after_install():
 
 	set_single_defaults()
 	create_print_setting_custom_fields()
+	create_marketgin_campagin_custom_fields()
 	add_all_roles_to("Administrator")
 	create_default_success_action()
-	create_default_energy_point_rules()
 	create_incoterms()
 	create_default_role_profiles()
 	add_company_to_session_defaults()
 	add_standard_navbar_items()
 	add_app_name()
-	hide_workspaces()
 	update_roles()
+	make_default_operations()
+	update_pegged_currencies()
 	frappe.db.commit()
 
 
-def check_setup_wizard_not_completed():
-	if cint(frappe.db.get_single_value("System Settings", "setup_complete") or 0):
-		message = """ERPNext can only be installed on a fresh site where the setup wizard is not completed.
-You can reinstall this site (after saving your data) using: bench --site [sitename] reinstall"""
-		frappe.throw(message)  # nosemgrep
-
-
-def check_frappe_version():
-	def major_version(v: str) -> str:
-		return v.split(".")[0]
-
-	frappe_version = major_version(frappe.__version__)
-	erpnext_version = major_version(erpnext.__version__)
-
-	if frappe_version == erpnext_version:
-		return
-	return
-
-	click.secho(
-		f"You're attempting to install ERPNext version {erpnext_version} with Frappe version {frappe_version}. "
-		"This is not supported and will result in broken install. Switch to correct branch before installing.",
-		fg="red",
-	)
-
-	raise SystemExit(1)
+def make_default_operations():
+	for operation in ["Assembly"]:
+		if not frappe.db.exists("Operation", operation):
+			doc = frappe.get_doc({"doctype": "Operation", "name": operation})
+			doc.flags.ignore_mandatory = True
+			doc.insert(ignore_permissions=True)
 
 
 def set_single_defaults():
@@ -87,8 +66,6 @@ def set_single_defaults():
 				doc.save()
 			except frappe.ValidationError:
 				pass
-
-	frappe.db.set_default("date_format", "dd-mm-yyyy")
 
 	setup_currency_exchange()
 
@@ -139,23 +116,27 @@ def create_print_setting_custom_fields():
 	)
 
 
+def create_marketgin_campagin_custom_fields():
+	create_custom_fields(
+		{
+			"UTM Campaign": [
+				{
+					"label": _("Messaging CRM Campagin"),
+					"fieldname": "crm_campaign",
+					"fieldtype": "Link",
+					"options": "Campaign",
+					"insert_after": "campaign_decription",
+				},
+			]
+		}
+	)
+
+
 def create_default_success_action():
 	for success_action in get_default_success_action():
 		if not frappe.db.exists("Success Action", success_action.get("ref_doctype")):
 			doc = frappe.get_doc(success_action)
 			doc.insert(ignore_permissions=True)
-
-
-def create_default_energy_point_rules():
-	for rule in get_default_energy_point_rules():
-		# check if any rule for ref. doctype exists
-		rule_exists = frappe.db.exists(
-			"Energy Point Rule", {"reference_doctype": rule.get("reference_doctype")}
-		)
-		if rule_exists:
-			continue
-		doc = frappe.get_doc(rule)
-		doc.insert(ignore_permissions=True)
 
 
 def add_company_to_session_defaults():
@@ -166,6 +147,11 @@ def add_company_to_session_defaults():
 
 def add_standard_navbar_items():
 	navbar_settings = frappe.get_single("Navbar Settings")
+
+	# Translatable strings for below navbar items
+	__ = _("Documentation")
+	__ = _("User Forum")
+	__ = _("Report an Issue")
 
 	erpnext_navbar_items = [
 		{
@@ -222,11 +208,6 @@ def add_app_name():
 	frappe.db.set_single_value("System Settings", "app_name", "ERPNext")
 
 
-def hide_workspaces():
-	for ws in ["Integration", "Settings"]:
-		frappe.db.set_value("Workspace", ws, "public", 0)
-
-
 def update_roles():
 	website_user_roles = ("Customer", "Supplier")
 	for role in website_user_roles:
@@ -241,6 +222,27 @@ def create_default_role_profiles():
 			role_profile.append("roles", {"role": role})
 
 		role_profile.insert(ignore_permissions=True)
+
+
+def update_pegged_currencies():
+	doc = frappe.get_doc("Pegged Currencies", "Pegged Currencies")
+
+	existing_sources = {item.source_currency for item in doc.pegged_currency_item}
+
+	currencies_to_add = [
+		{"source_currency": "AED", "pegged_against": "USD", "pegged_exchange_rate": 3.6725},
+		{"source_currency": "BHD", "pegged_against": "USD", "pegged_exchange_rate": 0.376},
+		{"source_currency": "JOD", "pegged_against": "USD", "pegged_exchange_rate": 0.709},
+		{"source_currency": "OMR", "pegged_against": "USD", "pegged_exchange_rate": 0.3845},
+		{"source_currency": "QAR", "pegged_against": "USD", "pegged_exchange_rate": 3.64},
+		{"source_currency": "SAR", "pegged_against": "USD", "pegged_exchange_rate": 3.75},
+	]
+
+	for currency in currencies_to_add:
+		if currency["source_currency"] not in existing_sources:
+			doc.append("pegged_currency_item", currency)
+
+	doc.save()
 
 
 DEFAULT_ROLE_PROFILES = {

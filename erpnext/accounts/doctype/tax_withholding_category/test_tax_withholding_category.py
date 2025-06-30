@@ -6,19 +6,20 @@ import unittest
 
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
-from frappe.tests.utils import FrappeTestCase, change_settings
+from frappe.tests import IntegrationTestCase
 from frappe.utils import add_days, add_months, today
 
 from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
 from erpnext.accounts.utils import get_fiscal_year
 from erpnext.buying.doctype.purchase_order.purchase_order import make_purchase_invoice
 
-test_dependencies = ["Supplier Group", "Customer Group"]
+EXTRA_TEST_RECORD_DEPENDENCIES = ["Supplier Group", "Customer Group"]
 
 
-class TestTaxWithholdingCategory(FrappeTestCase):
+class TestTaxWithholdingCategory(IntegrationTestCase):
 	@classmethod
-	def setUpClass(self):
+	def setUpClass(cls):
+		super().setUpClass()
 		# create relevant supplier, etc
 		create_records()
 		create_tax_withholding_category_records()
@@ -288,17 +289,18 @@ class TestTaxWithholdingCategory(FrappeTestCase):
 		frappe.db.set_value(
 			"Customer", "Test TCS Customer", "tax_withholding_category", "Cumulative Threshold TCS"
 		)
+		fiscal_year = get_fiscal_year(today(), company="_Test Company")
 
 		vouchers = []
 
 		# create advance payment
-		pe = create_payment_entry(
+		pe1 = create_payment_entry(
 			payment_type="Receive", party_type="Customer", party="Test TCS Customer", paid_amount=20000
 		)
-		pe.paid_from = "Debtors - _TC"
-		pe.paid_to = "Cash - _TC"
-		pe.submit()
-		vouchers.append(pe)
+		pe1.paid_from = "Debtors - _TC"
+		pe1.paid_to = "Cash - _TC"
+		pe1.submit()
+		vouchers.append(pe1)
 
 		# create invoice
 		si1 = create_sales_invoice(customer="Test TCS Customer", rate=5000)
@@ -320,6 +322,17 @@ class TestTaxWithholdingCategory(FrappeTestCase):
 		# make another invoice
 		# sum of unallocated amount from payment entry and this sales invoice will breach cumulative threashold
 		# TDS should be calculated
+
+		# this payment should not be considered for TCS calculation as it is outside of fiscal year
+		pe2 = create_payment_entry(
+			payment_type="Receive", party_type="Customer", party="Test TCS Customer", paid_amount=10000
+		)
+		pe2.paid_from = "Debtors - _TC"
+		pe2.paid_to = "Cash - _TC"
+		pe2.posting_date = add_days(fiscal_year[1], -10)
+		pe2.submit()
+		vouchers.append(pe2)
+
 		si2 = create_sales_invoice(customer="Test TCS Customer", rate=15000)
 		si2.submit()
 		vouchers.append(si2)

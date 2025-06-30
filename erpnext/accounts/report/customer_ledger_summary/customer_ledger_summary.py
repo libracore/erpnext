@@ -8,6 +8,7 @@ from frappe.query_builder import Criterion, Tuple
 from frappe.query_builder.functions import IfNull
 from frappe.utils import getdate, nowdate
 from frappe.utils.nestedset import get_descendants_of
+from pypika.terms import LiteralValue
 
 from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
 	get_accounting_dimensions,
@@ -15,7 +16,7 @@ from erpnext.accounts.doctype.accounting_dimension.accounting_dimension import (
 )
 
 TREE_DOCTYPES = frozenset(
-	["Customer Group", "Terrirtory", "Supplier Group", "Sales Partner", "Sales Person", "Cost Center"]
+	["Customer Group", "Territory", "Supplier Group", "Sales Partner", "Sales Person", "Cost Center"]
 )
 
 
@@ -77,13 +78,12 @@ class PartyLedgerSummaryReport:
 
 		from frappe.desk.reportview import build_match_conditions
 
-		query, params = query.walk()
 		match_conditions = build_match_conditions(party_type)
 
 		if match_conditions:
-			query += "and" + match_conditions
+			query = query.where(LiteralValue(match_conditions))
 
-		party_details = frappe.db.sql(query, params, as_dict=True)
+		party_details = query.run(as_dict=True)
 
 		for row in party_details:
 			self.parties.append(row.party)
@@ -210,6 +210,7 @@ class PartyLedgerSummaryReport:
 				"fieldtype": "Link",
 				"options": "Currency",
 				"width": 50,
+				"hidden": 1,
 			},
 		]
 
@@ -242,6 +243,7 @@ class PartyLedgerSummaryReport:
 				}
 			]
 
+		columns.append({"label": _("Dr/Cr"), "fieldname": "dr_or_cr", "fieldtype": "Data", "width": 100})
 		return columns
 
 	def get_data(self):
@@ -300,6 +302,13 @@ class PartyLedgerSummaryReport:
 				for account in self.party_adjustment_accounts:
 					row["adj_" + scrub(account)] = adjustments.get(account, 0)
 
+				if self.filters.party_type == "Customer":
+					balance = row.get("closing_balance", 0)
+					row["dr_or_cr"] = "Dr" if balance > 0 else "Cr" if balance < 0 else ""
+				else:
+					balance = row.get("closing_balance", 0)
+					row["dr_or_cr"] = "Cr" if balance > 0 else "Dr" if balance < 0 else ""
+
 				out.append(row)
 
 		return out
@@ -326,6 +335,28 @@ class PartyLedgerSummaryReport:
 				& (gle.party.isin(self.parties))
 			)
 		)
+
+		if self.filters.get("ignore_cr_dr_notes"):
+			system_generated_cr_dr_journals = frappe.db.get_all(
+				"Journal Entry",
+				filters={
+					"company": self.filters.get("company"),
+					"docstatus": 1,
+					"voucher_type": ("in", ["Credit Note", "Debit Note"]),
+					"is_system_generated": 1,
+					"posting_date": ["between", [self.filters.get("from_date"), self.filters.get("to_date")]],
+				},
+				as_list=True,
+			)
+			if system_generated_cr_dr_journals:
+				vouchers_to_ignore = (self.filters.get("voucher_no_not_in") or []) + [
+					x[0] for x in system_generated_cr_dr_journals
+				]
+				self.filters.update({"voucher_no_not_in": vouchers_to_ignore})
+
+		voucher_no_not_in = self.filters.get("voucher_no_not_in", [])
+		if voucher_no_not_in:
+			query = query.where(gle.voucher_no.notin(voucher_no_not_in))
 
 		query = self.prepare_conditions(query)
 
@@ -458,9 +489,16 @@ class PartyLedgerSummaryReport:
 
 
 def get_children(doctype, value):
-	children = get_descendants_of(doctype, value)
+	if not isinstance(value, list):
+		value = [d.strip() for d in value.strip().split(",") if d]
 
-	return [value, *children]
+	all_children = []
+
+	for d in value:
+		all_children += get_descendants_of(doctype, value)
+		all_children.append(d)
+
+	return list(set(all_children))
 
 
 def execute(filters=None):

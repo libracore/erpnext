@@ -2,6 +2,8 @@
 # License: GNU General Public License v3. See license.txt
 
 
+import json
+
 import frappe
 from frappe import ValidationError, _, msgprint
 from frappe.contacts.doctype.address.address import render_address
@@ -69,6 +71,29 @@ class BuyingController(SubcontractingController):
 			"backflush_based_on",
 			frappe.db.get_single_value("Buying Settings", "backflush_raw_materials_of_subcontract_based_on"),
 		)
+
+		if self.docstatus == 1 and self.doctype in ["Purchase Receipt", "Purchase Invoice"]:
+			self.set_onload(
+				"allow_to_make_qc_after_submission",
+				frappe.get_single_value(
+					"Stock Settings", "allow_to_make_quality_inspection_after_purchase_or_delivery"
+				),
+			)
+
+	def validate_posting_date_with_po(self):
+		po_list = []
+		for item in self.items:
+			if item.purchase_order and item.purchase_order not in po_list:
+				po_list.append(item.purchase_order)
+
+		for po in po_list:
+			po_posting_date = frappe.get_value("Purchase Order", po, "transaction_date")
+			if getdate(po_posting_date) > getdate(self.posting_date):
+				frappe.throw(
+					_("Posting Date {0} cannot be before Purchase Order Posting Date {1}").format(
+						frappe.bold(self.posting_date), frappe.bold(po_posting_date)
+					)
+				)
 
 	def create_package_for_transfer(self) -> None:
 		"""Create serial and batch package for Sourece Warehouse in case of inter transfer."""
@@ -231,30 +256,22 @@ class BuyingController(SubcontractingController):
 
 		return [d.item_code for d in self.items if d.is_fixed_asset]
 
-	def set_landed_cost_voucher_amount(self):
-		for d in self.get("items"):
-			lc_voucher_data = frappe.db.sql(
-				"""select sum(applicable_charges), cost_center
-				from `tabLanded Cost Item`
-				where docstatus = 1 and purchase_receipt_item = %s and receipt_document = %s""",
-				(d.name, self.name),
-			)
-			d.landed_cost_voucher_amount = lc_voucher_data[0][0] if lc_voucher_data else 0.0
-			if not d.cost_center and lc_voucher_data and lc_voucher_data[0][1]:
-				d.db_set("cost_center", lc_voucher_data[0][1])
-
 	def validate_from_warehouse(self):
 		for item in self.get("items"):
 			if item.get("from_warehouse") and (item.get("from_warehouse") == item.get("warehouse")):
 				frappe.throw(
-					_("Row #{0}: Accepted Warehouse and Supplier Warehouse cannot be same").format(item.idx)
+					_("Row #{idx}: {from_warehouse_field} and {to_warehouse_field} cannot be same.").format(
+						idx=item.idx,
+						from_warehouse_field=_(item.meta.get_label("from_warehouse")),
+						to_warehouse_field=_(item.meta.get_label("warehouse")),
+					)
 				)
 
 			if item.get("from_warehouse") and self.get("is_subcontracted"):
 				frappe.throw(
 					_(
-						"Row #{0}: Cannot select Supplier Warehouse while suppling raw materials to subcontractor"
-					).format(item.idx)
+						"Row #{idx}: Cannot select Supplier Warehouse while suppling raw materials to subcontractor."
+					).format(idx=item.idx)
 				)
 
 	def set_supplier_address(self):
@@ -276,16 +293,16 @@ class BuyingController(SubcontractingController):
 
 		if self.meta.get_field("base_in_words"):
 			if self.meta.get_field("base_rounded_total") and not self.is_rounded_total_disabled():
-				amount = abs(self.base_rounded_total)
+				amount = abs(flt(self.base_rounded_total))
 			else:
-				amount = abs(self.base_grand_total)
+				amount = abs(flt(self.base_grand_total))
 			self.base_in_words = money_in_words(amount, self.company_currency)
 
 		if self.meta.get_field("in_words"):
 			if self.meta.get_field("rounded_total") and not self.is_rounded_total_disabled():
-				amount = abs(self.rounded_total)
+				amount = abs(flt(self.rounded_total))
 			else:
-				amount = abs(self.grand_total)
+				amount = abs(flt(self.grand_total))
 
 			self.in_words = money_in_words(amount, self.currency)
 
@@ -306,32 +323,40 @@ class BuyingController(SubcontractingController):
 			if d.item_code and d.item_code in stock_and_asset_items:
 				stock_and_asset_items_qty += flt(d.qty)
 				stock_and_asset_items_amount += flt(d.base_net_amount)
-				last_item_idx = d.idx
 
-		total_valuation_amount = sum(
-			flt(d.base_tax_amount_after_discount_amount)
-			for d in self.get("taxes")
-			if d.category in ["Valuation", "Valuation and Total"]
-		)
+			last_item_idx = d.idx
 
-		valuation_amount_adjustment = total_valuation_amount
+		tax_accounts, total_valuation_amount, total_actual_tax_amount = self.get_tax_details()
+
 		for i, item in enumerate(self.get("items")):
-			if item.item_code and item.qty and item.item_code in stock_and_asset_items:
-				item_proportion = (
-					flt(item.base_net_amount) / stock_and_asset_items_amount
-					if stock_and_asset_items_amount
-					else flt(item.qty) / stock_and_asset_items_qty
-				)
-
+			if item.item_code and item.qty:
+				item_tax_amount, actual_tax_amount = 0.0, 0.0
 				if i == (last_item_idx - 1):
-					item.item_tax_amount = flt(
-						valuation_amount_adjustment, self.precision("item_tax_amount", item)
-					)
+					item_tax_amount = total_valuation_amount
+					actual_tax_amount = total_actual_tax_amount
 				else:
-					item.item_tax_amount = flt(
-						item_proportion * total_valuation_amount, self.precision("item_tax_amount", item)
-					)
-					valuation_amount_adjustment -= item.item_tax_amount
+					# calculate item tax amount
+					item_tax_amount = self.get_item_tax_amount(item, tax_accounts)
+					total_valuation_amount -= item_tax_amount
+
+					if total_actual_tax_amount:
+						actual_tax_amount = self.get_item_actual_tax_amount(
+							item,
+							total_actual_tax_amount,
+							stock_and_asset_items_amount,
+							stock_and_asset_items_qty,
+						)
+						total_actual_tax_amount -= actual_tax_amount
+
+				# This code is required here to calculate the correct valuation for stock items
+				if item.item_code not in stock_and_asset_items:
+					item.valuation_rate = 0.0
+					continue
+
+				# Item tax amount is the total tax amount applied on that item and actual tax type amount
+				item.item_tax_amount = flt(
+					item_tax_amount + actual_tax_amount, self.precision("item_tax_amount", item)
+				)
 
 				self.round_floats_in(item)
 				if flt(item.conversion_factor) == 0.0:
@@ -363,6 +388,50 @@ class BuyingController(SubcontractingController):
 				item.valuation_rate = 0.0
 
 		update_regional_item_valuation_rate(self)
+
+	def get_tax_details(self):
+		tax_accounts = []
+		total_valuation_amount = 0.0
+		total_actual_tax_amount = 0.0
+
+		for d in self.get("taxes"):
+			if d.category not in ["Valuation", "Valuation and Total"]:
+				continue
+
+			if d.charge_type == "On Net Total":
+				total_valuation_amount += flt(d.base_tax_amount_after_discount_amount)
+				tax_accounts.append(d.account_head)
+			else:
+				total_actual_tax_amount += flt(d.base_tax_amount_after_discount_amount)
+
+		return tax_accounts, total_valuation_amount, total_actual_tax_amount
+
+	def get_item_tax_amount(self, item, tax_accounts):
+		item_tax_amount = 0.0
+		if item.item_tax_rate:
+			tax_details = json.loads(item.item_tax_rate)
+			for account, rate in tax_details.items():
+				if account not in tax_accounts:
+					continue
+
+				net_rate = item.base_net_amount
+				if item.sales_incoming_rate:
+					net_rate = item.qty * item.sales_incoming_rate
+
+				item_tax_amount += flt(net_rate) * flt(rate) / 100
+
+		return item_tax_amount
+
+	def get_item_actual_tax_amount(
+		self, item, actual_tax_amount, stock_and_asset_items_amount, stock_and_asset_items_qty
+	):
+		item_proportion = (
+			flt(item.base_net_amount) / stock_and_asset_items_amount
+			if stock_and_asset_items_amount
+			else flt(item.qty) / stock_and_asset_items_qty
+		)
+
+		return flt(item_proportion * actual_tax_amount, self.precision("item_tax_amount", item))
 
 	def set_incoming_rate(self):
 		"""
@@ -400,8 +469,8 @@ class BuyingController(SubcontractingController):
 			d.rate = d.sales_incoming_rate
 			frappe.msgprint(
 				_(
-					"Row {0}: Item rate has been updated as per valuation rate since its an internal stock transfer"
-				).format(d.idx),
+					"Row #{idx}: Item rate has been updated as per valuation rate since its an internal stock transfer."
+				).format(idx=d.idx),
 				alert=1,
 			)
 
@@ -451,24 +520,35 @@ class BuyingController(SubcontractingController):
 	def validate_for_subcontracting(self):
 		if self.is_subcontracted and self.get("is_old_subcontracting_flow"):
 			if self.doctype in ["Purchase Receipt", "Purchase Invoice"] and not self.supplier_warehouse:
-				frappe.throw(_("Supplier Warehouse mandatory for sub-contracted {0}").format(self.doctype))
+				frappe.throw(
+					_("{field_label} is mandatory for sub-contracted {doctype}.").format(
+						field_label=_(self.meta.get_label("supplier_warehouse")), doctype=_(self.doctype)
+					)
+				)
 
 			for item in self.get("items"):
 				if item in self.sub_contracted_items and not item.bom:
-					frappe.throw(_("Please select BOM in BOM field for Item {0}").format(item.item_code))
+					frappe.throw(
+						_("Please select BOM in BOM field for Item {item_code}.").format(
+							item_code=frappe.bold(item.item_code)
+						)
+					)
 			if self.doctype != "Purchase Order":
 				return
 			for row in self.get("supplied_items"):
 				if not row.reserve_warehouse:
-					msg = f"Reserved Warehouse is mandatory for the Item {frappe.bold(row.rm_item_code)} in Raw Materials supplied"
-					frappe.throw(_(msg))
+					frappe.throw(
+						_(
+							"Reserved Warehouse is mandatory for the Item {item_code} in Raw Materials supplied."
+						).format(item_code=frappe.bold(row.rm_item_code))
+					)
 		else:
 			for item in self.get("items"):
 				if item.get("bom"):
 					item.bom = None
 
 	def set_qty_as_per_stock_uom(self):
-		allow_to_edit_stock_qty = frappe.db.get_single_value(
+		allow_to_edit_stock_qty = frappe.get_single_value(
 			"Stock Settings", "allow_to_edit_stock_uom_qty_for_purchase"
 		)
 
@@ -477,7 +557,12 @@ class BuyingController(SubcontractingController):
 				# Check if item code is present
 				# Conversion factor should not be mandatory for non itemized items
 				if not d.conversion_factor and d.item_code:
-					frappe.throw(_("Row {0}: Conversion Factor is mandatory").format(d.idx))
+					frappe.throw(
+						_("Row #{idx}: {field_label} is mandatory.").format(
+							idx=d.idx,
+							field_label=_(d.meta.get_label("conversion_factor")),
+						)
+					)
 				d.stock_qty = flt(d.qty) * flt(d.conversion_factor)
 
 				if self.doctype == "Purchase Receipt" and d.meta.get_field("received_stock_qty"):
@@ -494,7 +579,12 @@ class BuyingController(SubcontractingController):
 	def validate_purchase_return(self):
 		for d in self.get("items"):
 			if self.is_return and flt(d.rejected_qty) != 0:
-				frappe.throw(_("Row #{0}: Rejected Qty can not be entered in Purchase Return").format(d.idx))
+				frappe.throw(
+					_("Row #{idx}: {field_label} is not allowed in Purchase Return.").format(
+						idx=d.idx,
+						field_label=_(d.meta.get_label("rejected_qty")),
+					)
+				)
 
 			# validate rate with ref PR
 
@@ -510,8 +600,8 @@ class BuyingController(SubcontractingController):
 			val = flt(d.qty) + flt(d.rejected_qty)
 			if flt(val, d.precision("received_qty")) != flt(d.received_qty, d.precision("received_qty")):
 				message = _(
-					"Row #{0}: Received Qty must be equal to Accepted + Rejected Qty for Item {1}"
-				).format(d.idx, d.item_code)
+					"Row #{idx}: Received Qty must be equal to Accepted + Rejected Qty for Item {item_code}."
+				).format(idx=d.idx, item_code=frappe.bold(d.item_code))
 				frappe.throw(msg=message, title=_("Mismatch"), exc=QtyMismatchError)
 
 	def validate_negative_quantity(self, item_row, field_list):
@@ -522,10 +612,10 @@ class BuyingController(SubcontractingController):
 		for fieldname in field_list:
 			if flt(item_row[fieldname]) < 0:
 				frappe.throw(
-					_("Row #{0}: {1} can not be negative for item {2}").format(
-						item_row["idx"],
-						frappe.get_meta(item_row.doctype).get_label(fieldname),
-						item_row["item_code"],
+					_("Row #{idx}: {field_label} can not be negative for item {item_code}.").format(
+						idx=item_row["idx"],
+						field_label=frappe.get_meta(item_row.doctype).get_label(fieldname),
+						item_code=frappe.bold(item_row["item_code"]),
 					)
 				)
 
@@ -534,7 +624,13 @@ class BuyingController(SubcontractingController):
 			if d.get(ref_fieldname):
 				status = frappe.db.get_value(ref_doctype, d.get(ref_fieldname), "status")
 				if status in ("Closed", "On Hold"):
-					frappe.throw(_("{0} {1} is {2}").format(ref_doctype, d.get(ref_fieldname), status))
+					frappe.throw(
+						_("{ref_doctype} {ref_name} is {status}.").format(
+							ref_doctype=frappe.bold(_(ref_doctype)),
+							ref_name=frappe.bold(d.get(ref_fieldname)),
+							status=frappe.bold(_(status)),
+						)
+					)
 
 	def update_stock_ledger(self, allow_negative_stock=False, via_landed_cost_voucher=False):
 		self.update_ordered_and_reserved_qty()
@@ -650,6 +746,10 @@ class BuyingController(SubcontractingController):
 						sl_entries.append(from_warehouse_sle)
 
 			if flt(d.rejected_qty) != 0:
+				valuation_rate_for_rejected_item = 0.0
+				if frappe.db.get_single_value("Buying Settings", "set_valuation_rate_for_rejected_materials"):
+					valuation_rate_for_rejected_item = d.valuation_rate
+
 				sl_entries.append(
 					self.get_sl_entries(
 						d,
@@ -658,7 +758,8 @@ class BuyingController(SubcontractingController):
 							"actual_qty": flt(
 								flt(d.rejected_qty) * flt(d.conversion_factor), d.precision("stock_qty")
 							),
-							"incoming_rate": 0.0,
+							"incoming_rate": valuation_rate_for_rejected_item if not self.is_return else 0.0,
+							"outgoing_rate": valuation_rate_for_rejected_item if self.is_return else 0.0,
 							"serial_and_batch_bundle": d.rejected_serial_and_batch_bundle,
 						},
 					)
@@ -695,11 +796,14 @@ class BuyingController(SubcontractingController):
 
 		for po, po_item_rows in po_map.items():
 			if po and po_item_rows:
-				po_obj = frappe.get_doc("Purchase Order", po)
+				po_obj = frappe.get_lazy_doc("Purchase Order", po)
 
 				if po_obj.status in ["Closed", "Cancelled"]:
 					frappe.throw(
-						_("{0} {1} is cancelled or closed").format(_("Purchase Order"), po),
+						_("{doctype} {name} is cancelled or closed.").format(
+							doctype=frappe.bold(_("Purchase Order")),
+							name=frappe.bold(po),
+						),
 						frappe.InvalidStatusError,
 					)
 
@@ -741,22 +845,28 @@ class BuyingController(SubcontractingController):
 			self.update_fixed_asset(field, delete_asset=True)
 
 	def validate_budget(self):
-		if self.docstatus == 1:
-			for data in self.get("items"):
-				args = data.as_dict()
-				args.update(
-					{
-						"doctype": self.doctype,
-						"company": self.company,
-						"posting_date": (
-							self.schedule_date
-							if self.doctype == "Material Request"
-							else self.transaction_date
-						),
-					}
-				)
+		if frappe.get_single_value("Accounts Settings", "use_new_budget_controller"):
+			from erpnext.controllers.budget_controller import BudgetValidation
 
-				validate_expense_against_budget(args)
+			val = BudgetValidation(doc=self)
+			val.validate()
+		else:
+			if self.docstatus == 1:
+				for data in self.get("items"):
+					args = data.as_dict()
+					args.update(
+						{
+							"doctype": self.doctype,
+							"company": self.company,
+							"posting_date": (
+								self.schedule_date
+								if self.doctype == "Material Request"
+								else self.transaction_date
+							),
+						}
+					)
+
+					validate_expense_against_budget(args)
 
 	def process_fixed_asset(self):
 		if self.doctype == "Purchase Invoice" and not self.update_stock:
@@ -769,6 +879,7 @@ class BuyingController(SubcontractingController):
 	def auto_make_assets(self, asset_items):
 		items_data = get_asset_item_details(asset_items)
 		messages = []
+		alert = False
 		accounting_dimensions = get_dimensions(with_cost_center_and_project=True)
 
 		for d in self.items:
@@ -791,8 +902,8 @@ class BuyingController(SubcontractingController):
 						if len(created_assets) > 5:
 							# dont show asset form links if more than 5 assets are created
 							messages.append(
-								_("{} Assets created for {}").format(
-									len(created_assets), frappe.bold(d.item_code)
+								_("{count} Assets created for {item_code}").format(
+									count=len(created_assets), item_code=frappe.bold(d.item_code)
 								)
 							)
 						else:
@@ -801,33 +912,42 @@ class BuyingController(SubcontractingController):
 							)
 							assets_link = frappe.bold(",".join(assets_link))
 
-							is_plural = "s" if len(created_assets) != 1 else ""
-							messages.append(
-								_("Asset{is_plural} {assets_link} created for {item_code}").format(
-									is_plural=is_plural,
+							if len(created_assets) == 1:
+								msg = _("Asset {assets_link} created for {item_code}").format(
 									assets_link=assets_link,
 									item_code=frappe.bold(d.item_code),
 								)
-							)
+							else:
+								msg = _("Assets {assets_link} created for {item_code}").format(
+									assets_link=assets_link,
+									item_code=frappe.bold(d.item_code),
+								)
+							messages.append(msg)
 					else:
 						frappe.throw(
 							_(
-								"Row {}: Asset Naming Series is mandatory for the auto creation for item {}"
-							).format(d.idx, frappe.bold(d.item_code))
+								"Row {idx}: Asset Naming Series is mandatory for the auto creation of assets for item {item_code}."
+							).format(idx=d.idx, item_code=frappe.bold(d.item_code))
 						)
 				else:
 					messages.append(
-						_("Assets not created for {0}. You will have to create asset manually.").format(
-							frappe.bold(d.item_code)
-						)
+						_(
+							"Assets not created for {item_code}. You will have to create asset manually."
+						).format(item_code=frappe.bold(d.item_code))
 					)
+					alert = True
 
 		for message in messages:
-			frappe.msgprint(message, title="Success", indicator="green")
+			frappe.msgprint(message, title="Success", indicator="green", alert=alert)
 
 	def make_asset(self, row, accounting_dimensions, is_grouped_asset=False):
 		if not row.asset_location:
-			frappe.throw(_("Row {0}: Enter location for the asset item {1}").format(row.idx, row.item_code))
+			frappe.throw(
+				_("Row #{idx}: Please enter a location for the asset item {item_code}.").format(
+					idx=row.idx,
+					item_code=frappe.bold(row.item_code),
+				)
+			)
 
 		item_data = frappe.get_cached_value(
 			"Item", row.item_code, ["asset_naming_series", "asset_category"], as_dict=1
@@ -902,8 +1022,8 @@ class BuyingController(SubcontractingController):
 						if asset.docstatus == 1 and delete_asset:
 							frappe.throw(
 								_(
-									"Cannot cancel this document as it is linked with submitted asset {0}. Please cancel it to continue."
-								).format(frappe.utils.get_link_to_form("Asset", asset.name))
+									"Cannot cancel this document as it is linked with the submitted asset {asset_link}. Please cancel the asset to continue."
+								).format(asset_link=frappe.utils.get_link_to_form("Asset", asset.name))
 							)
 
 					asset.flags.ignore_validate_update_after_submit = True
@@ -940,9 +1060,19 @@ class BuyingController(SubcontractingController):
 					and self.transaction_date
 					and getdate(d.schedule_date) < getdate(self.transaction_date)
 				):
-					frappe.throw(_("Row #{0}: Reqd by Date cannot be before Transaction Date").format(d.idx))
+					frappe.throw(
+						_("Row #{idx}: {schedule_date} cannot be before {transaction_date}.").format(
+							idx=d.idx,
+							schedule_date=_(self.meta.get_label("schedule_date")),
+							transaction_date=_(self.meta.get_label("transaction_date")),
+						)
+					)
 		else:
-			frappe.throw(_("Please enter Reqd by Date"))
+			frappe.throw(
+				_("Please enter the {schedule_date}.").format(
+					schedule_date=_(self.meta.get_label("schedule_date"))
+				)
+			)
 
 	def validate_items(self):
 		# validate items to see if they have is_purchase_item or is_subcontracted_item enabled
@@ -992,12 +1122,18 @@ def validate_item_type(doc, fieldname, message):
 
 		if len(invalid_items) > 1:
 			error_message = _(
-				"Following items {0} are not marked as {1} item. You can enable them as {1} item from its Item master"
-			).format(items, message)
+				"The items {items} are not marked as {type_of} item. You can enable them as {type_of} item from their Item masters."
+			).format(
+				items=items,
+				type_of=message,
+			)
 		else:
 			error_message = _(
-				"Following item {0} is not marked as {1} item. You can enable them as {1} item from its Item master"
-			).format(items, message)
+				"The item {item} is not marked as {type_of} item. You can enable it as {type_of} item from its Item master."
+			).format(
+				item=items,
+				type_of=message,
+			)
 
 		frappe.throw(error_message)
 

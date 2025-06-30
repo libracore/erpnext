@@ -32,7 +32,12 @@
   "allow_sales_order_creation_for_expired_quotation",
   "dont_reserve_sales_order_qty_on_sales_return",
   "hide_tax_id",
-  "enable_discount_accounting"
+  "enable_discount_accounting",
+  "enable_cutoff_date_on_bulk_delivery_note_creation",
+  "allow_zero_qty_in_quotation",
+  "allow_zero_qty_in_sales_order",
+  "experimental_section",
+  "use_server_side_reactivity"
  ],
  "fields": [
   {
@@ -200,14 +205,46 @@
    "fieldname": "blanket_order_allowance",
    "fieldtype": "Float",
    "label": "Blanket Order Allowance (%)"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_cutoff_date_on_bulk_delivery_note_creation",
+   "fieldtype": "Check",
+   "label": "Enable Cut-Off Date on Bulk Delivery Note Creation"
+  },
+  {
+   "fieldname": "experimental_section",
+   "fieldtype": "Section Break",
+   "label": "Experimental"
+  },
+  {
+   "default": "1",
+   "fieldname": "use_server_side_reactivity",
+   "fieldtype": "Check",
+   "label": "Use Server Side Reactivity"
+  },
+  {
+   "default": "0",
+   "description": "Allows users to submit Sales Orders with zero quantity. Useful when rates are fixed but the quantities are not. Eg. Rate Contracts.",
+   "fieldname": "allow_zero_qty_in_sales_order",
+   "fieldtype": "Check",
+   "label": "Allow Sales Order with Zero Quantity"
+  },
+  {
+   "default": "0",
+   "description": "Allows users to submit Quotations with zero quantity. Useful when rates are fixed but the quantities are not. Eg. Rate Contracts.",
+   "fieldname": "allow_zero_qty_in_quotation",
+   "fieldtype": "Check",
+   "label": "Allow Quotation with Zero Quantity"
   }
  ],
+ "grid_page_length": 50,
  "icon": "fa fa-cog",
  "idx": 1,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-10-25 14:03:03.966701",
+ "modified": "2025-05-06 15:23:14.332971",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling Settings",
@@ -232,7 +269,8 @@
    "write": 1
   }
  ],
- "sort_field": "modified",
+ "row_format": "Dynamic",
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

@@ -439,13 +439,13 @@
   {
    "fieldname": "prefered_contact_email",
    "fieldtype": "Select",
-   "label": "Prefered Contact Email",
+   "label": "Preferred Contact Email",
    "options": "\nCompany Email\nPersonal Email\nUser ID"
   },
   {
    "fieldname": "prefered_email",
    "fieldtype": "Data",
-   "label": "Prefered Email",
+   "label": "Preferred Email",
    "options": "Email",
    "read_only": 1
   },
@@ -507,7 +507,7 @@
    "collapsible": 1,
    "fieldname": "personal_details",
    "fieldtype": "Tab Break",
-   "label": "Personal"
+   "label": "Personal Details"
   },
   {
    "fieldname": "passport_number",
@@ -522,7 +522,7 @@
   {
    "fieldname": "valid_upto",
    "fieldtype": "Date",
-   "label": "Valid Upto"
+   "label": "Valid Up To"
   },
   {
    "fieldname": "place_of_issue",
@@ -866,7 +866,7 @@
  ],
  "search_fields": "employee_name",
  "show_name_in_global_search": 1,
- "sort_field": "modified",
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "title_field": "employee_name",

@@ -34,7 +34,7 @@ class Quotation(SellingController):
 		from erpnext.stock.doctype.packed_item.packed_item import PackedItem
 
 		additional_discount_percentage: DF.Float
-		address_display: DF.SmallText | None
+		address_display: DF.TextEditor | None
 		amended_from: DF.Link | None
 		apply_discount_on: DF.Literal["", "Grand Total", "Net Total"]
 		auto_repeat: DF.Link | None
@@ -46,10 +46,9 @@ class Quotation(SellingController):
 		base_rounding_adjustment: DF.Currency
 		base_total: DF.Currency
 		base_total_taxes_and_charges: DF.Currency
-		campaign: DF.Link | None
 		company: DF.Link
 		company_address: DF.Link | None
-		company_address_display: DF.SmallText | None
+		company_address_display: DF.TextEditor | None
 		company_contact_person: DF.Link | None
 		competitors: DF.TableMultiSelect[CompetitorDetail]
 		contact_display: DF.SmallText | None
@@ -67,11 +66,12 @@ class Quotation(SellingController):
 		enq_det: DF.Text | None
 		grand_total: DF.Currency
 		group_same_items: DF.Check
+		has_unit_price_items: DF.Check
 		ignore_pricing_rule: DF.Check
 		in_words: DF.Data | None
 		incoterm: DF.Link | None
 		items: DF.Table[QuotationItem]
-		language: DF.Data | None
+		language: DF.Link | None
 		letter_head: DF.Link | None
 		lost_reasons: DF.TableMultiSelect[QuotationLostReasonDetail]
 		named_place: DF.Data | None
@@ -95,10 +95,9 @@ class Quotation(SellingController):
 		scan_barcode: DF.Data | None
 		select_print_heading: DF.Link | None
 		selling_price_list: DF.Link
-		shipping_address: DF.SmallText | None
+		shipping_address: DF.TextEditor | None
 		shipping_address_name: DF.Link | None
 		shipping_rule: DF.Link | None
-		source: DF.Link | None
 		status: DF.Literal[
 			"Draft", "Open", "Replied", "Partially Ordered", "Ordered", "Lost", "Cancelled", "Expired"
 		]
@@ -109,12 +108,15 @@ class Quotation(SellingController):
 		tc_name: DF.Link | None
 		terms: DF.TextEditor | None
 		territory: DF.Link | None
-		title: DF.Data | None
 		total: DF.Currency
 		total_net_weight: DF.Float
 		total_qty: DF.Float
 		total_taxes_and_charges: DF.Currency
 		transaction_date: DF.Date
+		utm_campaign: DF.Link | None
+		utm_content: DF.Data | None
+		utm_medium: DF.Link | None
+		utm_source: DF.Link | None
 		valid_till: DF.Date | None
 	# end: auto-generated types
 
@@ -125,6 +127,10 @@ class Quotation(SellingController):
 		if self.valid_till and getdate(self.valid_till) < getdate(nowdate()):
 			self.indicator_color = "gray"
 			self.indicator_title = "Expired"
+
+	def before_validate(self):
+		self.set_has_unit_price_items()
+		self.flags.allow_zero_qty = self.has_unit_price_items
 
 	def validate(self):
 		super().validate()
@@ -157,30 +163,34 @@ class Quotation(SellingController):
 			if not row.is_alternative and row.name in items_with_alternatives:
 				row.has_alternative_item = 1
 
-	def get_ordered_status(self):
-		status = "Open"
-		ordered_items = frappe._dict(
-			frappe.db.get_all(
-				"Sales Order Item",
-				{"prevdoc_docname": self.name, "docstatus": 1},
-				["item_code", "sum(qty)"],
-				group_by="item_code",
-				as_list=1,
-			)
+	def set_has_unit_price_items(self):
+		"""
+		If permitted in settings and any item has 0 qty, the SO has unit price items.
+		"""
+		if not frappe.get_single_value("Selling Settings", "allow_zero_qty_in_quotation"):
+			return
+
+		self.has_unit_price_items = any(
+			not row.qty for row in self.get("items") if (row.item_code and not row.qty)
 		)
 
+	def get_ordered_status(self):
+		ordered_items = get_ordered_items(self.name)
+
 		if not ordered_items:
-			return status
+			return "Open"
 
-		has_alternatives = any(row.is_alternative for row in self.get("items"))
-		self._items = self.get_valid_items() if has_alternatives else self.get("items")
+		self._items = (
+			self.get_valid_items()
+			if any(row.is_alternative for row in self.get("items"))
+			else self.get("items")
+		)
 
-		if any(row.qty > ordered_items.get(row.item_code, 0.0) for row in self._items):
-			status = "Partially Ordered"
-		else:
-			status = "Ordered"
+		for row in self._items:
+			if row.name not in ordered_items or row.qty > ordered_items[row.name]:
+				return "Partially Ordered"
 
-		return status
+		return "Ordered"
 
 	def get_valid_items(self):
 		"""
@@ -274,7 +284,7 @@ class Quotation(SellingController):
 
 	def on_submit(self):
 		# Check for Approving Authority
-		frappe.get_doc("Authorization Control").validate_approving_authority(
+		frappe.get_cached_doc("Authorization Control").validate_approving_authority(
 			self.doctype, self.company, self.base_grand_total, self
 		)
 
@@ -355,17 +365,15 @@ def make_sales_order(source_name: str, target_doc=None):
 
 def _make_sales_order(source_name, target_doc=None, ignore_permissions=False):
 	customer = _make_customer(source_name, ignore_permissions)
-	ordered_items = frappe._dict(
-		frappe.db.get_all(
-			"Sales Order Item",
-			{"prevdoc_docname": source_name, "docstatus": 1},
-			["item_code", "sum(qty)"],
-			group_by="item_code",
-			as_list=1,
-		)
-	)
+	ordered_items = get_ordered_items(source_name)
 
 	selected_rows = [x.get("name") for x in frappe.flags.get("args", {}).get("selected_items", [])]
+
+	# 0 qty is accepted, as the qty uncertain for some items
+	has_unit_price_items = frappe.db.get_value("Quotation", source_name, "has_unit_price_items")
+
+	def is_unit_price_row(source) -> bool:
+		return has_unit_price_items and source.qty == 0
 
 	def set_missing_values(source, target):
 		if customer:
@@ -395,7 +403,7 @@ def _make_sales_order(source_name, target_doc=None, ignore_permissions=False):
 		target.run_method("calculate_taxes_and_totals")
 
 	def update_item(obj, target, source_parent):
-		balance_qty = obj.qty - ordered_items.get(obj.item_code, 0.0)
+		balance_qty = obj.qty if is_unit_price_row(obj) else obj.qty - ordered_items.get(obj.name, 0.0)
 		target.qty = balance_qty if balance_qty > 0 else 0
 		target.stock_qty = flt(target.qty) * flt(obj.conversion_factor)
 
@@ -409,22 +417,19 @@ def _make_sales_order(source_name, target_doc=None, ignore_permissions=False):
 		Row mapping from Quotation to Sales order:
 		1. If no selections, map all non-alternative rows (that sum up to the grand total)
 		2. If selections: Is Alternative Item/Has Alternative Item: Map if selected and adequate qty
-		3. If selections: Simple row: Map if adequate qty
+		3. If no selections: Simple row: Map if adequate qty
 		"""
-		balance_qty = item.qty - ordered_items.get(item.item_code, 0.0)
-		if balance_qty <= 0:
+		if not ((item.qty > ordered_items.get(item.name, 0.0)) or is_unit_price_row(item)):
 			return False
-
-		has_qty = balance_qty
 
 		if not selected_rows:
 			return not item.is_alternative
 
 		if selected_rows and (item.is_alternative or item.has_alternative_item):
-			return (item.name in selected_rows) and has_qty
+			return item.name in selected_rows
 
 		# Simple row
-		return has_qty
+		return True
 
 	doclist = get_mapped_doc(
 		"Quotation",
@@ -581,3 +586,28 @@ def handle_mandatory_error(e, customer, lead_name):
 	message += _("Please create Customer from Lead {0}.").format(get_link_to_form("Lead", lead_name))
 
 	frappe.throw(message, title=_("Mandatory Missing"))
+
+
+def get_ordered_items(quotation: str):
+	"""
+	Returns a dict of ordered items with their total qty based on quotation row name.
+
+	In `Sales Order Item`, `quotation_item` is the row name of `Quotation Item`.
+
+	Example:
+	```
+	{
+	    "refsdjhd2": 10,
+	    "ygdhdshrt": 5,
+	}
+	```
+	"""
+	return frappe._dict(
+		frappe.get_all(
+			"Sales Order Item",
+			filters={"prevdoc_docname": quotation, "docstatus": 1},
+			fields=["quotation_item", "sum(qty)"],
+			group_by="quotation_item",
+			as_list=1,
+		)
+	)

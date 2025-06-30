@@ -26,7 +26,15 @@ frappe.ui.form.on("Purchase Order", {
 		}
 
 		frm.set_indicator_formatter("item_code", function (doc) {
-			return doc.qty <= doc.received_qty ? "green" : "orange";
+			let color;
+			if (!doc.qty && frm.doc.has_unit_price_items) {
+				color = "yellow";
+			} else if (doc.qty <= doc.received_qty) {
+				color = "green";
+			} else {
+				color = "orange";
+			}
+			return color;
 		});
 
 		frm.set_query("expense_account", "items", function () {
@@ -51,6 +59,19 @@ frappe.ui.form.on("Purchase Order", {
 		erpnext.accounts.dimensions.update_dimension(frm, frm.doctype);
 	},
 
+	schedule_date(frm) {
+		if (frm.doc.schedule_date) {
+			frm.doc.items.forEach((d) => {
+				frappe.model.set_value(d.doctype, d.name, "schedule_date", frm.doc.schedule_date);
+			});
+		}
+	},
+
+	transaction_date(frm) {
+		prevent_past_schedule_dates(frm);
+		frm.set_value("schedule_date", "");
+	},
+
 	refresh: function (frm) {
 		if (frm.doc.is_old_subcontracting_flow) {
 			frm.trigger("get_materials_from_supplier");
@@ -63,6 +84,11 @@ frappe.ui.form.on("Purchase Order", {
 				}
 			});
 		}
+
+		if (frm.doc.docstatus == 0) {
+			erpnext.set_unit_price_items_note(frm);
+		}
+		prevent_past_schedule_dates(frm);
 	},
 
 	supplier: function (frm) {
@@ -112,7 +138,7 @@ frappe.ui.form.on("Purchase Order", {
 						args: {
 							subcontract_order: frm.doc.name,
 							rm_details: po_details,
-							order_doctype: cur_frm.doc.doctype,
+							order_doctype: frm.doc.doctype,
 						},
 						callback: function (r) {
 							if (r && r.message) {
@@ -305,8 +331,8 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends (
 		var allow_receipt = false;
 		var is_drop_ship = false;
 
-		for (var i in cur_frm.doc.items) {
-			var item = cur_frm.doc.items[i];
+		for (var i in this.frm.doc.items) {
+			var item = this.frm.doc.items[i];
 			if (item.delivered_by_supplier !== 1) {
 				allow_receipt = true;
 			} else {
@@ -389,13 +415,15 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends (
 					if (flt(doc.per_received) < 100 && allow_receipt) {
 						this.frm.add_custom_button(
 							__("Purchase Receipt"),
-							this.make_purchase_receipt,
+							() => {
+								me.make_purchase_receipt();
+							},
 							__("Create")
 						);
 						if (doc.is_subcontracted) {
 							if (doc.is_old_subcontracting_flow) {
 								if (me.has_unsupplied_items()) {
-									cur_frm.add_custom_button(
+									this.frm.add_custom_button(
 										__("Material to Supplier"),
 										function () {
 											me.make_stock_entry();
@@ -420,7 +448,9 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends (
 					if (flt(doc.per_billed) < 100)
 						this.frm.add_custom_button(
 							__("Purchase Invoice"),
-							this.make_purchase_invoice,
+							() => {
+								me.make_purchase_invoice();
+							},
 							__("Create")
 						);
 
@@ -462,11 +492,21 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends (
 					}
 				}
 
-				cur_frm.page.set_inner_btn_group_as_primary(__("Create"));
+				this.frm.page.set_inner_btn_group_as_primary(__("Create"));
 			}
 		} else if (doc.docstatus === 0) {
-			cur_frm.cscript.add_from_mappers();
+			this.frm.cscript.add_from_mappers();
 		}
+	}
+
+	onload() {
+		this.frm.set_query("supplier", function () {
+			return {
+				filters: {
+					is_transporter: 0,
+				},
+			};
+		});
 	}
 
 	get_items_from_open_material_requests() {
@@ -502,8 +542,8 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends (
 		frappe.call({
 			method: "erpnext.controllers.subcontracting_controller.make_rm_stock_entry",
 			args: {
-				subcontract_order: cur_frm.doc.name,
-				order_doctype: cur_frm.doc.doctype,
+				subcontract_order: this.frm.doc.name,
+				order_doctype: this.frm.doc.doctype,
 			},
 			callback: function (r) {
 				var doclist = frappe.model.sync(r.message);
@@ -522,7 +562,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends (
 	make_purchase_receipt() {
 		frappe.model.open_mapped_doc({
 			method: "erpnext.buying.doctype.purchase_order.purchase_order.make_purchase_receipt",
-			frm: cur_frm,
+			frm: this.frm,
 			freeze_message: __("Creating Purchase Receipt ..."),
 		});
 	}
@@ -530,14 +570,14 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends (
 	make_purchase_invoice() {
 		frappe.model.open_mapped_doc({
 			method: "erpnext.buying.doctype.purchase_order.purchase_order.make_purchase_invoice",
-			frm: cur_frm,
+			frm: this.frm,
 		});
 	}
 
 	make_subcontracting_order() {
 		frappe.model.open_mapped_doc({
 			method: "erpnext.buying.doctype.purchase_order.purchase_order.make_subcontracting_order",
-			frm: cur_frm,
+			frm: this.frm,
 			freeze_message: __("Creating Subcontracting Order ..."),
 		});
 	}
@@ -696,7 +736,7 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends (
 	}
 
 	unhold_purchase_order() {
-		cur_frm.cscript.update_status("Resume", "Draft");
+		this.frm.cscript.update_status("Resume", "Draft");
 	}
 
 	hold_purchase_order() {
@@ -736,22 +776,18 @@ erpnext.buying.PurchaseOrderController = class PurchaseOrderController extends (
 	}
 
 	unclose_purchase_order() {
-		cur_frm.cscript.update_status("Re-open", "Submitted");
+		this.frm.cscript.update_status("Re-open", "Submitted");
 	}
 
 	close_purchase_order() {
-		cur_frm.cscript.update_status("Close", "Closed");
+		this.frm.cscript.update_status("Close", "Closed");
 	}
 
 	delivered_by_supplier() {
-		cur_frm.cscript.update_status("Deliver", "Delivered");
+		this.frm.cscript.update_status("Deliver", "Delivered");
 	}
 
 	items_on_form_rendered() {
-		set_schedule_date(this.frm);
-	}
-
-	schedule_date() {
 		set_schedule_date(this.frm);
 	}
 };
@@ -809,3 +845,11 @@ frappe.ui.form.on("Purchase Order", "is_subcontracted", function (frm) {
 		erpnext.buying.get_default_bom(frm);
 	}
 });
+
+function prevent_past_schedule_dates(frm) {
+	if (frm.doc.transaction_date) {
+		frm.fields_dict["schedule_date"].datepicker.update({
+			minDate: new Date(frm.doc.transaction_date),
+		});
+	}
+}

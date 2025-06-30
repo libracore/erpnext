@@ -36,11 +36,14 @@ class Budget(Document):
 		action_if_accumulated_monthly_budget_exceeded: DF.Literal["", "Stop", "Warn", "Ignore"]
 		action_if_accumulated_monthly_budget_exceeded_on_mr: DF.Literal["", "Stop", "Warn", "Ignore"]
 		action_if_accumulated_monthly_budget_exceeded_on_po: DF.Literal["", "Stop", "Warn", "Ignore"]
+		action_if_accumulated_monthly_exceeded_on_cumulative_expense: DF.Literal["", "Stop", "Warn", "Ignore"]
 		action_if_annual_budget_exceeded: DF.Literal["", "Stop", "Warn", "Ignore"]
 		action_if_annual_budget_exceeded_on_mr: DF.Literal["", "Stop", "Warn", "Ignore"]
 		action_if_annual_budget_exceeded_on_po: DF.Literal["", "Stop", "Warn", "Ignore"]
+		action_if_annual_exceeded_on_cumulative_expense: DF.Literal["", "Stop", "Warn", "Ignore"]
 		amended_from: DF.Link | None
 		applicable_on_booking_actual_expenses: DF.Check
+		applicable_on_cumulative_expense: DF.Check
 		applicable_on_material_request: DF.Check
 		applicable_on_purchase_order: DF.Check
 		budget_against: DF.Literal["", "Cost Center", "Project"]
@@ -48,7 +51,7 @@ class Budget(Document):
 		cost_center: DF.Link | None
 		fiscal_year: DF.Link
 		monthly_distribution: DF.Link | None
-		naming_series: DF.Data | None
+		naming_series: DF.Literal["BUDGET-.YYYY.-"]
 		project: DF.Link | None
 	# end: auto-generated types
 
@@ -136,13 +139,10 @@ class Budget(Document):
 		):
 			self.applicable_on_booking_actual_expenses = 1
 
-	def before_naming(self):
-		self.naming_series = f"{{{frappe.scrub(self.budget_against)}}}./.{self.fiscal_year}/.###"
-
 
 def validate_expense_against_budget(args, expense_amount=0):
 	args = frappe._dict(args)
-	if not frappe.get_all("Budget", limit=1):
+	if not frappe.db.count("Budget", cache=True):
 		return
 
 	if args.get("company") and not args.fiscal_year:
@@ -151,7 +151,7 @@ def validate_expense_against_budget(args, expense_amount=0):
 			"Company", args.get("company"), "exception_budget_approver_role"
 		)
 
-	if not frappe.get_cached_value("Budget", {"fiscal_year": args.fiscal_year, "company": args.company}):  # nosec
+	if not frappe.db.get_value("Budget", {"fiscal_year": args.fiscal_year, "company": args.company}):
 		return
 
 	if not args.account:
@@ -510,7 +510,7 @@ def get_accumulated_monthly_budget(monthly_distribution, posting_date, fiscal_ye
 	accumulated_percentage = 0.0
 
 	while dt <= getdate(posting_date):
-		if monthly_distribution:
+		if monthly_distribution and distribution:
 			accumulated_percentage += distribution.get(getdate(dt).strftime("%B"), 0)
 		else:
 			accumulated_percentage += 100.0 / 12

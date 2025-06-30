@@ -28,10 +28,6 @@ erpnext.financial_statements = {
 
 			return value;
 		} else if (frappe.query_report.get_filter_value("selected_view") == "Margin" && data) {
-			if (column.fieldname == "account" && data.account_name == __("Income")) {
-				//Taking the total income from each column (for all the financial years) as the base (100%)
-				this.baseData = row;
-			}
 			if (column.colIndex >= 2) {
 				const marginPercent = data[column.fieldname];
 
@@ -45,7 +41,7 @@ erpnext.financial_statements = {
 			}
 		}
 
-		if (data && column.fieldname == "account") {
+		if (data && column.fieldname == this.name_field) {
 			// first column
 			value = data.section_name || data.account_name || value;
 
@@ -266,11 +262,10 @@ function get_filters() {
 	let fy_filters = filters.filter((x) => {
 		return ["from_fiscal_year", "to_fiscal_year"].includes(x.fieldname);
 	});
-	let fiscal_year = erpnext.utils.get_fiscal_year(frappe.datetime.get_today(), false, true);
+	let fiscal_year = erpnext.utils.get_fiscal_year(frappe.datetime.get_today(), false, false);
 	if (fiscal_year) {
-		let fy = erpnext.utils.get_fiscal_year(frappe.datetime.get_today(), false, false);
 		fy_filters.forEach((x) => {
-			x.default = fy;
+			x.default = fiscal_year;
 		});
 	}
 
