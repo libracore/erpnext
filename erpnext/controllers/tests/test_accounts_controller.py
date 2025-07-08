@@ -7,7 +7,7 @@ from datetime import datetime
 import frappe
 from frappe import qb
 from frappe.query_builder.functions import Sum
-from frappe.tests import IntegrationTestCase
+from frappe.tests.utils import FrappeTestCase, change_settings
 from frappe.utils import add_days, getdate, nowdate
 from frappe.utils.data import getdate as convert_to_date
 
@@ -50,7 +50,7 @@ def make_supplier(supplier_name, currency=None):
 		return supplier_name
 
 
-class TestAccountsController(IntegrationTestCase):
+class TestAccountsController(FrappeTestCase):
 	"""
 	Test Exchange Gain/Loss booking on various scenarios.
 	Test Cases are numbered for better organization
@@ -809,9 +809,7 @@ class TestAccountsController(IntegrationTestCase):
 		self.assertEqual(exc_je_for_si, [])
 		self.assertEqual(exc_je_for_pe, [])
 
-	@IntegrationTestCase.change_settings(
-		"Stock Settings", {"allow_internal_transfer_at_arms_length_price": 1}
-	)
+	@change_settings("Stock Settings", {"allow_internal_transfer_at_arms_length_price": 1})
 	def test_16_internal_transfer_at_arms_length_price(self):
 		from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_inter_company_purchase_invoice
 		from erpnext.stock.doctype.warehouse.test_warehouse import create_warehouse
@@ -872,9 +870,7 @@ class TestAccountsController(IntegrationTestCase):
 		self.assertEqual(pi.items[0].rate, arms_length_price)
 		self.assertEqual(pi.items[0].valuation_rate, 100)
 
-	@IntegrationTestCase.change_settings(
-		"Accounts Settings", {"exchange_gain_loss_posting_date": "Reconciliation Date"}
-	)
+	@change_settings("Accounts Settings", {"exchange_gain_loss_posting_date": "Reconciliation Date"})
 	def test_17_gain_loss_posting_date_for_normal_payment(self):
 		# Sales Invoice in Foreign Currency
 		rate = 80
@@ -935,7 +931,7 @@ class TestAccountsController(IntegrationTestCase):
 		self.assertEqual(exc_je_for_si, [])
 		self.assertEqual(exc_je_for_pe, [])
 
-	@IntegrationTestCase.change_settings(
+	@change_settings(
 		"Accounts Settings",
 		{"add_taxes_from_item_tax_template": 0, "add_taxes_from_taxes_and_charges_template": 1},
 	)
@@ -967,7 +963,7 @@ class TestAccountsController(IntegrationTestCase):
 
 		self.assertEqual(sinv.total_taxes_and_charges, 4.5)
 
-	@IntegrationTestCase.change_settings(
+	@change_settings(
 		"Accounts Settings",
 		{"add_taxes_from_item_tax_template": 1, "add_taxes_from_taxes_and_charges_template": 0},
 	)

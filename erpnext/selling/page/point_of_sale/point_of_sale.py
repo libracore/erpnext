@@ -5,7 +5,7 @@
 import json
 
 import frappe
-from frappe.utils import cint, get_datetime
+from frappe.utils import cint
 from frappe.utils.nestedset import get_root_of
 
 from erpnext.accounts.doctype.pos_invoice.pos_invoice import get_item_group, get_stock_availability
@@ -338,13 +338,13 @@ def create_opening_voucher(pos_profile, company, balance_details):
 
 @frappe.whitelist()
 def get_past_order_list(search_term, status, limit=20):
-	fields = ["name", "grand_total", "currency", "customer", "posting_time", "posting_date"]
+	fields = ["name", "grand_total", "currency", "customer", "customer_name", "posting_time", "posting_date"]
 	invoice_list = []
 
 	if search_term and status:
-		pos_invoices_by_customer = frappe.db.get_list(
+		invoices_by_customer = frappe.db.get_list(
 			"POS Invoice",
-			filters=get_invoice_filters("POS Invoice", status),
+			filters={"status": status},
 			or_filters={
 				"customer_name": ["like", f"%{search_term}%"],
 				"customer": ["like", f"%{search_term}%"],
@@ -352,57 +352,18 @@ def get_past_order_list(search_term, status, limit=20):
 			fields=fields,
 			page_length=limit,
 		)
-
-		pos_invoices_by_name = frappe.db.get_list(
+		invoices_by_name = frappe.db.get_list(
 			"POS Invoice",
-			filters=get_invoice_filters("POS Invoice", status, name=search_term),
+			filters={"name": ["like", f"%{search_term}%"], "status": status},
 			fields=fields,
 			page_length=limit,
 		)
 
-		pos_invoice_list = add_doctype_to_results(
-			"POS Invoice", pos_invoices_by_customer + pos_invoices_by_name
-		)
-
-		sales_invoices_by_customer = frappe.db.get_list(
-			"Sales Invoice",
-			filters=get_invoice_filters("Sales Invoice", status),
-			or_filters={
-				"customer_name": ["like", f"%{search_term}%"],
-				"customer": ["like", f"%{search_term}%"],
-			},
-			fields=fields,
-			page_length=limit,
-		)
-		sales_invoices_by_name = frappe.db.get_list(
-			"Sales Invoice",
-			filters=get_invoice_filters("Sales Invoice", status, name=search_term),
-			fields=fields,
-			page_length=limit,
-		)
-
-		sales_invoice_list = add_doctype_to_results(
-			"Sales Invoice", sales_invoices_by_customer + sales_invoices_by_name
-		)
-
+		invoice_list = invoices_by_customer + invoices_by_name
 	elif status:
-		pos_invoice_list = frappe.db.get_list(
-			"POS Invoice",
-			filters=get_invoice_filters("POS Invoice", status),
-			fields=fields,
-			page_length=limit,
+		invoice_list = frappe.db.get_list(
+			"POS Invoice", filters={"status": status}, fields=fields, page_length=limit
 		)
-		pos_invoice_list = add_doctype_to_results("POS Invoice", pos_invoice_list)
-
-		sales_invoice_list = frappe.db.get_list(
-			"Sales Invoice",
-			filters=get_invoice_filters("Sales Invoice", status),
-			fields=fields,
-			page_length=limit,
-		)
-		sales_invoice_list = add_doctype_to_results("Sales Invoice", sales_invoice_list)
-
-	invoice_list = order_results_by_posting_date([*pos_invoice_list, *sales_invoice_list])
 
 	return invoice_list
 
@@ -459,77 +420,3 @@ def get_pos_profile_data(pos_profile):
 
 	pos_profile.customer_groups = _customer_groups_with_children
 	return pos_profile
-
-
-def add_doctype_to_results(doctype, results):
-	for result in results:
-		result["doctype"] = doctype
-
-	return results
-
-
-def order_results_by_posting_date(results):
-	return sorted(
-		results,
-		key=lambda x: get_datetime(f"{x.get('posting_date')} {x.get('posting_time')}"),
-		reverse=True,
-	)
-
-
-def get_invoice_filters(doctype, status, name=None):
-	filters = {}
-
-	if name:
-		filters["name"] = ["like", f"%{name}%"]
-	if doctype == "POS Invoice":
-		filters["status"] = status
-		if status == "Partly Paid":
-			filters["status"] = ["in", ["Partly Paid", "Overdue", "Unpaid"]]
-		return filters
-
-	if doctype == "Sales Invoice":
-		filters["is_created_using_pos"] = 1
-		filters["is_consolidated"] = 0
-
-		if status == "Consolidated":
-			filters["pos_closing_entry"] = ["is", "set"]
-		else:
-			filters["pos_closing_entry"] = ["is", "not set"]
-			if status == "Draft":
-				filters["docstatus"] = 0
-			elif status == "Partly Paid":
-				filters["status"] = ["in", ["Partly Paid", "Overdue", "Unpaid"]]
-			else:
-				filters["docstatus"] = 1
-				if status == "Paid":
-					filters["is_return"] = 0
-				if status == "Return":
-					filters["is_return"] = 1
-
-	return filters
-
-
-@frappe.whitelist()
-def get_customer_recent_transactions(customer):
-	sales_invoices = frappe.db.get_list(
-		"Sales Invoice",
-		filters={
-			"customer": customer,
-			"docstatus": 1,
-			"is_pos": 1,
-			"is_consolidated": 0,
-			"is_created_using_pos": 1,
-		},
-		fields=["name", "grand_total", "status", "posting_date", "posting_time", "currency"],
-		page_length=20,
-	)
-
-	pos_invoices = frappe.db.get_list(
-		"POS Invoice",
-		filters={"customer": customer, "docstatus": 1},
-		fields=["name", "grand_total", "status", "posting_date", "posting_time", "currency"],
-		page_length=20,
-	)
-
-	invoices = order_results_by_posting_date(sales_invoices + pos_invoices)
-	return invoices

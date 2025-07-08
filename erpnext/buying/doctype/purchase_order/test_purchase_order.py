@@ -1319,6 +1319,25 @@ class TestPurchaseOrder(IntegrationTestCase):
 		self.assertFalse(po.per_billed)
 		self.assertEqual(po.status, "To Receive and Bill")
 
+	@change_settings("Buying Settings", {"maintain_same_rate": 0})
+	def test_purchase_invoice_creation_with_partial_qty(self):
+		po = create_purchase_order(qty=100, rate=10)
+
+		pi = make_pi_from_po(po.name)
+		pi.items[0].qty = 42
+		pi.items[0].rate = 7.5
+		pi.submit()
+
+		pi = make_pi_from_po(po.name)
+		self.assertEqual(pi.items[0].qty, 58)
+		self.assertEqual(pi.items[0].rate, 10)
+		pi.items[0].qty = 8
+		pi.items[0].rate = 5
+		pi.submit()
+
+		pi = make_pi_from_po(po.name)
+		self.assertEqual(pi.items[0].qty, 50)
+
 
 def create_po_for_sc_testing():
 	from erpnext.controllers.tests.test_subcontracting_controller import (

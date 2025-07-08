@@ -613,7 +613,7 @@
   {
    "fieldname": "state",
    "fieldtype": "Data",
-   "label": "State"
+   "label": "State/Province"
   },
   {
    "fieldname": "country",
@@ -622,10 +622,11 @@
    "options": "Country"
   }
  ],
+ "grid_page_length": 50,
  "icon": "fa fa-info-sign",
  "idx": 195,
  "links": [],
- "modified": "2024-08-20 04:12:29.095761",
+ "modified": "2025-06-26 11:16:13.665866",
  "modified_by": "Administrator",
  "module": "CRM",
  "name": "Opportunity",
@@ -657,6 +658,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "search_fields": "status,transaction_date,party_name,opportunity_type,territory,company",
  "sender_field": "contact_email",
  "show_name_in_global_search": 1,

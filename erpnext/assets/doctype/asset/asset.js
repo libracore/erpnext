@@ -48,7 +48,7 @@ frappe.ui.form.on("Asset", {
 					method: "erpnext.assets.doctype.asset.asset.make_asset_movement",
 					freeze: true,
 					args: {
-						assets: [{ name: frm.doc.name }],
+						assets: [{ name: cur_frm.doc.name }],
 					},
 					callback: function (r) {
 						if (r.message) {
@@ -109,26 +109,14 @@ frappe.ui.form.on("Asset", {
 					},
 					__("Manage")
 				);
-
-				frm.add_custom_button(
-					__("Repair Asset"),
-					function () {
-						frm.trigger("create_asset_repair");
-					},
-					__("Manage")
-				);
-
-				frm.add_custom_button(
-					__("Split Asset"),
-					function () {
-						frm.trigger("split_asset");
-					},
-					__("Manage")
-				);
 			} else if (frm.doc.status == "Scrapped") {
-				frm.add_custom_button(__("Restore Asset"), function () {
-					erpnext.asset.restore_asset(frm);
-				}).addClass("btn-primary");
+				frm.add_custom_button(
+					__("Restore Asset"),
+					function () {
+						erpnext.asset.restore_asset(frm);
+					},
+					__("Manage")
+				);
 			}
 
 			if (frm.doc.maintenance_required && !frm.doc.maintenance_schedule) {
@@ -141,7 +129,23 @@ frappe.ui.form.on("Asset", {
 				);
 			}
 
-			if (["Submitted", "Partially Depreciated"].includes(frm.doc.status)) {
+			frm.add_custom_button(
+				__("Repair Asset"),
+				function () {
+					frm.trigger("create_asset_repair");
+				},
+				__("Manage")
+			);
+
+			frm.add_custom_button(
+				__("Split Asset"),
+				function () {
+					frm.trigger("split_asset");
+				},
+				__("Manage")
+			);
+
+			if (frm.doc.status != "Fully Depreciated") {
 				frm.add_custom_button(
 					__("Adjust Asset Value"),
 					function () {
@@ -654,9 +658,6 @@ frappe.ui.form.on("Asset", {
 					frm.set_value("purchase_amount", data.gross_purchase_amount);
 					frm.set_value("asset_quantity", data.asset_quantity);
 					frm.set_value("cost_center", data.cost_center);
-					if (data.asset_location) {
-						frm.set_value("location", data.asset_location);
-					}
 
 					if (doctype === "Purchase Receipt") {
 						frm.set_value("purchase_receipt_item", data.purchase_receipt_item);
@@ -789,33 +790,17 @@ frappe.ui.form.on("Asset Finance Book", {
 });
 
 erpnext.asset.scrap_asset = function (frm) {
-	var scrap_dialog = new frappe.ui.Dialog({
-		title: __("Enter date to scrap asset"),
-		fields: [
-			{
-				label: __("Select the date"),
-				fieldname: "scrap_date",
-				fieldtype: "Date",
-				reqd: 1,
+	frappe.confirm(__("Do you really want to scrap this asset?"), function () {
+		frappe.call({
+			args: {
+				asset_name: frm.doc.name,
 			},
-		],
-		size: "medium",
-		primary_action_label: "Submit",
-		primary_action(values) {
-			frappe.call({
-				args: {
-					asset_name: frm.doc.name,
-					scrap_date: values.scrap_date,
-				},
-				method: "erpnext.assets.doctype.asset.depreciation.scrap_asset",
-				callback: function (r) {
-					frm.reload_doc();
-					scrap_dialog.hide();
-				},
-			});
-		},
+			method: "erpnext.assets.doctype.asset.depreciation.scrap_asset",
+			callback: function (r) {
+				cur_frm.reload_doc();
+			},
+		});
 	});
-	scrap_dialog.show();
 };
 
 erpnext.asset.restore_asset = function (frm) {
@@ -825,17 +810,19 @@ erpnext.asset.restore_asset = function (frm) {
 				asset_name: frm.doc.name,
 			},
 			method: "erpnext.assets.doctype.asset.depreciation.restore_asset",
-			callback: (r) => frm.reload_doc(),
+			callback: function (r) {
+				cur_frm.reload_doc();
+			},
 		});
 	});
 };
 
-erpnext.asset.transfer_asset = function (frm) {
+erpnext.asset.transfer_asset = function () {
 	frappe.call({
 		method: "erpnext.assets.doctype.asset.asset.make_asset_movement",
 		freeze: true,
 		args: {
-			assets: [{ name: frm.doc.name }],
+			assets: [{ name: cur_frm.doc.name }],
 			purpose: "Transfer",
 		},
 		callback: function (r) {

@@ -5,14 +5,14 @@
 import frappe
 from frappe import _
 from frappe.model.meta import get_field_precision
+from frappe.query_builder import functions as fn
 from frappe.utils import cstr, flt
 from frappe.utils.nestedset import get_descendants_of
 from frappe.utils.xlsxutils import handle_html
 from pypika import Order
 
 from erpnext.accounts.report.sales_register.sales_register import get_mode_of_payments
-from erpnext.accounts.report.utils import get_query_columns, get_values_for_columns
-from erpnext.controllers.taxes_and_totals import ItemWiseTaxDetail
+from erpnext.accounts.report.utils import get_values_for_columns
 from erpnext.selling.report.item_wise_sales_history.item_wise_sales_history import (
 	get_customer_details,
 )
@@ -434,7 +434,7 @@ def get_items(filters, additional_query_columns, additional_conditions=None):
 			si.is_internal_customer,
 			si.customer,
 			si.remarks,
-			si.territory,
+			fn.IfNull(si.territory, "Not Specified").as_("territory"),
 			si.company,
 			si.base_net_total,
 			sii.project,
@@ -457,7 +457,7 @@ def get_items(filters, additional_query_columns, additional_conditions=None):
 			sii.base_net_rate,
 			sii.base_net_amount,
 			si.customer_name,
-			si.customer_group,
+			fn.IfNull(si.customer_group, "Not Specified").as_("customer_group"),
 			sii.so_detail,
 			si.update_stock,
 			sii.uom,
@@ -525,7 +525,7 @@ def get_grand_total(filters, doctype):
 				"docstatus": 1,
 				"posting_date": ("between", [filters.get("from_date"), filters.get("to_date")]),
 			},
-			[{"SUM": "base_grand_total"}],
+			"sum(base_grand_total)",
 		)
 	)
 
@@ -610,10 +610,14 @@ def get_tax_accounts(
 				for item_code, tax_data in item_wise_tax_detail.items():
 					itemised_tax.setdefault(item_code, frappe._dict())
 
-					tax_data = ItemWiseTaxDetail(**tax_data)
+					if isinstance(tax_data, list):
+						tax_rate, tax_amount = tax_data
+					else:
+						tax_rate = tax_data
+						tax_amount = 0
 
-					if charge_type == "Actual" and not tax_data.tax_rate:
-						tax_data.tax_rate = "NA"
+					if charge_type == "Actual" and not tax_rate:
+						tax_rate = "NA"
 
 					item_net_amount = sum(
 						[flt(d.base_net_amount) for d in item_row_map.get(parent, {}).get(item_code, [])]
@@ -621,9 +625,7 @@ def get_tax_accounts(
 
 					for d in item_row_map.get(parent, {}).get(item_code, []):
 						item_tax_amount = (
-							flt((tax_data.tax_amount * d.base_net_amount) / item_net_amount)
-							if item_net_amount
-							else 0
+							flt((tax_amount * d.base_net_amount) / item_net_amount) if item_net_amount else 0
 						)
 						if item_tax_amount:
 							tax_value = flt(item_tax_amount, tax_amount_precision)
@@ -635,7 +637,7 @@ def get_tax_accounts(
 
 							itemised_tax.setdefault(d.name, {})[description] = frappe._dict(
 								{
-									"tax_rate": tax_data.tax_rate,
+									"tax_rate": tax_rate,
 									"tax_amount": tax_value,
 									"is_other_charges": 0 if tuple([account_head]) in tax_accounts else 1,
 								}
