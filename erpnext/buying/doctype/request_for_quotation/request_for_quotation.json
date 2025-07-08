@@ -304,7 +304,7 @@
   },
   {
    "fieldname": "billing_address_display",
-   "fieldtype": "Text Editor",
+   "fieldtype": "Small Text",
    "label": "Billing Address Details",
    "read_only": 1
   },
@@ -390,7 +390,7 @@
  "row_format": "Dynamic",
  "search_fields": "status, transaction_date",
  "show_name_in_global_search": 1,
- "sort_field": "creation",
+ "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
 }

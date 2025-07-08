@@ -5,7 +5,7 @@
 import json
 
 import frappe
-from frappe.tests import IntegrationTestCase, change_settings
+from frappe.tests.utils import FrappeTestCase, change_settings
 from frappe.utils import add_days, flt, getdate, nowdate
 from frappe.utils.data import today
 
@@ -28,7 +28,7 @@ from erpnext.stock.doctype.purchase_receipt.purchase_receipt import (
 )
 
 
-class TestPurchaseOrder(IntegrationTestCase):
+class TestPurchaseOrder(FrappeTestCase):
 	def test_purchase_order_qty(self):
 		po = create_purchase_order(qty=1, do_not_save=True)
 
@@ -295,21 +295,22 @@ class TestPurchaseOrder(IntegrationTestCase):
 		user = "test@example.com"
 		test_user = frappe.get_doc("User", user)
 		test_user.add_roles("Accounts User")
+		frappe.set_user(user)
 
-		with self.set_user(user):
-			# update qty
-			trans_item = json.dumps(
-				[{"item_code": "_Test Item", "rate": 200, "qty": 7, "docname": po.items[0].name}]
-			)
-			self.assertRaises(
-				frappe.ValidationError, update_child_qty_rate, "Purchase Order", trans_item, po.name
-			)
+		# update qty
+		trans_item = json.dumps(
+			[{"item_code": "_Test Item", "rate": 200, "qty": 7, "docname": po.items[0].name}]
+		)
+		self.assertRaises(
+			frappe.ValidationError, update_child_qty_rate, "Purchase Order", trans_item, po.name
+		)
 
-			# add new item
-			trans_item = json.dumps([{"item_code": "_Test Item", "rate": 100, "qty": 2}])
-			self.assertRaises(
-				frappe.ValidationError, update_child_qty_rate, "Purchase Order", trans_item, po.name
-			)
+		# add new item
+		trans_item = json.dumps([{"item_code": "_Test Item", "rate": 100, "qty": 2}])
+		self.assertRaises(
+			frappe.ValidationError, update_child_qty_rate, "Purchase Order", trans_item, po.name
+		)
+		frappe.set_user("Administrator")
 
 	def test_update_child_with_tax_template(self):
 		"""
@@ -741,9 +742,7 @@ class TestPurchaseOrder(IntegrationTestCase):
 		pi.insert()
 		self.assertTrue(pi.get("payment_schedule"))
 
-	@IntegrationTestCase.change_settings(
-		"Accounts Settings", {"unlink_advance_payment_on_cancelation_of_order": 1}
-	)
+	@change_settings("Accounts Settings", {"unlink_advance_payment_on_cancelation_of_order": 1})
 	def test_advance_payment_entry_unlink_against_purchase_order(self):
 		from erpnext.accounts.doctype.payment_entry.test_payment_entry import get_payment_entry
 
@@ -809,14 +808,10 @@ class TestPurchaseOrder(IntegrationTestCase):
 		po_doc.reload()
 		self.assertEqual(po_doc.advance_paid, 5000)
 
-		from erpnext.buying.doctype.purchase_order.purchase_order import make_purchase_invoice
-
 		company_doc.book_advance_payments_in_separate_party_account = False
 		company_doc.save()
 
-	@IntegrationTestCase.change_settings(
-		"Accounts Settings", {"unlink_advance_payment_on_cancelation_of_order": 1}
-	)
+	@change_settings("Accounts Settings", {"unlink_advance_payment_on_cancelation_of_order": 1})
 	def test_advance_paid_upon_payment_entry_cancellation(self):
 		from erpnext.accounts.doctype.payment_entry.test_payment_entry import get_payment_entry
 
@@ -1153,7 +1148,7 @@ class TestPurchaseOrder(IntegrationTestCase):
 		# Test - 8: Since this PO is now fully subcontracted, creating a new SCO from it should throw error
 		self.assertRaises(frappe.ValidationError, make_subcontracting_order, po.name)
 
-	@IntegrationTestCase.change_settings("Buying Settings", {"auto_create_subcontracting_order": 1})
+	@change_settings("Buying Settings", {"auto_create_subcontracting_order": 1})
 	def test_auto_create_subcontracting_order(self):
 		from erpnext.controllers.tests.test_subcontracting_controller import (
 			make_bom_for_subcontracted_items,
@@ -1184,34 +1179,6 @@ class TestPurchaseOrder(IntegrationTestCase):
 		)
 
 		self.assertTrue(frappe.db.get_value("Subcontracting Order", {"purchase_order": po.name}))
-
-	def test_purchase_order_advance_payment_status(self):
-		from erpnext.accounts.doctype.payment_entry.test_payment_entry import get_payment_entry
-		from erpnext.accounts.doctype.payment_request.payment_request import make_payment_request
-
-		po = create_purchase_order()
-		self.assertEqual(frappe.db.get_value(po.doctype, po.name, "advance_payment_status"), "Not Initiated")
-
-		pr = make_payment_request(
-			dt=po.doctype, dn=po.name, submit_doc=True, return_doc=True, payment_request_type="Outward"
-		)
-
-		po.reload()
-		self.assertEqual(frappe.db.get_value(po.doctype, po.name, "advance_payment_status"), "Initiated")
-
-		pe = get_payment_entry(po.doctype, po.name).save().submit()
-
-		pr.reload()
-		self.assertEqual(pr.status, "Paid")
-		self.assertEqual(frappe.db.get_value(po.doctype, po.name, "advance_payment_status"), "Fully Paid")
-
-		pe.reload()
-		pe.cancel()
-		self.assertEqual(frappe.db.get_value(po.doctype, po.name, "advance_payment_status"), "Initiated")
-
-		pr.reload()
-		pr.cancel()
-		self.assertEqual(frappe.db.get_value(po.doctype, po.name, "advance_payment_status"), "Not Initiated")
 
 	def test_po_billed_amount_against_return_entry(self):
 		from erpnext.accounts.doctype.purchase_invoice.purchase_invoice import make_debit_note
@@ -1245,7 +1212,7 @@ class TestPurchaseOrder(IntegrationTestCase):
 		po.reload()
 		self.assertEqual(po.per_billed, 100)
 
-	@IntegrationTestCase.change_settings("Buying Settings", {"allow_zero_qty_in_purchase_order": 1})
+	@change_settings("Buying Settings", {"allow_zero_qty_in_purchase_order": 1})
 	def test_receive_zero_qty_purchase_order(self):
 		"""
 		Test the flow of a Unit Price PO and PR creation against it until completion.
@@ -1294,7 +1261,7 @@ class TestPurchaseOrder(IntegrationTestCase):
 		self.assertEqual(po.per_received, 100.0)
 		self.assertEqual(po.status, "To Bill")
 
-	@IntegrationTestCase.change_settings("Buying Settings", {"allow_zero_qty_in_purchase_order": 1})
+	@change_settings("Buying Settings", {"allow_zero_qty_in_purchase_order": 1})
 	def test_bill_zero_qty_purchase_order(self):
 		po = create_purchase_order(qty=0)
 
@@ -1521,4 +1488,6 @@ def get_requested_qty(item_code="_Test Item", warehouse="_Test Warehouse - _TC")
 	return flt(frappe.db.get_value("Bin", {"item_code": item_code, "warehouse": warehouse}, "indented_qty"))
 
 
-EXTRA_TEST_RECORD_DEPENDENCIES = ["BOM", "Item Price", "Warehouse"]
+test_dependencies = ["BOM", "Item Price"]
+
+test_records = frappe.get_test_records("Purchase Order")

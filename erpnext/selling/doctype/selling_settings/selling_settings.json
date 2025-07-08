@@ -33,11 +33,8 @@
   "dont_reserve_sales_order_qty_on_sales_return",
   "hide_tax_id",
   "enable_discount_accounting",
-  "enable_cutoff_date_on_bulk_delivery_note_creation",
   "allow_zero_qty_in_quotation",
-  "allow_zero_qty_in_sales_order",
-  "experimental_section",
-  "use_server_side_reactivity"
+  "allow_zero_qty_in_sales_order"
  ],
  "fields": [
   {
@@ -208,23 +205,6 @@
   },
   {
    "default": "0",
-   "fieldname": "enable_cutoff_date_on_bulk_delivery_note_creation",
-   "fieldtype": "Check",
-   "label": "Enable Cut-Off Date on Bulk Delivery Note Creation"
-  },
-  {
-   "fieldname": "experimental_section",
-   "fieldtype": "Section Break",
-   "label": "Experimental"
-  },
-  {
-   "default": "1",
-   "fieldname": "use_server_side_reactivity",
-   "fieldtype": "Check",
-   "label": "Use Server Side Reactivity"
-  },
-  {
-   "default": "0",
    "description": "Allows users to submit Sales Orders with zero quantity. Useful when rates are fixed but the quantities are not. Eg. Rate Contracts.",
    "fieldname": "allow_zero_qty_in_sales_order",
    "fieldtype": "Check",
@@ -269,8 +249,7 @@
    "write": 1
   }
  ],
- "row_format": "Dynamic",
- "sort_field": "creation",
+ "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

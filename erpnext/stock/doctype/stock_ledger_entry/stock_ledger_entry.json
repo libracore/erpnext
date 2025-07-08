@@ -350,7 +350,8 @@
   {
    "fieldname": "posting_datetime",
    "fieldtype": "Datetime",
-   "label": "Posting Datetime"
+   "label": "Posting Datetime",
+   "search_index": 1
   }
  ],
  "grid_page_length": 50,
@@ -381,8 +382,7 @@
    "role": "Accounts Manager"
   }
  ],
- "row_format": "Dynamic",
- "sort_field": "creation",
+ "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
 }

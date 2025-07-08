@@ -328,7 +328,7 @@
  "row_format": "Dynamic",
  "search_fields": "party_type, party_name, contract_template",
  "show_name_in_global_search": 1,
- "sort_field": "creation",
+ "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
  "title_field": "party_name",

@@ -53,14 +53,6 @@ frappe.ui.form.on("Material Request", {
 		});
 	},
 
-	schedule_date(frm) {
-		if (frm.doc.schedule_date) {
-			frm.doc.items.forEach((d) => {
-				frappe.model.set_value(d.doctype, d.name, "schedule_date", frm.doc.schedule_date);
-			});
-		}
-	},
-
 	onload: function (frm) {
 		// add item, if previous view was item
 		erpnext.utils.add_item(frm);
@@ -101,12 +93,6 @@ frappe.ui.form.on("Material Request", {
 	refresh: function (frm) {
 		frm.events.make_custom_buttons(frm);
 		frm.toggle_reqd("customer", frm.doc.material_request_type == "Customer Provided");
-		prevent_past_schedule_dates(frm);
-	},
-
-	transaction_date(frm) {
-		prevent_past_schedule_dates(frm);
-		frm.set_value("schedule_date", "");
 	},
 
 	set_from_warehouse: function (frm) {
@@ -264,7 +250,7 @@ frappe.ui.form.on("Material Request", {
 		frappe.call({
 			method: "erpnext.stock.get_item_details.get_item_details",
 			args: {
-				ctx: {
+				args: {
 					item_code: item.item_code,
 					from_warehouse: item.from_warehouse,
 					warehouse: item.warehouse,
@@ -620,6 +606,10 @@ erpnext.buying.MaterialRequestController = class MaterialRequestController exten
 		set_schedule_date(this.frm);
 	}
 
+	schedule_date() {
+		set_schedule_date(this.frm);
+	}
+
 	qty(doc, cdt, cdn) {
 		var row = frappe.get_doc(cdt, cdn);
 		row.amount = flt(row.qty) * flt(row.rate);
@@ -640,13 +630,5 @@ function set_schedule_date(frm) {
 			"items",
 			"schedule_date"
 		);
-	}
-}
-
-function prevent_past_schedule_dates(frm) {
-	if (frm.doc.transaction_date) {
-		frm.fields_dict["schedule_date"].datepicker.update({
-			minDate: new Date(frm.doc.transaction_date),
-		});
 	}
 }

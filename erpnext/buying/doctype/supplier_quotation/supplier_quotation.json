@@ -229,7 +229,7 @@
   },
   {
    "fieldname": "address_display",
-   "fieldtype": "Text Editor",
+   "fieldtype": "Small Text",
    "label": "Address",
    "read_only": 1
   },
@@ -861,12 +861,12 @@
    "print_hide": 1
   },
   {
-   "fieldname": "column_break_zjaq",
-   "fieldtype": "Column Break"
+    "fieldname": "column_break_zjaq",
+    "fieldtype": "Column Break"
   },
   {
    "fieldname": "shipping_address_display",
-   "fieldtype": "Text Editor",
+   "fieldtype": "Small Text",
    "label": "Shipping Address Details",
    "print_hide": 1,
    "read_only": 1
@@ -898,7 +898,7 @@
   },
   {
    "fieldname": "billing_address_display",
-   "fieldtype": "Text Editor",
+   "fieldtype": "Small Text",
    "label": "Billing Address Details",
    "read_only": 1
   },
@@ -1002,7 +1002,7 @@
  "row_format": "Dynamic",
  "search_fields": "status, transaction_date, supplier,grand_total",
  "show_name_in_global_search": 1,
- "sort_field": "creation",
+ "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
  "timeline_field": "supplier",

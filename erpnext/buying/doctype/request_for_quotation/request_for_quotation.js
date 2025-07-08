@@ -549,15 +549,16 @@ erpnext.buying.RequestforQuotationController = class RequestforQuotationControll
 						callback: load_suppliers,
 					});
 				} else if (args.supplier_group) {
-					frappe.db
-						.get_list("Supplier", {
-							filters: { supplier_group: args.supplier_group },
-							limit: 100,
+					return frappe.call({
+						method: "frappe.client.get_list",
+						args: {
+							doctype: "Supplier",
 							order_by: "name",
-						})
-						.then((r) => {
-							load_suppliers({ message: r });
-						});
+							fields: ["name"],
+							filters: [["Supplier", "supplier_group", "=", args.supplier_group]],
+						},
+						callback: load_suppliers,
+					});
 				}
 			},
 		});
