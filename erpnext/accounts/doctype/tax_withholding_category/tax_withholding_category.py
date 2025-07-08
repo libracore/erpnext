@@ -657,7 +657,7 @@ def get_tcs_amount(parties, inv, tax_details, vouchers, adv_vouchers):
 				"company": inv.company,
 				"voucher_no": ["in", vouchers],
 			},
-			[{"SUM": "debit"}],
+			"sum(debit)",
 		)
 		or 0.0
 	)
@@ -735,7 +735,7 @@ def get_limit_consumed(ldc, parties):
 			"posting_date": ("between", (ldc.valid_from, ldc.valid_upto)),
 			"company": ldc.company,
 		},
-		[{"SUM": "tax_withholding_net_total"}],
+		"sum(tax_withholding_net_total)",
 	)
 
 	return limit_consumed

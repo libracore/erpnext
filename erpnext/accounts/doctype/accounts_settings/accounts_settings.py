@@ -39,7 +39,6 @@ class AccountsSettings(Document):
 		book_tax_discount_loss: DF.Check
 		calculate_depr_using_total_days: DF.Check
 		check_supplier_invoice_uniqueness: DF.Check
-		confirm_before_resetting_posting_date: DF.Check
 		create_pr_in_draft_status: DF.Check
 		credit_controller: DF.Link | None
 		delete_linked_ledger_entries: DF.Check
@@ -73,7 +72,6 @@ class AccountsSettings(Document):
 		submit_journal_entries: DF.Check
 		unlink_advance_payment_on_cancelation_of_order: DF.Check
 		unlink_payment_on_cancellation_of_invoice: DF.Check
-		use_new_budget_controller: DF.Check
 	# end: auto-generated types
 
 	def validate(self):

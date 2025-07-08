@@ -6,20 +6,19 @@ import unittest
 
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
-from frappe.tests import IntegrationTestCase
+from frappe.tests.utils import FrappeTestCase, change_settings
 from frappe.utils import add_days, add_months, today
 
 from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
 from erpnext.accounts.utils import get_fiscal_year
 from erpnext.buying.doctype.purchase_order.purchase_order import make_purchase_invoice
 
-EXTRA_TEST_RECORD_DEPENDENCIES = ["Supplier Group", "Customer Group"]
+test_dependencies = ["Supplier Group", "Customer Group"]
 
 
-class TestTaxWithholdingCategory(IntegrationTestCase):
+class TestTaxWithholdingCategory(FrappeTestCase):
 	@classmethod
-	def setUpClass(cls):
-		super().setUpClass()
+	def setUpClass(self):
 		# create relevant supplier, etc
 		create_records()
 		create_tax_withholding_category_records()

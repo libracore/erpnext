@@ -26,7 +26,7 @@ class AutoMatchParty:
 			deposit=self.deposit,
 		).match()
 
-		fuzzy_matching_enabled = frappe.get_single_value("Accounts Settings", "enable_fuzzy_matching")
+		fuzzy_matching_enabled = frappe.db.get_single_value("Accounts Settings", "enable_fuzzy_matching")
 		if not result and fuzzy_matching_enabled:
 			result = AutoMatchbyPartyNameDescription(
 				bank_party_name=self.bank_party_name, description=self.description, deposit=self.deposit
