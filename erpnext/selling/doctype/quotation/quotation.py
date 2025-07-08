@@ -1,10 +1,10 @@
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2015-2025, libracore, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
 import frappe
 from frappe.model.mapper import get_mapped_doc
-from frappe.utils import flt, nowdate, getdate
+from frappe.utils import flt, nowdate, getdate, cint
 from frappe import _
 
 from erpnext.controllers.selling_controller import SellingController
@@ -27,6 +27,7 @@ class Quotation(SellingController):
 		self.set_status()
 		self.update_opportunity()
 		self.validate_order_type()
+		self.validate_customer()
 		self.validate_uom_is_integer("stock_uom", "qty")
 		self.validate_valid_till()
 		self.set_customer_name()
@@ -42,6 +43,10 @@ class Quotation(SellingController):
 
 	def validate_order_type(self):
 		super(Quotation, self).validate_order_type()
+
+	def validate_customer(self):                        # important, because the normal link validation does not work here
+		if self.quotation_to == "Customer" and cint(frappe.get_value("Customer", self.party_name, "disabled")) == 1:
+			frappe.throw(_("<b>Customer {0}</b> is disabled.".format(self.party_name)))
 
 	def update_lead(self):
 		if self.quotation_to == "Lead" and self.party_name:
