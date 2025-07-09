@@ -267,6 +267,7 @@ def get_report_summary(summary_data, currency):
 
 def get_chart_data(columns, data, currency):
 	labels = [d.get("label") for d in columns[2:]]
+	print(data)
 	datasets = [
 		{
 			"name": section.get("section").replace("'", ""),

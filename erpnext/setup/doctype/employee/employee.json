@@ -439,13 +439,13 @@
   {
    "fieldname": "prefered_contact_email",
    "fieldtype": "Select",
-   "label": "Preferred Contact Email",
+   "label": "Prefered Contact Email",
    "options": "\nCompany Email\nPersonal Email\nUser ID"
   },
   {
    "fieldname": "prefered_email",
    "fieldtype": "Data",
-   "label": "Preferred Email",
+   "label": "Prefered Email",
    "options": "Email",
    "read_only": 1
   },
@@ -522,7 +522,7 @@
   {
    "fieldname": "valid_upto",
    "fieldtype": "Date",
-   "label": "Valid Up To"
+   "label": "Valid Upto"
   },
   {
    "fieldname": "place_of_issue",
@@ -866,7 +866,7 @@
  ],
  "search_fields": "employee_name",
  "show_name_in_global_search": 1,
- "sort_field": "creation",
+ "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
  "title_field": "employee_name",

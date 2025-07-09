@@ -33,9 +33,7 @@ class ProductionPlanSubAssemblyItem(Document):
 		purchase_order: DF.Link | None
 		qty: DF.Float
 		received_qty: DF.Float
-		required_qty: DF.Float
 		schedule_date: DF.Datetime | None
-		stock_reserved_qty: DF.Float
 		stock_uom: DF.Link | None
 		supplier: DF.Link | None
 		type_of_manufacturing: DF.Literal["In House", "Subcontract", "Material Request"]
