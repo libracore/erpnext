@@ -6,6 +6,8 @@ StockEntryCode = NewType("StockEntryCode", str)
 
 
 def execute():
+	frappe.reload_doctype("Period Closing Voucher")
+    
 	stock_entry_codes = find_broken_stock_entries()
 
 	for stock_entry_code in stock_entry_codes:

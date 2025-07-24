@@ -8,7 +8,7 @@ erpnext.patches.v14_0.change_is_subcontracted_fieldtype
 execute:frappe.reload_doc("accounts", "doctype", "POS Payment Method") #2020-05-28
 erpnext.patches.v4_2.update_requested_and_ordered_qty #2021-03-31
 erpnext.patches.v5_7.update_item_description_based_on_item_master
-erpnext.patches.v4_2.repost_reserved_qty #2021-03-31
+#erpnext.patches.v4_2.repost_reserved_qty #2021-03-31                   # dropped LaMu 2025-07-24
 erpnext.patches.v8_1.removed_roles_from_gst_report_non_indian_account #16-08-2018
 erpnext.patches.v10_0.fichier_des_ecritures_comptables_for_france
 erpnext.patches.v10_0.rename_price_to_rate_in_pricing_rule
@@ -133,7 +133,7 @@ erpnext.patches.v12_0.set_received_qty_in_material_request_as_per_stock_uom
 erpnext.patches.v12_0.rename_account_type_doctype
 erpnext.patches.v12_0.recalculate_requested_qty_in_bin
 erpnext.patches.v12_0.set_total_batch_quantity
-erpnext.patches.v12_0.rename_mws_settings_fields
+#erpnext.patches.v12_0.rename_mws_settings_fields                       # does not exist
 erpnext.patches.v12_0.set_updated_purpose_in_pick_list
 erpnext.patches.v12_0.repost_stock_ledger_entries_for_target_warehouse
 erpnext.patches.v12_0.update_end_date_and_status_in_email_campaign
@@ -141,7 +141,7 @@ erpnext.patches.v12_0.fix_quotation_expired_status
 erpnext.patches.v12_0.rename_pos_closing_doctype
 erpnext.patches.v13_0.replace_pos_payment_mode_table #2020-12-29
 execute:frappe.delete_doc_if_exists("Page", "appointment-analytic")
-execute:frappe.rename_doc("Desk Page", "Getting Started", "Home", force=True)
+#execute:frappe.rename_doc("Desk Page", "Getting Started", "Home", force=True)      # done in frappe patch
 erpnext.patches.v12_0.unset_customer_supplier_based_on_type_of_item_price
 erpnext.patches.v12_0.set_valid_till_date_in_supplier_quotation
 erpnext.patches.v12_0.set_serial_no_status #2020-05-21
@@ -177,13 +177,13 @@ erpnext.patches.v13_0.rename_issue_doctype_fields
 erpnext.patches.v13_0.change_default_pos_print_format
 erpnext.patches.v13_0.set_youtube_video_id
 erpnext.patches.v13_0.set_app_name
-erpnext.patches.v13_0.print_uom_after_quantity_patch
+#erpnext.patches.v13_0.print_uom_after_quantity_patch                   # patch missing
 erpnext.patches.v13_0.set_payment_channel_in_payment_gateway_account
 execute:frappe.delete_doc("Report", "Quoted Item Comparison")
 erpnext.patches.v13_0.update_member_email_address
 erpnext.patches.v13_0.update_pos_closing_entry_in_merge_log
 erpnext.patches.v13_0.add_po_to_global_search
-erpnext.patches.v13_0.update_returned_qty_in_pr_dn
+#erpnext.patches.v13_0.update_returned_qty_in_pr_dn                     # selling settings have no allow_negative_rates_for_items
 erpnext.patches.v13_0.create_uae_pos_invoice_fields
 erpnext.patches.v13_0.update_project_template_tasks
 erpnext.patches.v13_0.convert_qi_parameter_to_link_field
@@ -207,7 +207,7 @@ erpnext.patches.v13_0.rename_issue_status_hold_to_on_hold
 erpnext.patches.v13_0.update_response_by_variance
 erpnext.patches.v13_0.update_job_card_details
 erpnext.patches.v13_0.add_missing_fg_item_for_stock_entry
-erpnext.patches.v13_0.update_subscription_status_in_memberships
+#erpnext.patches.v13_0.update_subscription_status_in_memberships        # Non Profit dropped
 erpnext.patches.v13_0.update_amt_in_work_order_required_items
 erpnext.patches.v13_0.delete_orphaned_tables
 erpnext.patches.v13_0.update_tds_check_field #3
