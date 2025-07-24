@@ -246,7 +246,7 @@ erpnext.patches.v13_0.agriculture_deprecation_warning
 erpnext.patches.v13_0.hospitality_deprecation_warning
 erpnext.patches.v13_0.update_asset_quantity_field
 erpnext.patches.v13_0.delete_bank_reconciliation_detail
-erpnext.patches.v13_0.enable_provisional_accounting
+#erpnext.patches.v13_0.enable_provisional_accounting                    # feature dropped
 erpnext.patches.v13_0.non_profit_deprecation_warning
 erpnext.patches.v13_0.show_india_localisation_deprecation_warning
 erpnext.patches.v13_0.show_hr_payroll_deprecation_warning

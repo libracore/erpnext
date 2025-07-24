@@ -3,6 +3,8 @@ from frappe.utils import cstr
 
 
 def execute():
+	frappe.reload_doc("stock", "doctype", "repost_item_valuation")
+    
 	reposts = frappe.get_all(
 		"Repost Item Valuation",
 		{"status": "Failed", "modified": [">", "2021-10-05"]},

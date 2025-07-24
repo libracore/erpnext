@@ -11,6 +11,8 @@ from erpnext.accounts.report.calculated_discount_mismatch.calculated_discount_mi
 
 
 def execute():
+	frappe.reload_doc("accounts", "doctype", "pos_invoice")
+    
 	# run this patch only if erpnext version before update is v15.64.0 or higher
 	if not should_run_patch():
 		return
