@@ -2,7 +2,7 @@ import frappe
 
 
 def execute():
-	assets = frappe.get_all("Asset", filters={"allow_monthly_depreciation": 1})
+	assets = frappe.get_all("Asset", filters=[['docstatus', '<', 2]])
 
 	for d in assets:
 		print(d.name)

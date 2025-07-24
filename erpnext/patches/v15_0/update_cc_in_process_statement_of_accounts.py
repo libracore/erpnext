@@ -2,6 +2,8 @@ import frappe
 
 
 def execute():
+	frappe.reload_doc("accounts", "doctype", "process_statement_of_accounts", force=True)
+    
 	process_statement_of_accounts = frappe.qb.DocType("Process Statement Of Accounts")
 
 	data = (
