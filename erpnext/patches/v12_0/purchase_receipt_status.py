@@ -22,11 +22,17 @@ def execute():
 	frappe.reload_doc("stock", "doctype", "Purchase Receipt")
 	frappe.reload_doc("stock", "doctype", "Purchase Receipt Item")
 
-	for pr in affected_purchase_receipts:
-		pr_name = pr[0]
-		logger.info(f"purchase_receipt_status: patching PR - {pr_name}")
+	try:
+		for pr in affected_purchase_receipts:
+			pr_name = pr[0]
+			logger.info(f"purchase_receipt_status: patching PR - {pr_name}")
 
-		pr_doc = frappe.get_doc("Purchase Receipt", pr_name)
+			pr_doc = frappe.get_doc("Purchase Receipt", pr_name)
 
-		pr_doc.update_billing_status(update_modified=False)
-		pr_doc.set_status(update=True, update_modified=False)
+			pr_doc.update_billing_status(update_modified=False)
+			pr_doc.set_status(update=True, update_modified=False)
+	except Exception as err:
+		print("Updating invalid status has failed, try hard-style...")
+		frappe.db.sql("""UPDATE `tabPurchase Receipt`
+                         SET `status` = "Completed"
+                         WHERE `status` = "Draft" AND `per_billed` = 100 AND `docstatus` = 1;""")
