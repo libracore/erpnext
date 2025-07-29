@@ -598,17 +598,6 @@ def get_price_list_rate_for(args, item_code):
 		desired_qty = args.get("qty")
 		if desired_qty and check_packing_list(price_list_rate[0][0], desired_qty, item_code):
 			item_price_data = price_list_rate
-	else:
-		for field in ["customer", "supplier", "min_qty"]:
-			del item_price_args[field]
-
-		general_price_list_rate = get_item_price(item_price_args, item_code, ignore_party=args.get("ignore_party"))
-		if not general_price_list_rate and args.get("uom") != args.get("stock_uom"):
-			item_price_args["uom"] = args.get("stock_uom")
-			general_price_list_rate = get_item_price(item_price_args, item_code, ignore_party=args.get("ignore_party"))
-
-		if general_price_list_rate:
-			item_price_data = general_price_list_rate
 
 	if item_price_data:
 		if item_price_data[0][2] == args.get("uom"):
