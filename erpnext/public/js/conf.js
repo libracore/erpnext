@@ -11,7 +11,7 @@ $(document).bind('toolbar_setup', function() {
 		href="https://discuss.erpnext.com">Feedback</a></p>'
 
 
-	$('[data-link="docs"]').attr("href", "https://erpnext.com/docs")
+	$('[data-link="docs"]').attr("href", "https://docs.libracore.io")
 	$('[data-link="issues"]').attr("href", "https://github.com/frappe/erpnext/issues")
 
 
@@ -20,11 +20,11 @@ $(document).bind('toolbar_setup', function() {
 
 	// additional help links for erpnext
 	var $help_menu = $('.dropdown-help ul .documentation-links');
-	$('<li><a data-link-type="forum" href="https://erpnext.com/docs/user/manual" \
+	$('<li><a data-link-type="forum" href="https://docs.libracore.io" \
 		target="_blank">'+__('Documentation')+'</a></li>').insertBefore($help_menu);
 	$('<li><a data-link-type="forum" href="https://discuss.erpnext.com" \
 		target="_blank">'+__('User Forum')+'</a></li>').insertBefore($help_menu);
-	$('<li><a href="https://github.com/frappe/erpnext/issues" \
+	$('<li><a href="https://git.libracore.io/libracore/erpnext/issues" \
 		target="_blank">'+__('Report an Issue')+'</a></li>').insertBefore($help_menu);
 
 });
