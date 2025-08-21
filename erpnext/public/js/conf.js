@@ -12,7 +12,7 @@ $(document).bind('toolbar_setup', function() {
 
 
 	$('[data-link="docs"]').attr("href", "https://docs.libracore.io")
-	$('[data-link="issues"]').attr("href", "https://github.com/frappe/erpnext/issues")
+	$('[data-link="issues"]').attr("href", "https://git.libracore.io/libracore/erpnext/issues")
 
 
 	// default documentation goes to erpnext
