@@ -34,7 +34,7 @@ def get_slide_settings():
 			help_links=[
 				{
 					"label": _("Chart of Accounts"),
-					"url": ["https://erpnext.com/docs/user/manual/en/accounts/chart-of-accounts"]
+					"url": ["https://docs.libracore.io/index.php?title=Accounts/Chart_Of_Accounts"]
 				},
 				{
 					"label": _("Opening Balances"),
@@ -57,7 +57,7 @@ def get_slide_settings():
 			help_links=[
 				{
 					"label": _('Learn More'),
-					"url": ["https://erpnext.com/docs/user/manual/en/setting-up/setting-company-sales-goal"]
+					"url": ["https://docs.libracore.io/index.php?title=Setting_Up/Setting_Company_Sales_Goal"]
 				}
 			]
 		),
@@ -81,7 +81,7 @@ def get_slide_settings():
 			help_links=[
 				{
 					"label": _('Learn More'),
-					"url": ["https://erpnext.com/docs/user/manual/en/CRM/customer.html"]
+					"url": ["https://docs.libracore.io/index.php?title=CRM/Customer"]
 				}
 			]
 		),
@@ -124,7 +124,7 @@ def get_slide_settings():
 			help_links=[
 				{
 					"label": _('Learn More'),
-					"url": ["https://erpnext.com/docs/user/manual/en/buying/supplier"]
+					"url": ["https://docs.libracore.io/index.php?title=Buying/Supplier"]
 				},
 				{
 					"label": _('Customers and Suppliers'),
@@ -262,7 +262,7 @@ def get_slide_settings():
 			help_links=[
 				{
 					"label": _('Learn More'),
-					"url": ["https://erpnext.com/docs/user/manual/en/setting-up/users-and-permissions"]
+					"url": ["https://docs.libracore.io/index.php?title=Setting_Up/Users_And_Permissions"]
 				},
 				{
 					"label": _('Users and Permissions'),
@@ -284,4 +284,3 @@ def get_user_progress_slides():
 			slides.append(s)
 
 	return slides
-
