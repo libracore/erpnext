@@ -54,7 +54,8 @@ def place_order():
 	quotation = _get_cart_quotation()
 	cart_settings = frappe.db.get_value("Shopping Cart Settings", None,
 		["company", "allow_items_not_in_stock"], as_dict=1)
-	quotation.company = cart_settings.company
+	if not quotation.company:
+		quotation.company = cart_settings.company
 
 	quotation.flags.ignore_permissions = True
 	quotation.submit()
