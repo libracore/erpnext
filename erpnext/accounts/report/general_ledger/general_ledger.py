@@ -175,14 +175,28 @@ def get_gl_entries(filters, accounting_dimensions):
 
     gl_entries = frappe.db.sql(
         f"""
-        select
-            name as gl_entry, posting_date, account, party_type, party,
-            voucher_type, voucher_subtype, voucher_no, {dimension_fields}
-            cost_center, project, {transaction_currency_fields}
-            against_voucher_type, against_voucher, account_currency,
-            against, is_opening, creation {select_fields}
-        from `tabGL Entry`
-        where company=%(company)s {get_conditions(filters)}
+        SELECT
+            `name` AS `gl_entry`, 
+            `posting_date`, 
+            `account`, 
+            `party_type`, 
+            `party`,
+            `voucher_type`, 
+            `voucher_subtype`, 
+            `voucher_no`, 
+            {dimension_fields}
+            `cost_center`, 
+            `project`, 
+            {transaction_currency_fields}
+            `against_voucher_type`, 
+            `against_voucher`, 
+            `account_currency`,
+            `against`, 
+            `is_opening`, 
+            `creation` {select_fields}
+        FROM `tabGL Entry`
+        WHERE company=%(company)s 
+            {get_conditions(filters)}
         {order_by_statement}
     """,
         filters,
@@ -206,6 +220,7 @@ def get_conditions(filters):
         filters.account = get_accounts_with_children(filters.account)
         if filters.account:
             conditions.append("account in %(account)s")
+        #conditions.append("`account` = %(account)s")
 
     if filters.get("cost_center"):
         filters.cost_center = get_cost_centers_with_children(filters.cost_center)

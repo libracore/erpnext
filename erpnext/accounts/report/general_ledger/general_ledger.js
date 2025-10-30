@@ -22,7 +22,7 @@ frappe.query_reports["General Ledger"] = {
             fieldname: "from_date",
             label: __("From Date"),
             fieldtype: "Date",
-            default: frappe.datetime.add_months(frappe.datetime.get_today(), -1),
+            default: (new Date(new Date().getFullYear(), 0, 1)), /* use first day of current year */
             reqd: 1,
             width: "60px",
         },
@@ -39,11 +39,20 @@ frappe.query_reports["General Ledger"] = {
             label: __("Account"),
             fieldtype: "Link",
             options: "Account",
-            get_data: function (txt) {
-                return frappe.db.get_link_options("Account", txt, {
-                    company: frappe.query_report.get_filter_value("company"),
-                });
-            },
+            //get_data: function (txt) {
+            //    return frappe.db.get_link_options("Account", txt, {
+            //        company: frappe.query_report.get_filter_value("company"),
+            //    });
+            //},
+            "get_query": function() {
+                var company = frappe.query_report.get_filter_value('company');
+                return {
+                    "doctype": "Account",
+                    "filters": {
+                        "company": company,
+                    }
+                }
+            }
         },
         {
             fieldname: "voucher_no",
