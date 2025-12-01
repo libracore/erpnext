@@ -15,7 +15,7 @@ dependencies = [
     "googlemaps~=4.10.0",
     "python-stdnum~=1.19",
     "woocommerce~=3.0.0",
-    "pandas~=2.1.2",
+    "pandas~=2.3.3",                        # use pandas > 2.3 for python 3.13 compatibility (debian 13)
     "plaid-python==7.2.1",
     "python-youtube~=0.8.3",                # note: DO NOT USE 0.9.5, because this will lead to a depencency conflict
     "barcodenumber~=0.5.0",
