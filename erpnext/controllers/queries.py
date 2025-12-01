@@ -696,12 +696,12 @@ def get_expense_account(doctype, txt, searchfield, start, page_len, filters):
 		condition += "and tabAccount.company = %(company)s"
 
 	return frappe.db.sql(
-		f"""select tabAccount.name from `tabAccount`
-		where (tabAccount.report_type = "Profit and Loss"
-				or tabAccount.account_type in ("Expense Account", "Fixed Asset", "Temporary", "Asset Received But Not Billed", "Capital Work in Progress"))
-			and tabAccount.is_group=0
-			and tabAccount.docstatus!=2
-			and tabAccount.{searchfield} LIKE %(txt)s
+		f"""SELECT `tabAccount`.`name` FROM `tabAccount`
+		WHERE (`tabAccount`.`report_type` = "Profit and Loss"
+				OR `tabAccount`.`account_type` IN ("Expense Account", "Fixed Asset", "Temporary", "Asset Received But Not Billed", "Capital Work in Progress"))
+			and `tabAccount`.`is_group` = 0
+			and `tabAccount`.`disabled` = 0     -- and tabAccount.docstatus!=2
+			and `tabAccount`.`{searchfield}` LIKE %(txt)s
 			{condition} {get_match_cond(doctype)}""",
 		{"company": filters.get("company", ""), "txt": "%" + txt + "%"},
 	)
