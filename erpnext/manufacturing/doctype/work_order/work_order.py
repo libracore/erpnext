@@ -558,7 +558,7 @@ def get_item_details(item, project = None):
 
 	res = res[0]
 
-	filters = {"item": item, "is_default": 1}
+	filters = {"item": item, "is_default": 1, "docstatus": 1}
 
 	if project:
 		filters = {"item": item, "project": project}
