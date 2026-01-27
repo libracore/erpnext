@@ -61,6 +61,10 @@ erpnext.utils.get_party_details = function (frm, method, args, callback) {
 		if (!args.company_address && frm.doc.company_address) {
 			args.company_address = frm.doc.company_address;
 		}
+
+		if (!args.dispatch_address && frm.doc.dispatch_address) {
+			args.dispatch_address = frm.doc.dispatch_address;
+		}
 	}
 
 	if (in_list(PURCHASE_DOCTYPES, frm.doc.doctype)) {
@@ -70,10 +74,6 @@ erpnext.utils.get_party_details = function (frm, method, args, callback) {
 
 		if (!args.shipping_address && frm.doc.shipping_address) {
 			args.shipping_address = frm.doc.shipping_address;
-		}
-
-		if (!args.dispatch_address && frm.doc.dispatch_address) {
-			args.dispatch_address = frm.doc.dispatch_address;
 		}
 	}
 
