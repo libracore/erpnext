@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2025, libracore, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2015-2026, libracore, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 
@@ -217,7 +217,7 @@ def get_conditions(filters):
     )
 
     if filters.get("account"):
-        filters.account = get_accounts_with_children(filters.account)
+        filters.account = get_accounts_with_children([filters.account])         # account is a single link field
         if filters.account:
             conditions.append("account in %(account)s")
         #conditions.append("`account` = %(account)s")
