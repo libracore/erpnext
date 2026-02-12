@@ -64,7 +64,7 @@
    "label": "Packing Unit"
   },
   {
-   "default": "1",
+   "default": "0",
    "fieldname": "min_qty",
    "fieldtype": "Int",
    "in_list_view": 1,
