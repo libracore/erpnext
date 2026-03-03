@@ -138,7 +138,7 @@ erpnext.patches.v12_0.set_updated_purpose_in_pick_list
 erpnext.patches.v12_0.repost_stock_ledger_entries_for_target_warehouse
 erpnext.patches.v12_0.update_end_date_and_status_in_email_campaign
 erpnext.patches.v12_0.fix_quotation_expired_status
-erpnext.patches.v12_0.rename_pos_closing_doctype
+#erpnext.patches.v12_0.rename_pos_closing_doctype
 erpnext.patches.v13_0.replace_pos_payment_mode_table #2020-12-29
 execute:frappe.delete_doc_if_exists("Page", "appointment-analytic")
 #execute:frappe.rename_doc("Desk Page", "Getting Started", "Home", force=True)      # done in frappe patch
