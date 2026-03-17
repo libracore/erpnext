@@ -166,7 +166,7 @@ def book_deferred_income_or_expense(doc, posting_date=None):
 
 
 	for item in doc.get('items'):
-		if item.get(enable_check):
+		if item.get(enable_check) and item.get('net_amount') > 0:
 			_book_deferred_revenue_or_expense(item)
 
 def make_gl_entries(doc, credit_account, debit_account, against,
