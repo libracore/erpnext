@@ -500,9 +500,9 @@ class AccountsController(TransactionBase):
 				pluck="parent",
 			)
 			if billing_address and billing_address not in party_address:
-				frappe.throw(_("Billing Address does not belong to the {0}").format(party))
+				frappe.throw(_("Billing Address {1} does not belong to the {0}").format(party, billing_address))
 			elif shipping_address and shipping_address not in party_address:
-				frappe.throw(_("Shipping Address does not belong to the {0}").format(party))
+				frappe.throw(_("Shipping Address {1} does not belong to the {0}").format(party, shipping_address))
 
 	def validate_party_contact(self, party, party_type):
 		if self.get("contact_person"):
