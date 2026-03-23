@@ -2368,9 +2368,11 @@ class AccountsController(TransactionBase):
 		allow_multi_currency_invoices_against_single_party_account = frappe.db.get_singles_value(
 			"Accounts Settings", "allow_multi_currency_invoices_against_single_party_account"
 		)
+		default_currency = frappe.get_cached_value("Company", self.company, "default_currency")
 
 		if (
 			not party_gle_currency
+			and (party_account_currency != default_currency)
 			and (party_account_currency != self.currency)
 			and not allow_multi_currency_invoices_against_single_party_account
 		):
