@@ -156,7 +156,7 @@
 				"IV. Gewinnvortrag/Verlustvortrag": {
 					"is_group": 1
 				},
-				"V. Jahresüberschuß/Jahresfehlbetrag": {
+				"V. Jahresüberschuss/Jahresfehlbetrag": {
 					"is_group": 1
 				}
 			},
@@ -285,7 +285,7 @@
 					"account_number": "2650",
 					"account_type": "Income Account"
 				},
-				"Außerordentliche Erträge": {
+				"Ausserordentliche Erträge": {
 					"account_number": "2500",
 					"account_type": "Income Account"
 				},
@@ -499,7 +499,7 @@
 					"account_number": "4955",
 					"account_type": "Expense Account"
 				},
-				"Abschluß- u. Prüfungskosten": {
+				"Abschluss- u. Prüfungskosten": {
 					"account_number": "4957",
 					"account_type": "Expense Account"
 				},
@@ -557,7 +557,7 @@
 				"Sonderausgaben unbeschränkt abzugsfähig": {
 					"account_number": "1830"
 				},
-				"Außergewöhnliche Belastungen": {
+				"Aussergewöhnliche Belastungen": {
 					"account_number": "1850"
 				},
 				"Privateinlagen": {
