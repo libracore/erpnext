@@ -361,7 +361,7 @@ class PaymentEntry(AccountsController):
 						self.party_type), InvalidPaymentEntry)
 
 			elif paid_amount - additional_charges > total_negative_outstanding:
-				frappe.throw(_("Paid Amount cannot be greater than total negative outstanding amount {0}")
+				frappe.msgprint(_("Paid Amount cannot be greater than total negative outstanding amount {0}")
 					.format(total_negative_outstanding), InvalidPaymentEntry)
 
 	def set_title(self):
