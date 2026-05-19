@@ -41,6 +41,7 @@
   "show_payment_schedule_in_print",
   "item_price_settings_section",
   "maintain_same_internal_transaction_rate",
+  "fetch_valuation_rate_for_internal_transaction",
   "column_break_feyo",
   "maintain_same_rate_action",
   "role_to_override_stop_action",
@@ -91,7 +92,8 @@
   "legacy_section",
   "ignore_is_opening_check_for_reporting",
   "payment_request_settings",
-  "create_pr_in_draft_status"
+  "create_pr_in_draft_status",
+  "column_break_xrnd"
  ],
  "fields": [
   {
@@ -609,6 +611,12 @@
    "fieldname": "add_taxes_from_taxes_and_charges_template",
    "fieldtype": "Check",
    "label": "Automatically Add Taxes from Taxes and Charges Template"
+  },
+  {
+   "default": "0",
+   "fieldname": "fetch_valuation_rate_for_internal_transaction",
+   "fieldtype": "Check",
+   "label": "Fetch Valuation Rate for Internal Transaction"
   }
  ],
  "icon": "icon-cog",
@@ -616,7 +624,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-23 15:55:33.346398",
+ "modified": "2026-05-19 10:01:37.825944",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Accounts Settings",
@@ -641,6 +649,7 @@
   }
  ],
  "quick_entry": 1,
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "ASC",
  "states": [],
