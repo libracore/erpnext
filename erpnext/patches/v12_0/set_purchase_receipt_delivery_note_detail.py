@@ -78,6 +78,9 @@ def execute():
 
 		# iterate through original documents and its return documents
 		for docname in return_document_map:
+			# this patch will fail in case the return was created without a prevdoc (!!)
+			if not docname:
+				continue			# LaMu 2026-06-09
 			doc_items = frappe.get_cached_doc(doctype, docname).get("items")
 			for return_doc in return_document_map[docname]:
 				return_doc_items = frappe.get_cached_doc(doctype, return_doc).get("items")
