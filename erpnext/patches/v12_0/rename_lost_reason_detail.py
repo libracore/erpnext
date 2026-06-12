@@ -9,7 +9,9 @@ def execute():
 
         frappe.db.sql(
             """INSERT INTO `tabOpportunity Lost Reason Detail` 
-                  SELECT * FROM `tabLost Reason Detail` 
+                (`name`, `creation`, `modified`, `owner`, `modified_by`, `docstatus`, `idx`, `lost_reason`, `parent`, `parentfield`, `parenttype`)
+                  SELECT `name`, `creation`, `modified`, `owner`, `modified_by`, `docstatus`, `idx`, `lost_reason`, `parent`, `parentfield`, `parenttype` 
+                  FROM `tabLost Reason Detail` 
                   WHERE `parenttype` = 'Opportunity';"""
         )
 
