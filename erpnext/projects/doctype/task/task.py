@@ -51,13 +51,28 @@ class Task(NestedSet):
 		if (self.progress or 0) > 100:
 			frappe.throw(_("Progress % for a task cannot be more than 100."))
 
-		old_self = self._doc_before_save
+		old = self.get_doc_before_save()
+		old_status = old.status if old else None
+		old_progress = old.progress if old else None
 
-		if self.progress == 100 and old_self.progress < 100:
+		# Progress reaching 100% marks the task as completed.
+		if self.progress == 100 and old_progress != 100:
 			self.status = 'Completed'
 
-		if self.status == 'Completed' and old_self.status != 'Completed':
+		if self.status == 'Completed':
+			if old_status != 'Completed':
+				# Remember the progress the task had before it was completed,
+				# so it can be restored if the task is reopened later on.
+				self.prev_progress = old_progress or 0
 			self.progress = 100
+		elif old_status == 'Completed':
+			# Task was reopened: restore the progress it had before completion.
+			# Never restore 100, otherwise the task would immediately complete again.
+			self.progress = 0 if self.prev_progress == 100 else (self.prev_progress or 0)
+
+		# Safety net: progress must never read 100 unless the task is completed.
+		if self.status != 'Completed' and self.progress == 100:
+			self.progress = 0
 
 	def update_depends_on(self):
 		depends_on_tasks = self.depends_on_tasks or ""

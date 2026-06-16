@@ -24,6 +24,7 @@
   "column_break_11",
   "exp_end_date",
   "progress",
+  "prev_progress",
   "is_milestone",
   "sb_details",
   "description",
@@ -183,6 +184,15 @@
    "fieldname": "progress",
    "fieldtype": "Percent",
    "label": "% Progress"
+  },
+  {
+   "default": "0",
+   "fieldname": "prev_progress",
+   "fieldtype": "Percent",
+   "hidden": 1,
+   "label": "Previous % Progress",
+   "no_copy": 1,
+   "read_only": 1
   },
   {
    "default": "0",
@@ -362,7 +372,7 @@
  "icon": "fa fa-check",
  "idx": 1,
  "max_attachments": 5,
- "modified": "2019-09-10 13:46:24.631754",
+ "modified": "2026-06-10 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Projects",
  "name": "Task",
