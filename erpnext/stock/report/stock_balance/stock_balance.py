@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2015-2026, libracore, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 from __future__ import unicode_literals
@@ -253,14 +253,23 @@ def get_item_details(items, sle, filters):
 			% frappe.db.escape(filters.get("include_uom"))
 
 	res = frappe.db.sql("""
-		select
-			item.name, item.item_name, item.description, item.item_group, item.brand, item.stock_uom %s
-		from
-			`tabItem` item
-			%s
-		where
-			item.name in (%s) and ifnull(item.disabled, 0) = 0
-	""" % (cf_field, cf_join, ','.join(['%s'] *len(items))), items, as_dict=1)
+            SELECT
+                item.name, item.item_name, item.description, item.item_group, item.brand, item.stock_uom {cf_field}
+            FROM
+                `tabItem` item
+            {cf_join}
+            WHERE
+                item.name in ({names}) 
+                {disabled}
+        """.format(
+            cf_field=cf_field,
+            cf_join=cf_join,
+            names=','.join(['%s'] *len(items)),
+            disabled="and ifnull(item.disabled, 0) = 0" if not filters.get('include_disabled') else ""
+        ),
+        items, 
+        as_dict=1
+    )
 
 	for item in res:
 		item_details.setdefault(item.name, item)

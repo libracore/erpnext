@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors and contributors
+// Copyright (c) 2015-2026, libracore, Frappe Technologies Pvt. Ltd. and Contributors and contributors
 // For license information, please see license.txt
 
 frappe.query_reports["Stock Balance"] = {
@@ -84,5 +84,10 @@ frappe.query_reports["Stock Balance"] = {
 			"label": __('Show Stock Ageing Data'),
 			"fieldtype": 'Check'
 		},
+        {
+			"fieldname": 'include_disabled',
+			"label": __('Include disabled'),
+			"fieldtype": 'Check'
+		}
 	]
 };
