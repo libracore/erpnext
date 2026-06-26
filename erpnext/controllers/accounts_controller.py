@@ -967,7 +967,11 @@ class AccountsController(TransactionBase):
 						args["is_subcontracted"] = self.is_subcontracted
 
 					ret = get_item_details(args, self, for_validate=for_validate, overwrite_warehouse=False)
-					do_not_reset_prices = False if not item.get("so_detail", False) and not item.get("dn_detail", False) else True
+					do_not_reset_prices = any((
+						item.get("so_detail", False),
+						item.get("dn_detail", False),
+						item.get("quotation_item", False),
+					))
 					for fieldname, value in ret.items():
 						if item.meta.get_field(fieldname) and value is not None:
 							if (
