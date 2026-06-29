@@ -967,6 +967,11 @@ class AccountsController(TransactionBase):
 						args["is_subcontracted"] = self.is_subcontracted
 
 					ret = get_item_details(args, self, for_validate=for_validate, overwrite_warehouse=False)
+					do_not_reset_prices = any((
+						item.get("so_detail", False),
+						item.get("dn_detail", False),
+						item.get("quotation_item", False),
+					))
 					for fieldname, value in ret.items():
 						if item.meta.get_field(fieldname) and value is not None:
 							if (
@@ -1003,7 +1008,8 @@ class AccountsController(TransactionBase):
 									item.set(fieldname, value)
 
 							elif (
-								ret.get("pricing_rule_removed")
+								not do_not_reset_prices
+								and ret.get("pricing_rule_removed")
 								and value is not None
 								and fieldname
 								in [
