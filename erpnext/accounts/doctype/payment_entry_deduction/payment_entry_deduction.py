@@ -18,7 +18,6 @@ class PaymentEntryDeduction(Document):
 		amount: DF.Currency
 		cost_center: DF.Link
 		description: DF.SmallText | None
-		is_exchange_gain_loss: DF.Check
 		parent: DF.Data
 		parentfield: DF.Data
 		parenttype: DF.Data
