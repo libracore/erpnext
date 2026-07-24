@@ -1,4 +1,4 @@
-// Copyright (c) 2016, Frappe Technologies Pvt. Ltd. and contributors
+// Copyright (c) 2016-2026, libracore, Frappe Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
 frappe.provide("erpnext.accounts.dimensions");
 
@@ -1119,19 +1119,19 @@ frappe.ui.form.on("Payment Entry", {
 	},
 
 	set_total_allocated_amount: function (frm) {
-		let exchange_rate = 1;
+		/*let exchange_rate = 1;                                        // no, consider per row exchange rate!
 		if (frm.doc.payment_type == "Receive") {
 			exchange_rate = frm.doc.source_exchange_rate;
 		} else if (frm.doc.payment_type == "Pay") {
 			exchange_rate = frm.doc.target_exchange_rate;
-		}
+		}*/
 		var total_allocated_amount = 0.0;
 		var base_total_allocated_amount = 0.0;
 		$.each(frm.doc.references || [], function (i, row) {
 			if (row.allocated_amount) {
 				total_allocated_amount += flt(row.allocated_amount);
 				base_total_allocated_amount += flt(
-					flt(row.allocated_amount) * flt(exchange_rate),
+					flt(row.allocated_amount) * flt(row.exchange_rate),
 					precision("base_paid_amount")
 				);
 			}
@@ -1183,7 +1183,8 @@ frappe.ui.form.on("Payment Entry", {
 		var base_unallocated_amount =
 			flt(frm.doc.unallocated_amount) *
 			(frm.doc.payment_type == "Receive" ? frm.doc.source_exchange_rate : frm.doc.target_exchange_rate);
-
+        // valuation is only correct on foreign currency debtor/creditor (CHECK)
+        
 		var base_party_amount = flt(frm.doc.base_total_allocated_amount) + base_unallocated_amount;
 
 		if (frm.doc.payment_type == "Receive") {
@@ -1277,6 +1278,7 @@ frappe.ui.form.on("Payment Entry", {
 
 	set_exchange_gain_loss_deduction: async function (frm) {
 		// wait for allocate_party_amount_against_ref_docs to finish
+        /* very BAD
 		await frappe.after_ajax();
 		const base_paid_amount = frm.doc.base_paid_amount || 0;
 		const base_received_amount = frm.doc.base_received_amount || 0;
@@ -1309,6 +1311,7 @@ frappe.ui.form.on("Payment Entry", {
 		row.amount = exchange_gain_loss;
 		frm.refresh_field("deductions");
 		frm.events.set_unallocated_amount(frm);
+        */
 	},
 
 	delete_exchange_gain_loss: function (frm) {

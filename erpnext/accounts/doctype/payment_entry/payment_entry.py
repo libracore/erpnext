@@ -521,12 +521,12 @@ class PaymentEntry(AccountsController):
 				ref_details.update({"exchange_rate": reference_exchange_details.exchange_rate})
 
 			for field, value in ref_details.items():
-				if d.exchange_gain_loss:
-					# for cases where gain/loss is booked into invoice
-					# exchange_gain_loss is calculated from invoice & populated
-					# and row.exchange_rate is already set to payment entry's exchange rate
-					# refer -> `update_reference_in_payment_entry()` in utils.py
-					continue
+				#if d.exchange_gain_loss:
+				#	# for cases where gain/loss is booked into invoice
+				#	# exchange_gain_loss is calculated from invoice & populated
+				#	# and row.exchange_rate is already set to payment entry's exchange rate
+				#	# refer -> `update_reference_in_payment_entry()` in utils.py
+				#	continue
 
 				if field == "exchange_rate" or not d.get(field) or force:
 					d.db_set(field, value)
@@ -967,7 +967,7 @@ class PaymentEntry(AccountsController):
 		self.set_amounts_in_company_currency()
 		self.set_total_allocated_amount()
 		self.set_unallocated_amount()
-		self.set_exchange_gain_loss()
+		#self.set_exchange_gain_loss()
 		self.set_difference_amount()
 
 	def validate_amounts(self):
@@ -1060,13 +1060,13 @@ class PaymentEntry(AccountsController):
 
 			# on rare case, when `exchange_rate` is unset, gain/loss amount is incorrectly calculated
 			# for base currency transactions
-			if d.exchange_rate is None:
+			if not d.exchange_rate:                             # not "is None:", to also include = 0
 				d.exchange_rate = 1
 
 			allocated_amount_in_ref_exchange_rate = flt(
 				flt(d.allocated_amount) * flt(d.exchange_rate), self.precision("base_paid_amount")
 			)
-			d.exchange_gain_loss = base_allocated_amount - allocated_amount_in_ref_exchange_rate
+			# d.exchange_gain_loss = base_allocated_amount - allocated_amount_in_ref_exchange_rate
 		return base_allocated_amount
 
 	def set_total_allocated_amount(self):
@@ -1077,18 +1077,35 @@ class PaymentEntry(AccountsController):
 		for d in self.get("references"):
 			if d.allocated_amount:
 				total_allocated_amount += flt(d.allocated_amount)
-				base_total_allocated_amount += self.calculate_base_allocated_amount_for_reference(d)
-
+				#base_total_allocated_amount += self.calculate_base_allocated_amount_for_reference(d)
+				base_total_allocated_amount += flt(flt(d.allocated_amount) * flt(d.exchange_rate),
+					self.precision("base_paid_amount"))
+                    
 		self.total_allocated_amount = abs(total_allocated_amount)
 		self.base_total_allocated_amount = abs(base_total_allocated_amount)
 
 	def set_unallocated_amount(self):
+		"""self.unallocated_amount = 0
+		if self.party:
+			total_deductions = sum([flt(d.amount) for d in self.get("deductions")])
+			if self.payment_type == "Receive" \
+				and self.base_total_allocated_amount < self.base_received_amount + total_deductions \
+				and self.total_allocated_amount < self.paid_amount + (total_deductions / self.source_exchange_rate):
+					self.unallocated_amount = (self.base_received_amount + total_deductions -
+						self.base_total_allocated_amount) / self.source_exchange_rate
+			elif self.payment_type == "Pay" \
+				and self.base_total_allocated_amount < (self.base_paid_amount - total_deductions) \
+				and self.total_allocated_amount < self.received_amount + (total_deductions / self.target_exchange_rate):
+					self.unallocated_amount = (self.base_paid_amount - (total_deductions +
+						self.base_total_allocated_amount)) / self.target_exchange_rate
+        """
+		
 		self.unallocated_amount = 0
 		if not self.party:
 			return
 
 		deductions_to_consider = sum(
-			flt(d.amount) for d in self.get("deductions") if not d.is_exchange_gain_loss
+            flt(d.amount) for d in self.get("deductions") #if not d.is_exchange_gain_loss
 		)
 		included_taxes = self.get_included_taxes()
 
@@ -1110,8 +1127,10 @@ class PaymentEntry(AccountsController):
 				- self.base_total_allocated_amount
 				- included_taxes
 			) / self.target_exchange_rate
+		
 
 	def set_exchange_gain_loss(self):
+		return  # this function is EVIL and will prevent proper exchange deduction
 		exchange_gain_loss = flt(
 			self.base_paid_amount - self.base_received_amount,
 			self.precision("amount", "deductions"),
@@ -1299,10 +1318,10 @@ class PaymentEntry(AccountsController):
 		gl_entries = self.build_gl_map()
 		gl_entries = process_gl_map(gl_entries)
 		make_gl_entries(gl_entries, cancel=cancel, adv_adj=adv_adj)
-		if cancel:
-			cancel_exchange_gain_loss_journal(frappe._dict(doctype=self.doctype, name=self.name))
-		else:
-			self.make_exchange_gain_loss_journal()
+		#if cancel:
+		#	cancel_exchange_gain_loss_journal(frappe._dict(doctype=self.doctype, name=self.name))
+		#else:
+		#	self.make_exchange_gain_loss_journal()
 
 		self.make_advance_gl_entries(cancel=cancel)
 

@@ -26,7 +26,6 @@ class PaymentEntryReference(Document):
 		parentfield: DF.Data
 		parenttype: DF.Data
 		payment_request: DF.Link | None
-		payment_request_outstanding: DF.Float
 		payment_term: DF.Link | None
 		payment_term_outstanding: DF.Float
 		payment_type: DF.Data | None
