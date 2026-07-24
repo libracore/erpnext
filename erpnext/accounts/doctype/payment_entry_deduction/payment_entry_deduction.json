@@ -9,6 +9,7 @@
   "cost_center",
   "amount",
   "column_break_2",
+  "is_exchange_gain_loss",
   "description"
  ],
  "fields": [
@@ -45,6 +46,14 @@
    "fieldname": "description",
    "fieldtype": "Small Text",
    "label": "Description"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.is_exchange_gain_loss",
+   "fieldname": "is_exchange_gain_loss",
+   "fieldtype": "Check",
+   "label": "Is Exchange Gain / Loss?",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
