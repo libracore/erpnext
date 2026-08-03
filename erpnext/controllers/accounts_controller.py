@@ -475,6 +475,9 @@ class AccountsController(TransactionBase):
 					)
 
 	def validate_party_address_and_contact(self):
+		if cint(frappe.get_cached_value("System Settings", "System Settings", "ignore_party_address_validation")):
+			return
+
 		party_type, party = self.get_party()
 
 		if not (party_type and party):
