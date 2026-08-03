@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2015-2026, libracorem, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 
@@ -498,7 +498,7 @@ class StatusUpdater(Document):
 					where name='{name}'""".format(**args)
 				)
 
-			if update_modified:
+			if update_modified and args["name"]:
 				target = frappe.get_doc(args["target_parent_dt"], args["name"])
 				target.set_status(update=True)
 				target.notify_update()
