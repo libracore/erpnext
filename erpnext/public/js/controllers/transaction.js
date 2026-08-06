@@ -1388,14 +1388,19 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 						r.message.items.forEach(d => {
 							me.frm.doc.items.forEach(row => {
 								if(d.name == row.name) {
-									fields.forEach(f => {
-										row[f] = d[f];
-									});
+									let row_changed = false;
+									for(let f of fields) {
+										if(row[f] != d[f]) {
+											row[f] = d[f];
+											row_changed = true;
+										}
+									}
+									if(row_changed) {
+										me.frm.script_manager.trigger("price_list_rate", row.doctype, row.name);
+									}
 								}
 							});
 						});
-
-						me.trigger_price_list_rate();
 					}
 				}
 			});
@@ -1414,23 +1419,13 @@ erpnext.TransactionController = erpnext.taxes_and_totals.extend({
 			const applied_on_items = item.applied_on_items.split(',');
 			me.frm.doc.items.forEach(row => {
 				if(applied_on_items.includes(row[item.apply_on])) {
-					fields.forEach(f => {
+					for(let f of fields) {
 						row[f] = 0;
-					});
+					}
+					me.frm.script_manager.trigger("price_list_rate", row.doctype, row.name);
 				}
 			});
-
-			me.trigger_price_list_rate();
 		}
-	},
-
-	trigger_price_list_rate: function() {
-		var me  = this;
-
-		this.frm.doc.items.forEach(child_row => {
-			me.frm.script_manager.trigger("price_list_rate",
-				child_row.doctype, child_row.name);
-		})
 	},
 
 	validate_company_and_party: function() {
