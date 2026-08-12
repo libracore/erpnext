@@ -18,7 +18,21 @@ erpnext.TransactionController = class TransactionController extends erpnext.taxe
 
 			frappe.model.round_floats_in(item, ["rate", "price_list_rate"]);
 
-			if(item.price_list_rate && !item.blanket_order_rate) {
+			const calculated_rate_with_margin = flt(
+				flt(item.rate_with_margin) - flt(item.discount_amount),
+				precision("rate", item)
+			);
+
+			const keep_existing_margin = has_margin_field
+				&& item.margin_type
+				&& flt(item.margin_rate_or_amount) !== 0
+				&& flt(item.rate_with_margin) > 0
+				&& flt(item.rate, precision("rate", item)) === calculated_rate_with_margin;
+
+			if (keep_existing_margin) {
+				// Rate was calculated from price list rate + margin - discount.
+				// Keep the existing margin instead of interpreting the resulting rate again.
+			} else if(item.price_list_rate && !item.blanket_order_rate) {
 				if(item.rate > item.price_list_rate && has_margin_field) {
 					// if rate is greater than price_list_rate, set margin
 					// or set discount
