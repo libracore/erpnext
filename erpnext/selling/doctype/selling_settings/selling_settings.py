@@ -41,6 +41,7 @@ class SellingSettings(Document):
 		selling_price_list: DF.Link | None
 		so_required: DF.Literal["No", "Yes"]
 		territory: DF.Link | None
+		update_customer_groups: DF.Check
 		validate_selling_price: DF.Check
 	# end: auto-generated types
 

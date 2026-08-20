@@ -9,6 +9,7 @@
   "customer_defaults_section",
   "cust_master_name",
   "customer_group",
+  "update_customer_groups",
   "column_break_4",
   "territory",
   "item_price_settings_section",
@@ -216,6 +217,12 @@
    "fieldname": "allow_zero_qty_in_quotation",
    "fieldtype": "Check",
    "label": "Allow Quotation with Zero Quantity"
+  },
+  {
+   "default": "1",
+   "fieldname": "update_customer_groups",
+   "fieldtype": "Check",
+   "label": "Apply Customer Group to linked Documents on Customer Update"
   }
  ],
  "grid_page_length": 50,
@@ -224,7 +231,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-06 15:23:14.332971",
+ "modified": "2026-08-20 17:46:46.030479",
  "modified_by": "Administrator",
  "module": "Selling",
  "name": "Selling Settings",
@@ -249,6 +256,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

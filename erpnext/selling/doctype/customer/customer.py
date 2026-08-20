@@ -232,8 +232,9 @@ class Customer(TransactionBase):
 		if self.flags.is_new_doc:
 			self.link_lead_address_and_contact()
 			self.copy_communication()
-
-		self.update_customer_groups()
+		frappe.log_error(f"on update {cint(frappe.get_cached_value("Selling Settings", "Selling Settings", "update_customer_groups"))}")
+		if cint(frappe.get_cached_value("Selling Settings", "Selling Settings", "update_customer_groups")):
+			self.update_customer_groups()
 
 	def add_role_for_user(self):
 		for portal_user in self.portal_users:
