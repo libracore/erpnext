@@ -30,9 +30,8 @@ class MaterialRequest(BuyingController):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
-		from frappe.types import DF
-
 		from erpnext.stock.doctype.material_request_item.material_request_item import MaterialRequestItem
+		from frappe.types import DF
 
 		amended_from: DF.Link | None
 		company: DF.Link
@@ -40,9 +39,7 @@ class MaterialRequest(BuyingController):
 		items: DF.Table[MaterialRequestItem]
 		job_card: DF.Link | None
 		letter_head: DF.Link | None
-		material_request_type: DF.Literal[
-			"Purchase", "Material Transfer", "Material Issue", "Manufacture", "Customer Provided"
-		]
+		material_request_type: DF.Literal["Purchase", "Material Transfer", "Material Issue", "Manufacture", "Customer Provided"]
 		naming_series: DF.Literal["MAT-MR-.YYYY.-"]
 		per_ordered: DF.Percent
 		per_received: DF.Percent
@@ -52,20 +49,7 @@ class MaterialRequest(BuyingController):
 		select_print_heading: DF.Link | None
 		set_from_warehouse: DF.Link | None
 		set_warehouse: DF.Link | None
-		status: DF.Literal[
-			"",
-			"Draft",
-			"Submitted",
-			"Stopped",
-			"Cancelled",
-			"Pending",
-			"Partially Ordered",
-			"Partially Received",
-			"Ordered",
-			"Issued",
-			"Transferred",
-			"Received",
-		]
+		status: DF.Literal["", "Draft", "Submitted", "Stopped", "Cancelled", "Pending", "Partially Ordered", "Partially Received", "Ordered", "Issued", "Transferred", "Received"]
 		tc_name: DF.Link | None
 		terms: DF.TextEditor | None
 		title: DF.Data | None

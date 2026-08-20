@@ -8,6 +8,7 @@
  "document_type": "Document",
  "engine": "InnoDB",
  "field_order": [
+  "details_tab",
   "supplier_section",
   "title",
   "naming_series",
@@ -826,6 +827,7 @@
   {
    "fieldname": "connections_tab",
    "fieldtype": "Tab Break",
+   "hidden": 1,
    "label": "Connections",
    "show_dashboard": 1
   },
@@ -861,8 +863,8 @@
    "print_hide": 1
   },
   {
-    "fieldname": "column_break_zjaq",
-    "fieldtype": "Column Break"
+   "fieldname": "column_break_zjaq",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "shipping_address_display",
@@ -930,6 +932,12 @@
    "hidden": 1,
    "label": "Has Unit Price Items",
    "no_copy": 1
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details",
+   "show_dashboard": 1
   }
  ],
  "grid_page_length": 50,
@@ -938,7 +946,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-03 17:39:38.459977",
+ "modified": "2026-08-20 14:38:09.856401",
  "modified_by": "Administrator",
  "module": "Buying",
  "name": "Supplier Quotation",

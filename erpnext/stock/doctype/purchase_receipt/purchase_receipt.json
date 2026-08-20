@@ -9,6 +9,7 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "details_tab",
   "supplier_section",
   "column_break0",
   "title",
@@ -1178,6 +1179,7 @@
   {
    "fieldname": "connections_tab",
    "fieldtype": "Tab Break",
+   "hidden": 1,
    "label": "Connections",
    "show_dashboard": 1
   },
@@ -1283,6 +1285,12 @@
    "label": "Dispatch Address",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details",
+   "show_dashboard": 1
   }
  ],
  "grid_page_length": 50,
@@ -1290,7 +1298,7 @@
  "idx": 261,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-09 16:52:19.323878",
+ "modified": "2026-08-20 14:40:14.387945",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Purchase Receipt",

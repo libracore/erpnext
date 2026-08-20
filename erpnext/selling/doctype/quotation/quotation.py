@@ -19,19 +19,14 @@ class Quotation(SellingController):
 	from typing import TYPE_CHECKING
 
 	if TYPE_CHECKING:
-		from frappe.types import DF
-
 		from erpnext.accounts.doctype.payment_schedule.payment_schedule import PaymentSchedule
 		from erpnext.accounts.doctype.pricing_rule_detail.pricing_rule_detail import PricingRuleDetail
-		from erpnext.accounts.doctype.sales_taxes_and_charges.sales_taxes_and_charges import (
-			SalesTaxesandCharges,
-		)
+		from erpnext.accounts.doctype.sales_taxes_and_charges.sales_taxes_and_charges import SalesTaxesandCharges
 		from erpnext.crm.doctype.competitor_detail.competitor_detail import CompetitorDetail
 		from erpnext.selling.doctype.quotation_item.quotation_item import QuotationItem
-		from erpnext.setup.doctype.quotation_lost_reason_detail.quotation_lost_reason_detail import (
-			QuotationLostReasonDetail,
-		)
+		from erpnext.setup.doctype.quotation_lost_reason_detail.quotation_lost_reason_detail import QuotationLostReasonDetail
 		from erpnext.stock.doctype.packed_item.packed_item import PackedItem
+		from frappe.types import DF
 
 		additional_discount_percentage: DF.Float
 		address_display: DF.SmallText | None
@@ -100,9 +95,7 @@ class Quotation(SellingController):
 		shipping_address_name: DF.Link | None
 		shipping_rule: DF.Link | None
 		source: DF.Link | None
-		status: DF.Literal[
-			"Draft", "Open", "Replied", "Partially Ordered", "Ordered", "Lost", "Cancelled", "Expired"
-		]
+		status: DF.Literal["Draft", "Open", "Replied", "Partially Ordered", "Ordered", "Lost", "Cancelled", "Expired"]
 		supplier_quotation: DF.Link | None
 		tax_category: DF.Link | None
 		taxes: DF.Table[SalesTaxesandCharges]

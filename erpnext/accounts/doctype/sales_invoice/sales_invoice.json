@@ -6,6 +6,7 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "details_tab",
   "customer_section",
   "title",
   "naming_series",
@@ -2063,6 +2064,7 @@
   {
    "fieldname": "connections_tab",
    "fieldtype": "Tab Break",
+   "hidden": 1,
    "label": "Connections",
    "show_dashboard": 1
   },
@@ -2176,6 +2178,12 @@
    "label": "Company Contact Person",
    "options": "Contact",
    "print_hide": 1
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details",
+   "show_dashboard": 1
   }
  ],
  "grid_page_length": 50,
@@ -2189,7 +2197,7 @@
    "link_fieldname": "consolidated_invoice"
   }
  ],
- "modified": "2026-03-27 15:56:05.012824",
+ "modified": "2026-08-20 14:32:56.376610",
  "modified_by": "Administrator",
  "module": "Accounts",
  "name": "Sales Invoice",
