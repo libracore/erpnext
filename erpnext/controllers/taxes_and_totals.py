@@ -988,7 +988,11 @@ class calculate_taxes_and_totals:
 					item.margin_type = None
 					item.margin_rate_or_amount = 0.0
 
-			if not item.pricing_rules and flt(item.rate) > flt(item.price_list_rate):
+			if (
+				not item.pricing_rules
+				and not (item.margin_type and item.margin_rate_or_amount)
+				and flt(item.rate) > flt(item.price_list_rate)
+			):
 				item.margin_type = "Amount"
 				item.margin_rate_or_amount = flt(
 					item.rate - item.price_list_rate, item.precision("margin_rate_or_amount")
