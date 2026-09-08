@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2015-2026, libracore, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 
@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Optional
 import frappe
 import frappe.defaults
 from frappe import _, qb, throw
+from frappe.desk.reportview import build_match_conditions
 from frappe.model.meta import get_field_precision
 from frappe.query_builder import AliasedQuery, Case, Criterion, Table
 from frappe.query_builder.functions import Count, Max, Sum
@@ -2347,3 +2348,19 @@ def sync_auto_reconcile_config(auto_reconciliation_job_trigger: int = 15):
 				"frequency": "Cron",
 			}
 		).save()
+
+
+def build_qb_match_conditions(doctype, user=None) -> list:
+	match_filters = build_match_conditions(doctype, user, False)
+	criterion = []
+	if match_filters:
+		from frappe import qb
+
+		_dt = qb.DocType(doctype)
+
+		for filter in match_filters:
+			for d, names in filter.items():
+				fieldname = d.lower().replace(" ", "_")
+				criterion.append(_dt[fieldname].isin(names))
+
+	return criterion
