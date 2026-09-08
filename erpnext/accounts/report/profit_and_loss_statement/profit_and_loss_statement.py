@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2015-2026, libracore, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 
@@ -62,11 +62,14 @@ def execute(filters=None):
 	currency = filters.presentation_currency or frappe.get_cached_value(
 		"Company", filters.company, "default_currency"
 	)
-	chart = get_chart_data(filters, columns, income, expense, net_profit_loss, currency)
+	chart = get_chart_data(filters, columns, income, expense, net_profit_loss, currency) if filters.get('show_chart') else None
 
-	report_summary, primitive_summary = get_report_summary(
-		period_list, filters.periodicity, income, expense, net_profit_loss, currency, filters
-	)
+	if filters.get('show_chart'):
+		report_summary, primitive_summary = get_report_summary(
+			period_list, filters.periodicity, income, expense, net_profit_loss, currency, filters
+		)
+	else:
+		report_summary, primitive_summary = None, None
 
 	if filters.get("selected_view") == "Growth":
 		compute_growth_view_data(data, period_list)

@@ -1,4 +1,4 @@
-// Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+// Copyright (c) 2015-2026, libracore, Frappe Technologies Pvt. Ltd. and Contributors
 // License: GNU General Public License v3. See license.txt
 
 frappe.query_reports["Balance Sheet"] = $.extend({}, erpnext.financial_statements);
@@ -24,9 +24,16 @@ frappe.query_reports["Balance Sheet"]["filters"].push({
 	default: 1,
 });
 
-frappe.query_reports["Balance Sheet"]["filters"].push({
+/* frappe.query_reports["Balance Sheet"]["filters"].push({
 	fieldname: "include_default_book_entries",
 	label: __("Include Default FB Entries"),
 	fieldtype: "Check",
 	default: 1,
+}); */
+
+frappe.query_reports["Balance Sheet"]["filters"].push({
+	fieldname: "show_chart",
+	label: __("Show Chart"),
+	fieldtype: "Check",
+	default: 0,
 });

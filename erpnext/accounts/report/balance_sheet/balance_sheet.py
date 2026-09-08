@@ -1,4 +1,4 @@
-# Copyright (c) 2015, Frappe Technologies Pvt. Ltd. and Contributors
+# Copyright (c) 2015-2026, libracore, Frappe Technologies Pvt. Ltd. and Contributors
 # License: GNU General Public License v3. See license.txt
 
 
@@ -96,11 +96,14 @@ def execute(filters=None):
 		filters.periodicity, period_list, filters.accumulated_values, company=filters.company
 	)
 
-	chart = get_chart_data(filters, columns, asset, liability, equity, currency)
+	chart = get_chart_data(filters, columns, asset, liability, equity, currency) if filters.get('show_chart') else None
 
-	report_summary, primitive_summary = get_report_summary(
-		period_list, asset, liability, equity, provisional_profit_loss, currency, filters
-	)
+	if filters.get('show_chart') :
+		report_summary, primitive_summary = get_report_summary(
+			period_list, asset, liability, equity, provisional_profit_loss, currency, filters
+		)
+	else:
+		report_summary, primitive_summary = None, None
 
 	if filters.get("selected_view") == "Growth":
 		compute_growth_view_data(data, period_list)

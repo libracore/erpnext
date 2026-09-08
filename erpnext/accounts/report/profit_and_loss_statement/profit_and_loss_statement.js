@@ -25,9 +25,16 @@ frappe.query_reports["Profit and Loss Statement"]["filters"].push({
 	default: 0,                                                         // LaMu: important: do NOT accumalate P&L!
 });
 
-frappe.query_reports["Profit and Loss Statement"]["filters"].push({
+/* frappe.query_reports["Profit and Loss Statement"]["filters"].push({
 	fieldname: "include_default_book_entries",
 	label: __("Include Default FB Entries"),
 	fieldtype: "Check",
 	default: 1,
+}); */
+
+frappe.query_reports["Profit and Loss Statement"]["filters"].push({
+	fieldname: "show_chart",
+	label: __("Show Chart"),
+	fieldtype: "Check",
+	default: 0,
 });
