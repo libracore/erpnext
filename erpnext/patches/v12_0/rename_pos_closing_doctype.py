@@ -14,7 +14,7 @@ def execute():
 			frappe.db.sql("""DROP TABLE IF EXISTS `tabPOS Closing Entry Taxes`;""")
 			frappe.rename_doc("DocType", "POS Closing Voucher Taxes", "POS Closing Entry Taxes", force=True)
 
-		if not frappe.db.exists("DocType", "POS Closing Voucher Details"):
+		if not frappe.db.exists("DocType", "POS Closing Entry Details"):
 			frappe.db.sql("""DROP TABLE IF EXISTS `tabPOS Closing Entry Taxes`;""")
 			frappe.rename_doc(
 				"DocType", "POS Closing Voucher Details", "POS Closing Entry Detail", force=True
