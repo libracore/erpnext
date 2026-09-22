@@ -74,6 +74,7 @@ class Asset(AccountsController):
 		finance_books: DF.Table[AssetFinanceBook]
 		frequency_of_depreciation: DF.Int
 		gross_purchase_amount: DF.Currency
+		ignore_pro_rata: DF.Check
 		image: DF.AttachImage | None
 		insurance_end_date: DF.Date | None
 		insurance_start_date: DF.Date | None

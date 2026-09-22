@@ -45,6 +45,7 @@
   "total_asset_cost",
   "section_break_23",
   "calculate_depreciation",
+  "ignore_pro_rata",
   "column_break_33",
   "opening_accumulated_depreciation",
   "opening_number_of_booked_depreciations",
@@ -243,6 +244,14 @@
    "fieldtype": "Check",
    "label": "Calculate Depreciation",
    "read_only_depends_on": "eval:doc.is_composite_asset && !doc.gross_purchase_amount"
+  },
+  {
+   "default": "1",
+   "depends_on": "calculate_depreciation",
+   "description": "Book the full amount from the depreciation start date on, without a pro rata first and last period",
+   "fieldname": "ignore_pro_rata",
+   "fieldtype": "Check",
+   "label": "Ignore pro rata"
   },
   {
    "default": "0",
@@ -596,7 +605,7 @@
    "link_fieldname": "target_asset"
   }
  ],
- "modified": "2025-05-20 00:44:06.229177",
+ "modified": "2026-09-22 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Asset",

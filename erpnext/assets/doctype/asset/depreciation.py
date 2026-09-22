@@ -266,9 +266,8 @@ def _make_journal_entry_for_depreciation(
 	debit_account,
 	accounting_dimensions,
 ):
-	if not (sch_start_idx and sch_end_idx) and not (
-		not depr_schedule.journal_entry and getdate(depr_schedule.schedule_date) <= getdate(date)
-	):
+	# Regardless of the scheduler's index range, skip any rows that already have a JE assigned or aren't due yet
+	if depr_schedule.journal_entry or getdate(depr_schedule.schedule_date) > getdate(date):
 		return
 
 	je = frappe.new_doc("Journal Entry")

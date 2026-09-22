@@ -564,6 +564,11 @@ def _get_value_after_depreciation_for_making_schedule(asset_doc, fb_row):
 def _check_is_pro_rata(asset_doc, row, wdv_or_dd_non_yearly=False):
 	has_pro_rata = False
 
+	# Checkbox to depreciate with full periods from the start date (no pro-rata amounts)
+	# [recreation of feature from Libracore v12 branch]
+	if asset_doc.get("ignore_pro_rata"):
+		return has_pro_rata
+
 	# if not existing asset, from_date = available_for_use_date
 	# otherwise, if opening_number_of_booked_depreciations = 2, available_for_use_date = 01/01/2020 and frequency_of_depreciation = 12
 	# from_date = 01/01/2022
