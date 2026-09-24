@@ -13,29 +13,29 @@ def execute(filters=None):
 
 def get_columns():
 	return [
-		{"fieldname": "date", "label": _("Date"), "fieldtype": "Date", "width": 80},
+		{"fieldname": "date", "label": _("Date"), "fieldtype": "Date", "width": 120},
 		{
 			"fieldname": "document",
 			"label": _("Document"),
 			"fieldtype": "Link",
 			"options": "Journal Entry",
-			"width": 100,
+			"width": 150,
 		},
 		{"fieldname": "asset", "label": _("Asset"), "fieldtype": "Link", "options": "Asset", "width": 150},
-		{"fieldname": "amount", "label": _("Amount"), "fieldtype": "Currency", "width": 100},
+		{"fieldname": "amount", "label": _("Amount"), "fieldtype": "Currency", "width": 130},
 		{
 			"fieldname": "expense_account",
 			"label": _("Expense Account"),
 			"fieldtype": "Link",
 			"options": "Account",
-			"width": 150,
+			"width": 180,
 		},
 		{
 			"fieldname": "depreciation_account",
 			"label": _("Depreciation Account"),
 			"fieldtype": "Link",
 			"options": "Account",
-			"width": 150,
+			"width": 180,
 		},
 		{
 			"fieldname": "cost_center",
