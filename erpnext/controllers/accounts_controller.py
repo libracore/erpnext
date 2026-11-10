@@ -191,23 +191,23 @@ class AccountsController(TransactionBase):
 					frappe.bold(_("Update Outstanding for Self")),
 				)
 
-			elif not self.update_outstanding_for_self and (
-				abs(flt(self.rounded_total) or flt(self.grand_total)) > flt(against_voucher_outstanding)
-			):
-				self.update_outstanding_for_self = 1
-				msg = (
-					"The outstanding amount {} in {} is lesser than {}. Updating the outstanding to this invoice. <br><br>And"
-				).format(
-					against_voucher_outstanding,
-					get_link_to_form(self.doctype, self.get("return_against")),
-					flt(abs(self.outstanding_amount)),
-				)
+			# ~ elif not self.update_outstanding_for_self and (         # this is a hard-code option override, which is bad practice /lamu
+				# ~ abs(flt(self.rounded_total) or flt(self.grand_total)) > flt(against_voucher_outstanding)
+			# ~ ):
+				# ~ self.update_outstanding_for_self = 1
+				# ~ msg = (
+					# ~ "The outstanding amount {} in {} is lesser than {}. Updating the outstanding to this invoice. <br><br>And"
+				# ~ ).format(
+					# ~ against_voucher_outstanding,
+					# ~ get_link_to_form(self.doctype, self.get("return_against")),
+					# ~ flt(abs(self.outstanding_amount)),
+				# ~ )
 
 			if msg:
-				msg += " you can use {} tool to reconcile against {} later.".format(
-					get_link_to_form("Payment Reconciliation", "Payment Reconciliation"),
-					get_link_to_form(self.doctype, self.get("return_against")),
-				)
+				# ~ msg += " you can use {} tool to reconcile against {} later.".format(
+					# ~ get_link_to_form("Payment Reconciliation", "Payment Reconciliation"),
+					# ~ get_link_to_form(self.doctype, self.get("return_against")),
+				# ~ )
 				frappe.msgprint(_(msg))
 
 	def validate(self):
