@@ -98,14 +98,14 @@ class ItemPrice(Document):
 			"customer",
 			"supplier",
 			"batch_no",
-            "min_qty"
+			"min_qty"
 		)
 
 		number_fields = ["packing_unit"]
 
 		for field in data_fields:
-            if not self.meta.has_field(field):
-                continue
+			if not self.meta.has_field(field):
+				continue
 			if self.get(field):
 				query = query.where(item_price[field] == self.get(field))
 			else:
