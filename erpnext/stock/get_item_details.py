@@ -1029,6 +1029,8 @@ def get_item_price(args, item_code, ignore_party=False, force_batch_no=False) ->
 	"""
 
 	ip = frappe.qb.DocType("Item Price")
+	has_min_qty = frappe.get_meta("Item Price").has_field("min_qty")
+	requested_qty = flt(args.get("qty"))
 	query = (
 		frappe.qb.from_(ip)
 		.select(ip.name, ip.price_list_rate, ip.uom)
@@ -1037,9 +1039,6 @@ def get_item_price(args, item_code, ignore_party=False, force_batch_no=False) ->
 			& (ip.price_list == args.get("price_list"))
 			& (IfNull(ip.uom, "").isin(["", args.get("uom")]))
 		)
-		.orderby(ip.valid_from, order=frappe.qb.desc)
-		.orderby(IfNull(ip.batch_no, ""), order=frappe.qb.desc)
-		.orderby(ip.uom, order=frappe.qb.desc)
 	)
 
 	if force_batch_no:
@@ -1060,6 +1059,17 @@ def get_item_price(args, item_code, ignore_party=False, force_batch_no=False) ->
 			(IfNull(ip.valid_from, "2000-01-01") <= args["transaction_date"])
 			& (IfNull(ip.valid_upto, "2500-12-31") >= args["transaction_date"])
 		)
+
+	if has_min_qty and requested_qty:
+		query = query.where(IfNull(ip.min_qty, 0) <= requested_qty)
+
+	if has_min_qty:
+		query = query.orderby(IfNull(ip.min_qty, 0), order=frappe.qb.desc)
+
+	query = (query.orderby(ip.valid_from, order=frappe.qb.desc)
+		.orderby(IfNull(ip.batch_no, ""), order=frappe.qb.desc)
+		.orderby(ip.uom, order=frappe.qb.desc)
+	)
 
 	return query.run()
 
@@ -1098,6 +1108,7 @@ def get_price_list_rate_for(args, item_code):
 		"price_list": args.get("price_list"),
 		"customer": args.get("customer"),
 		"supplier": args.get("supplier"),
+		"qty": args.get("qty"),
 		"uom": args.get("uom"),
 		"transaction_date": args.get("transaction_date"),
 		"batch_no": args.get("batch_no"),
