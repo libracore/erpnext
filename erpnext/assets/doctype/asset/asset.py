@@ -216,8 +216,8 @@ class Asset(AccountsController):
 				frappe.throw(_("Number of Depreciations Booked cannot be greater than Total Number of Depreciations"))
 
 		if row.depreciation_start_date and getdate(row.depreciation_start_date) < getdate(nowdate()):
-			frappe.show_alert( _("Depreciation Row {0}: Depreciation Start Date is entered as past date")
-				.format(row.idx) )
+			frappe.msgprint(_("Depreciation Row {0}: Depreciation Start Date is entered as past date")
+				.format(row.idx), title=_('Information'), indicator='blue')
 
 		if row.depreciation_start_date and getdate(row.depreciation_start_date) < getdate(self.purchase_date):
 			frappe.throw(_("Depreciation Row {0}: Next Depreciation Date cannot be before Purchase Date")
